@@ -7,7 +7,8 @@ const listingSchema = new Schema({
     title: String,
     skills: String,
     job_type: String,
-    url: String
+    url: String,
+    date_expiration: Date
   });
 
 class ListingClass {

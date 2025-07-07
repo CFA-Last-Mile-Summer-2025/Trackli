@@ -17,6 +17,7 @@ app.use(express.json());
 const options = {
   method: 'GET',
   url: 'https://internships-api.p.rapidapi.com/active-jb-7d',
+  params: {include_ai: 'true'},
   headers: {
     'x-rapidapi-key': '5c34afb127msh4273502a89774f5p1e84ccjsn656ed0cba6a3',
     'x-rapidapi-host': 'internships-api.p.rapidapi.com'
@@ -29,12 +30,14 @@ async function fetchDataAndSave() {
     const jobs = response.data;
 
     for (const job of jobs) {
+      console.log('ai_key_skills:', job.ai_key_skills);
       const listing = {
         company: job.organization || 'Unknown',
         title: job.title || 'N/A',
         skills: (job.ai_key_skills || []).join(', '),
         job_type: (job.employment_type || []).join(', '),
-        url: job.url || 'N/A'
+        url: job.url || 'N/A',
+        date_expiration: job.date_validthrough
       };
 
       const exists = await Listing.findOne({
