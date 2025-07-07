@@ -210,6 +210,16 @@ app.post('/login', async (req, res) => {
   }
 });
 
+app.get("/listings", async (req, res) => {
+  try {
+    const listings = await Listing.readAll();
+    res.json(listings);
+  } catch (error) {
+    console.error("Failed to fetch listings:", error);
+    res.status(500).json({ error: "Failed to fetch listings" });
+  }
+});
+
 // launching the server
 const start = async () => {
   try {
