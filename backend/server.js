@@ -19,7 +19,7 @@ const options = {
   url: 'https://internships-api.p.rapidapi.com/active-jb-7d',
   params: {include_ai: 'true'},
   headers: {
-    'x-rapidapi-key': '5c34afb127msh4273502a89774f5p1e84ccjsn656ed0cba6a3',
+    'x-rapidapi-key': process.env.RAPID_API_KEY,
     'x-rapidapi-host': 'internships-api.p.rapidapi.com'
   }
 };
