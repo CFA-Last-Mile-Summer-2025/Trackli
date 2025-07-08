@@ -37,7 +37,7 @@ export default function JobCard({jobTitle, location, tags, url}:JobCardProps) {
                 {/* TODO: look at what onclick redicrection looks like w/shadcn */}
                 <div className="flex items-end justify-end flex-row gap-3 font-lalezar w-77 h-50">
                         <Button> Update </Button>
-                        <LinkWarning href={url}><Button>Confirm</Button></LinkWarning>
+                        <LinkWarning href={url}><Button>Apply</Button></LinkWarning>
                 </div>
             </div>
         </div>
