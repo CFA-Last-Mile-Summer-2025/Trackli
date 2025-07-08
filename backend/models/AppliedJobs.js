@@ -77,6 +77,19 @@ class AppliedJobsClass {
             return null;
         }
     }
+
+    // Track applications submitted this week
+    // returns the number not the actual jobs
+    static async countAppliedJobsWithinWeek() {
+        try {
+            const weekAgo = new Date();
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            return await AppliedJobs.countDocuments({ date_applied: { $gte: weekAgo } });
+        } catch (e) {
+            console.error(e);
+            return 0;
+        }
+    }
 }
 
 appliedJobsSchema.loadClass(AppliedJobsClass);
