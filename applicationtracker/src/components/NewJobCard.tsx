@@ -1,3 +1,4 @@
+import LinkWarning from "./LinkWarning"
 import { Badge } from "./ui/badge"
 import { Button } from "./ui/button"
 
@@ -36,9 +37,7 @@ export default function JobCard({jobTitle, location, tags, url}:JobCardProps) {
                 {/* TODO: look at what onclick redicrection looks like w/shadcn */}
                 <div className="flex items-end justify-end flex-row gap-3 font-lalezar w-77 h-50">
                         <Button> Update </Button>
-                        <a href={url}>
-                        <Button> Apply </Button>
-                        </a>
+                        <LinkWarning href={url}><Button>Confirm</Button></LinkWarning>
                 </div>
             </div>
         </div>
