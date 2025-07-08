@@ -1,5 +1,5 @@
 const { connectMongoose } = require('../connect');
-const collectionName = process.env.DB_COLL_NAME; 
+const collectionName = process.env.DB_COLL_NAME4; 
 const { Schema, model } = require('mongoose');
 
 const appliedJobsSchema = new Schema({
