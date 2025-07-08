@@ -50,6 +50,7 @@ function App() {
                           }))
                       : []
                   }
+                  url={`${job.url}`}
                 />
               ))}
             </div>

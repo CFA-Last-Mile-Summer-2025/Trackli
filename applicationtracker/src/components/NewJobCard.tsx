@@ -11,8 +11,9 @@ type JobCardProps = {
     jobTitle: string
     location: string
     tags: Tag[]
+    url: string
 }
-export default function JobCard({jobTitle, location, tags}:JobCardProps) {
+export default function JobCard({jobTitle, location, tags, url}:JobCardProps) {
 
     return(
         <div className="flex">
@@ -35,7 +36,9 @@ export default function JobCard({jobTitle, location, tags}:JobCardProps) {
                 {/* TODO: look at what onclick redicrection looks like w/shadcn */}
                 <div className="flex items-end justify-end flex-row gap-3 font-lalezar w-77 h-50">
                         <Button> Update </Button>
+                        <a href={url}>
                         <Button> Apply </Button>
+                        </a>
                 </div>
             </div>
         </div>
