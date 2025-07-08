@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ExternalLink from "./ExternalLink";
 
-export default function SafeLink({
+export default function LinkWarning({
   href,
   children,
 }: {
