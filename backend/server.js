@@ -5,12 +5,57 @@ const Listing = require("./models/Listing");
 const User = require("./models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
+const axios = require('axios');
 
 const port = process.env.PORT || 3002;
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// API
+const options = {
+  method: 'GET',
+  url: 'https://internships-api.p.rapidapi.com/active-jb-7d',
+  params: {include_ai: 'true'},
+  headers: {
+    'x-rapidapi-key': process.env.RAPID_API_KEY,
+    'x-rapidapi-host': 'internships-api.p.rapidapi.com'
+  }
+};
+
+async function fetchDataAndSave() {
+  try {
+    const response = await axios.request(options);
+    const jobs = response.data;
+
+    for (const job of jobs) {
+      console.log('ai_key_skills:', job.ai_key_skills);
+      const listing = {
+        company: job.organization || 'Unknown',
+        title: job.title || 'N/A',
+        skills: (job.ai_key_skills || []).join(', '),
+        job_type: (job.employment_type || []).join(', '),
+        url: job.url || 'N/A',
+        date_expiration: job.date_validthrough
+      };
+
+      const exists = await Listing.findOne({
+        company: listing.company,
+        title: listing.title
+      });
+
+      if (!exists) {
+        await Listing.createNew(listing);
+        console.log('Inserted:', listing.title, 'at', listing.company);
+      } else {
+        console.log('Skipped duplicate:', listing.title);
+      }
+    }
+  } catch (err) {
+    console.error('Error fetching/saving jobs:', err);
+  }
+}
 
 
 function verifyToken(req, res, next) {
@@ -165,10 +210,21 @@ app.post('/login', async (req, res) => {
   }
 });
 
+app.get("/listings", async (req, res) => {
+  try {
+    const listings = await Listing.readAll();
+    res.json(listings);
+  } catch (error) {
+    console.error("Failed to fetch listings:", error);
+    res.status(500).json({ error: "Failed to fetch listings" });
+  }
+});
+
 // launching the server
 const start = async () => {
   try {
     await connectMongoose();
+    await fetchDataAndSave();
     app.listen(port, () => console.log(`Server running on port ${port}...`));
   } catch (err) {
     console.error(err);

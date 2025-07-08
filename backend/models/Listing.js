@@ -6,7 +6,9 @@ const listingSchema = new Schema({
     company: String,
     title: String,
     skills: String,
-    job_type: String
+    job_type: String,
+    url: String,
+    date_expiration: Date
   });
 
 class ListingClass {
@@ -17,7 +19,7 @@ class ListingClass {
         }
         catch (e) {
             console.error(e);
-            res.status(500).send("Server error. Fail to create new listing.");
+            throw new Error("Server error. Failed to create new listing.");
         }
     }
     static async readAll() {
