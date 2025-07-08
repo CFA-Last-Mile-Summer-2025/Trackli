@@ -115,6 +115,20 @@ class ViewedJobsClass {
             return [];
         }
     }
+
+    // get a random job from the ones favorited
+    static async getRandomFavorite() {
+        try {
+            const [randomFavorite] = await ViewedJobs.aggregate([
+            { $match: { favorite: true } },
+            { $sample: { size: 1 } }
+            ]);
+            return randomFavorite || null;
+        } catch (e) {
+            console.error(e);
+            return null;
+        }
+    }
 }
 
 viewedJobsSchema.loadClass(ViewedJobsClass);
