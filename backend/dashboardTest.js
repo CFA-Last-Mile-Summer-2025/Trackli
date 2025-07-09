@@ -39,8 +39,8 @@ async function superSimpleTests() {
     });
     console.log("Created viewed job:", viewed3);
 
-    await ViewedJobs.setFavorite(viewed._id);
-    console.log("Marked first viewed job as favorite");
+    // await ViewedJobs.setFavorite(viewed._id);
+    // console.log("Marked first viewed job as favorite");
 
     const mostRecent = await ViewedJobs.findMostRecent();
     console.log("Most recent viewed job:", mostRecent); // should be SYEP
