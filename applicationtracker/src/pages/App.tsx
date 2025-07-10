@@ -15,10 +15,8 @@ function App() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({
-    skill: "",
-    urgency: "",
-    pay: "",
     location: "",
+    company: "",
   });
 
   // Update above listed filters with whatever dropdown option is selected
@@ -41,7 +39,11 @@ function App() {
       !filters.location ||
       job.location?.toLowerCase().includes(filters.location.toLowerCase());
 
-    return matchSearch && matchLocationType;
+    const matchCompanyName =
+      !filters.company ||
+      job.company.toLowerCase().includes(filters.company.toLowerCase());
+
+    return matchSearch && matchLocationType && matchCompanyName;
   });
 
   useEffect(() => {
@@ -71,7 +73,7 @@ function App() {
                 onSearchChange={setSearch}
                 location={filters.location}
                 onFilterChange={handleFilterChange}
-                />
+              />
             </div>
             {/* Job Grid */}
             {/* TODO: Make it so that jobcard content is coming from the actual job postings
