@@ -232,6 +232,17 @@ app.get("/listings", async (req, res) => {
   }
 });
 
+app.get("/companies", async (req, res) => {
+  try {
+    const companies = await Listing.distinct("company");
+    res.json(companies);
+  } catch (err) {
+    console.error("Failed to fetch companies:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
 // launching the server
 const start = async () => {
   try {
