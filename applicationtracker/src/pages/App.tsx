@@ -29,7 +29,7 @@ function App() {
           <SidebarTrigger />
           <div className="flex flex-col items-center">
             <div className="flex justify-between">
-              <TopBar />
+              <TopBar results={setJobs}/>
             </div>
             {/* Job Grid */}
             {/* TODO: Make it so that jobcard content is coming from the actual job postings
