@@ -1,24 +1,33 @@
-import { useState } from "react";
-export default function TopBar({ results }) {
+import { useEffect, useState } from "react";
+export default function TopBar({ results }: any) {
   //ignore the tsx any type warning
   const [keyword, setKeyword] = useState<string>("");
+  const [companies, setCompanies] = useState<string[]>([]);
+  const [selectedCompany, setSelectedCompany] = useState("");
+
+  useEffect(() => {
+    fetch("http://localhost:3002/companies")
+      .then((res) => res.json())
+      .then((data) => setCompanies(data))
+      .catch((err) => console.error("Error fetching companies:", err));
+  }, []);
 
   const handleSearch = async () => {
-    const res = await fetch(
-      `http://localhost:3002/searchjob?keyword=${encodeURIComponent(keyword)}`
-    );
+    const query = new URLSearchParams();
+    if (keyword) query.append("keyword", keyword);
+    if (selectedCompany) query.append("company", selectedCompany);
+
+    const res = await fetch(`http://localhost:3002/searchjob?${query.toString()}`);
     const data = await res.json();
     if (results) results(data);
-    console.log("filtered results:", data);
   };
 
   const handleBlankSearch = async () => {
-    const res = await fetch(
-      `http://localhost:3002/searchjob?keyword=${encodeURIComponent("")}`
-    );
+    const res = await fetch(`http://localhost:3002/listings`);
     const data = await res.json();
     if (results) results(data);
-    console.log("filtered results:", data);
+    setKeyword("");
+    setSelectedCompany("");
   };
 
   return (
@@ -59,6 +68,19 @@ export default function TopBar({ results }) {
       >
         Reset
       </button>
+
+      <select
+        className="border px-2 py-1 text-sm"
+        value={selectedCompany}
+        onChange={(e) => setSelectedCompany(e.target.value)}
+      >
+        <option value="">All Companies</option>
+        {companies.map((c, i) => (
+          <option key={i} value={c}>
+            {c}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }

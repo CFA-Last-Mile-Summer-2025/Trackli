@@ -4,8 +4,16 @@ import JobCard from "../components/NewJobCard";
 import TopBar from "../components/TopBar";
 import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
 
+interface Job {
+  title: string;
+  company: string;
+  skills?: string;
+  location: string;
+  url: string;
+}
+
 function App() {
-  const [jobs, setJobs] = useState([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -29,30 +37,36 @@ function App() {
           <SidebarTrigger />
           <div className="flex flex-col items-center">
             <div className="flex justify-between">
-              <TopBar results={setJobs}/>
+              <TopBar results={setJobs} />
             </div>
             {/* Job Grid */}
             {/* TODO: Make it so that jobcard content is coming from the actual job postings
              * NOTE --- if API does not get set up in time, make individual static ones using a separate array with content */}
             <div className="grid-cols-3 grid gap-4">
-              {jobs.map((job, i) => ( // ignore red squigglies this works lol
-                <JobCard
-                  key={i}
-                  jobTitle={`${job.title}`}
-                  location={`@ ${job.company}`}
-                  tags={
-                    job.skills
-                      ? job.skills // if skills exists, take the first 3 and make those the tags
-                          .split(",")
-                          .slice(0, 3)
-                          .map((skill) => ({
-                            title: skill.trim(),
-                          }))
-                      : []
-                  }
-                  url={`${job.url}`}
-                />
-              ))}
+              {jobs.map(
+                (
+                  job,
+                  i // ignore red squigglies this works lol
+                ) => (
+                  <JobCard
+                    key={i}
+                    jobTitle={`${job.title}`}
+                    location={`@ ${job.company}`}
+                    tags={
+                      job.skills
+                        ? job.skills
+                            .split(",")
+                            .slice(0, 3)
+                            .map((skill) => ({
+                              title: skill.trim(),
+                              variant: "default", // or "progress"/"urgent" based on logic if needed
+                            }))
+                        : []
+                    }
+                    url={`${job.url}`}
+                  />
+                )
+              )}
             </div>
           </div>
         </main>

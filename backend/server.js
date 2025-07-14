@@ -81,16 +81,30 @@ app.get("/jobs", async (req, res) => {
 });
 
 app.get("/searchjob", async (req, res) => {
-  const keyword = req.query.keyword;
-  const results = await Listing.sortByKeyword(keyword);
-  res.send(results);
-  console.log(
-    "GET request received on home page, jobs with keyword " +
-      keyword +
-      ": " +
-      results
-  );
+  const { keyword = "", company = "" } = req.query;
+
+  const query = {};
+
+  if (keyword) {
+    query.$or = [
+      { title: { $regex: keyword, $options: "i" } },
+      { skills: { $regex: keyword, $options: "i" } },
+    ];
+  }
+
+  if (company) {
+    query.company = company;
+  }
+
+  try {
+    const results = await Listing.find(query);
+    res.send(results);
+  } catch (err) {
+    console.error("Search error:", err);
+    res.status(500).json({ error: "Search failed" });
+  }
 });
+
 
 app.post("/createjob", async (req, res) => {
   const newJob = req.body;
@@ -219,6 +233,17 @@ app.get("/listings", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch listings" });
   }
 });
+
+app.get("/companies", async (req, res) => {
+  try {
+    const companies = await Listing.distinct("company");
+    res.json(companies);
+  } catch (err) {
+    console.error("Error fetching companies:", err);
+    res.status(500).json({ error: "Failed to fetch companies" });
+  }
+});
+
 
 // launching the server
 const start = async () => {
