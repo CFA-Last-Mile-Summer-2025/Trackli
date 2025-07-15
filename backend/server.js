@@ -130,6 +130,26 @@ app.delete("/deletejob", async (req, res) => {
   console.log(`Listing deleted with id: ${req.query.id}`);
 });
 
+app.post("/viewed", async (req, res) => {
+  const job = req.body;
+  if (!job || !job.title || !job.company) {
+    return res.status(400).json({ message: "missing job information" });
+  }
+
+  const newViewedJob = await ViewedJobs.createNew(job);
+  res.status(200).json({ message: "Viewed job added", job: newViewedJob });
+});
+
+app.post("/applied", async (req, res) => {
+  const job = req.body;
+  if (!job || !job.title || !job.company) {
+    return res.status(400).json({ message: "missing job information" });
+  }
+
+  const newAppliedJob = await AppliedJobs.createNew(job);
+  res.status(200).json({ message: "applied job added", job: newAppliedJob });
+});
+
 // ---------------------------------------USERS-----------------------------------------------------
 app.get("/users", async (req, res) => {
   const results = await User.readAll();

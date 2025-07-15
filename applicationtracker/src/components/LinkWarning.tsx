@@ -2,15 +2,25 @@ import { useState } from "react";
 import ExternalLink from "./ExternalLink";
 import DidYouApply from "./DidYouApply";
 
-
 export default function LinkWarning({
   href,
   children,
+  job,
 }: {
   href: string;
   children: React.ReactNode;
+  job: {
+    company: string;
+    title: string;
+    url: string;
+    skills?: string;
+    job_type?: string;
+    date_expiration?: string | null;
+  };
 }) {
-  const [modalState, setModalState] = useState<"none" | "link" | "applied">("none");
+  const [modalState, setModalState] = useState<"none" | "link" | "applied">(
+    "none"
+  );
 
   function isExternalLink(url: string): boolean {
     // compare passed url to current window
@@ -22,6 +32,26 @@ export default function LinkWarning({
     }
   }
 
+  const handlePromptChoice = async (choice: "viewed" | "applied") => {
+    try {
+      if (choice === "viewed") {
+        await fetch("/viewed", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(job),
+        });
+      } else if (choice === "applied") {
+        await fetch("/applied", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(job),
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleClick = (e: React.MouseEvent) => {
     if (isExternalLink(href)) {
       e.preventDefault();
@@ -29,7 +59,7 @@ export default function LinkWarning({
     }
   };
 
- return (
+  return (
     <>
       <a href={href} onClick={handleClick}>
         {children}
