@@ -32,23 +32,19 @@ export default function LinkWarning({
     }
   }
 
-  const handlePromptChoice = async (choice: "viewed" | "applied") => {
-    try {
-      if (choice === "viewed") {
-        await fetch("/viewed", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(job),
-        });
-      } else if (choice === "applied") {
-        await fetch("/applied", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(job),
-        });
-      }
-    } catch (e) {
-      console.error(e);
+  const handlePromptChoice = async (choice: boolean) => {
+    if (choice) {
+      await fetch("/viewed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(job),
+      });
+    } else {
+      await fetch("/applied", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(job),
+      });
     }
   };
 
@@ -80,10 +76,12 @@ export default function LinkWarning({
         <DidYouApply
           onYes={() => {
             console.log("User confirmed they applied.");
+            handlePromptChoice(true);
             setModalState("none");
           }}
           onNo={() => {
             console.log("User did not apply.");
+            handlePromptChoice(false);
             setModalState("none");
           }}
         />

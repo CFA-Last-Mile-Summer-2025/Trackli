@@ -16,6 +16,15 @@ type JobCardProps = {
 }
 export default function JobCard({jobTitle, location, tags, url}:JobCardProps) {
 
+    const job = {
+        title: jobTitle,
+        company: location,
+        url,
+        skills: tags.map((t) => t.title).join(", "),
+        job_type: "N/A",
+        date_expiration: null,
+    };
+
     return(
         <div className="flex">
             <div className="flex flex-col items-start bg-card w-90 h-50 rounded-lg px-7 py-5 justify-start text-white">
@@ -37,7 +46,7 @@ export default function JobCard({jobTitle, location, tags, url}:JobCardProps) {
                 {/* TODO: look at what onclick redicrection looks like w/shadcn */}
                 <div className="flex items-end justify-end flex-row gap-3 font-lalezar w-77 h-50">
                         <Button> Update </Button>
-                        <LinkWarning href={url}><Button>Apply</Button></LinkWarning>
+                        <LinkWarning href={url} job={job}><Button>Apply</Button></LinkWarning>
                 </div>
             </div>
         </div>
