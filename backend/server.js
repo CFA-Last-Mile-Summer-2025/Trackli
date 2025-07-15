@@ -3,9 +3,11 @@ const express = require("express");
 const { connectMongoose } = require("./connect");
 const Listing = require("./models/Listing");
 const User = require("./models/User");
+const AppliedJobs = require("./models/AppliedJobs");
+const ViewedJobs = require("./models/ViewedJobs");
 const bcrypt = require("bcryptjs");
-const jwt = require('jsonwebtoken');
-const axios = require('axios');
+const jwt = require("jsonwebtoken");
+const axios = require("axios");
 
 const port = process.env.PORT || 3002;
 const app = express();
@@ -15,13 +17,13 @@ app.use(express.json());
 
 // API
 const options = {
-  method: 'GET',
-  url: 'https://internships-api.p.rapidapi.com/active-jb-7d',
-  params: {include_ai: 'true'},
+  method: "GET",
+  url: "https://internships-api.p.rapidapi.com/active-jb-7d",
+  params: { include_ai: "true" },
   headers: {
-    'x-rapidapi-key': process.env.RAPID_API_KEY,
-    'x-rapidapi-host': 'internships-api.p.rapidapi.com'
-  }
+    "x-rapidapi-key": process.env.RAPID_API_KEY,
+    "x-rapidapi-host": "internships-api.p.rapidapi.com",
+  },
 };
 
 async function fetchDataAndSave() {
@@ -30,45 +32,46 @@ async function fetchDataAndSave() {
     const jobs = response.data;
 
     for (const job of jobs) {
-      console.log('ai_key_skills:', job.ai_key_skills);
+      console.log("ai_key_skills:", job.ai_key_skills);
       const listing = {
-        company: job.organization || 'Unknown',
-        title: job.title || 'N/A',
-        skills: (job.ai_key_skills || []).join(', '),
-        job_type: (job.employment_type || []).join(', '),
-        url: job.url || 'N/A',
-        date_expiration: job.date_validthrough
+        company: job.organization || "Unknown",
+        title: job.title || "N/A",
+        skills: (job.ai_key_skills || []).join(", "),
+        job_type: (job.employment_type || []).join(", "),
+        url: job.url || "N/A",
+        date_expiration: job.date_validthrough,
       };
 
       const exists = await Listing.findOne({
         company: listing.company,
-        title: listing.title
+        title: listing.title,
       });
 
       if (!exists) {
         await Listing.createNew(listing);
-        console.log('Inserted:', listing.title, 'at', listing.company);
+        console.log("Inserted:", listing.title, "at", listing.company);
       } else {
-        console.log('Skipped duplicate:', listing.title);
+        console.log("Skipped duplicate:", listing.title);
       }
     }
   } catch (err) {
-    console.error('Error fetching/saving jobs:', err);
+    console.error("Error fetching/saving jobs:", err);
   }
 }
 
-
 function verifyToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; 
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
-    return res.status(401).json({ message: 'Access denied. No token provided.' });
+    return res
+      .status(401)
+      .json({ message: "Access denied. No token provided." });
   }
 
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) return res.status(403).json({ message: 'Invalid token.' });
-    req.user = decoded; 
+    if (err) return res.status(403).json({ message: "Invalid token." });
+    req.user = decoded;
     next();
   });
 }
@@ -104,7 +107,6 @@ app.get("/searchjob", async (req, res) => {
     res.status(500).json({ error: "Search failed" });
   }
 });
-
 
 app.post("/createjob", async (req, res) => {
   const newJob = req.body;
@@ -216,31 +218,31 @@ app.post("/signup", async (req, res) => {
 });
 
 // Login Route
-app.post('/login', async (req, res) => {
+app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
-    if (!user) return res.status(401).json({ message: 'Invalid credentials' });
+    if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
+    if (!isMatch)
+      return res.status(401).json({ message: "Invalid credentials" });
 
-  
     const token = jwt.sign(
       { userId: user._id, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: '2h' }
+      { expiresIn: "2h" }
     );
 
     res.status(200).json({
-      message: 'Login successful',
+      message: "Login successful",
       token,
-      user: { id: user._id, name: user.name, email: user.email }
+      user: { id: user._id, name: user.name, email: user.email },
     });
   } catch (err) {
     console.error("Login Error:", err);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
@@ -263,7 +265,6 @@ app.get("/companies", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch companies" });
   }
 });
-
 
 // launching the server
 const start = async () => {

@@ -34,13 +34,13 @@ export default function LinkWarning({
 
   const handlePromptChoice = async (choice: boolean) => {
     if (choice) {
-      await fetch("/viewed", {
+      await fetch("http://localhost:3002/viewed", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(job),
       });
     } else {
-      await fetch("/applied", {
+      await fetch("http://localhost:3002/applied", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(job),
