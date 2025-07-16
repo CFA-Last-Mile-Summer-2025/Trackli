@@ -8,9 +8,12 @@ const ViewedJobs = require("./models/ViewedJobs");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
+const { GoogleGenAI } = require("@google/genai");
 
 const port = process.env.PORT || 3002;
 const app = express();
+require("dotenv").config();
+const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 app.use(cors());
 app.use(express.json());
@@ -152,6 +155,16 @@ app.post("/applied", async (req, res) => {
   res.status(200).json({ message: "applied job added", job: newAppliedJob });
 });
 
+app.get("/listings", async (req, res) => {
+  try {
+    const listings = await Listing.readAll();
+    res.json(listings);
+  } catch (error) {
+    console.error("Failed to fetch listings:", error);
+    res.status(500).json({ error: "Failed to fetch listings" });
+  }
+});
+
 // ---------------------------------------USERS-----------------------------------------------------
 app.get("/users", async (req, res) => {
   const results = await User.readAll();
@@ -246,16 +259,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/listings", async (req, res) => {
-  try {
-    const listings = await Listing.readAll();
-    res.json(listings);
-  } catch (error) {
-    console.error("Failed to fetch listings:", error);
-    res.status(500).json({ error: "Failed to fetch listings" });
-  }
-});
-
+// Populate companies dropdown menu
 app.get("/companies", async (req, res) => {
   try {
     const companies = await Listing.distinct("company");
@@ -265,6 +269,30 @@ app.get("/companies", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch companies" });
   }
 });
+
+// AI
+app.post("/ai/resume-chat", async (req, res) => {
+  try {
+    const userMessage = req.body.message;
+
+    const response = await genAI.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: userMessage,
+      config: {
+        thinkingConfig: {
+          thinkingBudget: 0,
+          systemInstruction: "You are a professional AI assistant that provides expert resume assistance to job seekers. Your primary responsibilities are: 1. Review uploaded resumes and provide detailed feedback on: Grammar and spelling errors, Formatting consistency and readability, Clarity, tone, and strength of phrasing, Professional presentation and structure. 2. Tailor resumes based on job descriptions provided by the user: Identify key skills, experiences, and terminology in the job posting, Recommend phrasing and content changes to better align the resume with employer expectations, Suggest additions or deletions that improve relevance and impact. 3. Assist users in building resumes from scratch using a structured template based on: Standard professional formats, Best practices in layout, sectioning, and wording, Appropriate tone for the user's industry and experience level. Your feedback should be practical, actionable, and concise. Always maintain a supportive and professional tone. Assume the user may upload documents (e.g., `.docx`, `.pdf`, or text content) representing resumes and/or job descriptions. Your role is to analyze, compare, and suggest enhancements. Do not invent or fabricate work history or skills. Only work with the information the user provides or requests assistance with. You are designed to support a resume-building application where users can: Create new resumes from templates, Edit existing ones, Tailor applications to specific job postings, Track and version their resumes. Stay focused on helping users improve their chances of success in the job market through resume and cover letter refinement.",
+        },
+      },
+    });
+
+    res.json({ reply: response.text });
+  } catch (err) {
+    console.error("Gemini AI error:", err);
+    res.status(500).json({ error: "AI generation failed." });
+  }
+});
+
 
 // launching the server
 const start = async () => {
