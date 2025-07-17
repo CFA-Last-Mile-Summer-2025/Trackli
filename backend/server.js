@@ -273,11 +273,44 @@ app.get("/companies", async (req, res) => {
 // AI
 app.post("/ai/resume-chat", async (req, res) => {
   try {
-    const userMessage = req.body.message;
+
+    ////////////////////////// All of this is just testing whether or not this endpoint works, completely gpt'd code
+    const { message, useSavedResume, userId } = req.body;
+
+    let contentsToSend = message;
+
+    if (useSavedResume && userId) {
+      const user = await User.findById(userId);
+      if (!user || !user.resumes || user.resumes.length === 0) {
+        return res.status(404).json({ error: "No resumes found for this user." });
+      }
+
+      const resume = user.resumes[user.resumes.length - 1];
+      //console.log(resume)
+      // below is command to test the AI's response on the user '321' in our db
+      //$ curl -X POST http://localhost:3002/ai/resume-chat   -H "Content-Type: application/json"   -d '{"useSavedResume": true, "userId": "68795b4d6d22097bbdaf4930"}'
+      // if you want to put in your own resume info, you need to fill in the resume builder on the website and look for the userID in the DB
+      // When we restructure the resume builder, we should have more descriptive variable names so gemini isn't just criticizing stuff like 'skills1 skill2'
+      contentsToSend = [
+        {
+          role: "user",
+          parts: [
+            {
+              text: `Please review this resume and provide feedback on grammar, formatting, and phrasing in one paragraph:\n\n${JSON.stringify(
+                resume,
+                null,
+                2
+              )}`,
+            },
+          ],
+        },
+      ];
+    }
+//////////////////
 
     const response = await genAI.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: userMessage,
+      contents: contentsToSend,
       config: {
         thinkingConfig: {
           thinkingBudget: 0,
@@ -294,36 +327,21 @@ app.post("/ai/resume-chat", async (req, res) => {
 });
 
 // RESUME BUILDER
-app.post("/submit", async (req, res) => {
+app.post("/submit", verifyToken, async (req, res) => {
   try {
     const formData = req.body;
-    console.log("Received resume data:", formData);
+    const userId = req.user.userId
 
-    const authHeader = req.headers["authorization"];
-    let token = null;
-    if (authHeader) {
-      token = authHeader.split(" ")[1];
-    }
+    const user = await User.findById(userId);
 
-    if (token) {
-      try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await User.findById(decoded.userId);
         if (user) {
           user.resumes = user.resumes || [];
           user.resumes.push(formData);
           await user.save();
-          console.log(`Resume saved for user: ${userId}`);
         } else {
           console.log("How did we get here, we have a valid token but no user");
+          res.status(500).send("Valid token, no user?")
         }
-      } catch (err) {
-        console.log("Internal error: " + err);
-      }
-    } else {
-      console.log("No token provided, resume not saved");
-    }
-
     res.status(200).send("Resume data received successfully.");
   } catch (error) {
     console.error("Error in /submit:", error);
