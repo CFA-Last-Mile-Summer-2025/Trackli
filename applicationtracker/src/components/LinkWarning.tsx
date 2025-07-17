@@ -33,16 +33,26 @@ export default function LinkWarning({
   }
 
   const handlePromptChoice = async (choice: boolean) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      return console.error("No token found");
+    }
     if (choice) {
       await fetch("http://localhost:3002/viewed", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(job),
       });
     } else {
       await fetch("http://localhost:3002/applied", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(job),
       });
     }
