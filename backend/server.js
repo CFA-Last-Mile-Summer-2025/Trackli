@@ -327,36 +327,21 @@ app.post("/ai/resume-chat", async (req, res) => {
 });
 
 // RESUME BUILDER
-app.post("/submit", async (req, res) => {
+app.post("/submit", verifyToken, async (req, res) => {
   try {
     const formData = req.body;
-    console.log("Received resume data:", formData);
+    const userId = req.user.userId
 
-    const authHeader = req.headers["authorization"];
-    let token = null;
-    if (authHeader) {
-      token = authHeader.split(" ")[1];
-    }
+    const user = await User.findById(userId);
 
-    if (token) {
-      try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await User.findById(decoded.userId);
         if (user) {
           user.resumes = user.resumes || [];
           user.resumes.push(formData);
           await user.save();
-          console.log(`Resume saved for user: ${userId}`);
         } else {
           console.log("How did we get here, we have a valid token but no user");
+          res.status(500).send("Valid token, no user?")
         }
-      } catch (err) {
-        console.log("Internal error: " + err);
-      }
-    } else {
-      console.log("No token provided, resume not saved");
-    }
-
     res.status(200).send("Resume data received successfully.");
   } catch (error) {
     console.error("Error in /submit:", error);
