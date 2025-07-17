@@ -273,15 +273,48 @@ app.get("/companies", async (req, res) => {
 // AI
 app.post("/ai/resume-chat", async (req, res) => {
   try {
-    const userMessage = req.body.message;
+
+    ////////////////////////// All of this is just testing whether or not this endpoint works, completely gpt'd code
+    const { message, useSavedResume, userId } = req.body;
+
+    let contentsToSend = message;
+
+    if (useSavedResume && userId) {
+      const user = await User.findById(userId);
+      if (!user || !user.resumes || user.resumes.length === 0) {
+        return res.status(404).json({ error: "No resumes found for this user." });
+      }
+
+      const resume = user.resumes[user.resumes.length - 1];
+      //console.log(resume)
+      // below is command to test the AI's response on the user '321' in our db
+      //$ curl -X POST http://localhost:3002/ai/resume-chat   -H "Content-Type: application/json"   -d '{"useSavedResume": true, "userId": "68795b4d6d22097bbdaf4930"}'
+      // if you want to put in your own resume info, you need to fill in the resume builder on the website and look for the userID in the DB
+      // When we restructure the resume builder, we should have more descriptive variable names so gemini isn't just criticizing stuff like 'skills1 skill2'
+      contentsToSend = [
+        {
+          role: "user",
+          parts: [
+            {
+              text: `Please review this resume and provide feedback on grammar, formatting, and phrasing in one paragraph:\n\n${JSON.stringify(
+                resume,
+                null,
+                2
+              )}`,
+            },
+          ],
+        },
+      ];
+    }
+//////////////////
 
     const response = await genAI.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: userMessage,
+      contents: contentsToSend,
       config: {
         thinkingConfig: {
           thinkingBudget: 0,
-          systemInstruction: "You are a professional AI assistant that provides expert resume assistance to job seekers. Your primary responsibilities are: 1. Review uploaded resumes and provide detailed feedback on: Grammar and spelling errors, Formatting consistency and readability, Clarity, tone, and strength of phrasing, Professional presentation and structure. 2. Tailor resumes based on job descriptions provided by the user: Identify key skills, experiences, and terminology in the job posting, Recommend phrasing and content changes to better align the resume with employer expectations, Suggest additions or deletions that improve relevance and impact. 3. Assist users in building resumes from scratch using a structured template based on: Standard professional formats, Best practices in layout, sectioning, and wording, Appropriate tone for the user's industry and experience level. Your feedback should be practical, actionable, and concise. Always maintain a supportive and professional tone. Assume the user may upload documents (e.g., `.docx`, `.pdf`, or text content) representing resumes and/or job descriptions. Your role is to analyze, compare, and suggest enhancements. Do not invent or fabricate work history or skills. Only work with the information the user provides or requests assistance with. You are designed to support a resume-building application where users can: Create new resumes from templates, Edit existing ones, Tailor applications to specific job postings, Track and version their resumes. Stay focused on helping users improve their chances of success in the job market through resume and cover letter refinement.",
+          systemInstruction: "You are a professional AI assistant that provides expert resume assistance...",
         },
       },
     });
