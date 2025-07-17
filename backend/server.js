@@ -147,7 +147,7 @@ app.get("/listings", async (req, res) => {
 });
 
 //Viewed jobs
-app.post("/viewed", async (req, res) => {
+app.post("/viewed", verifyToken, async (req, res) => {
   const job = req.body;
   if (!job || !job.title || !job.company) {
     return res.status(400).json({ message: "missing job information" });
@@ -157,39 +157,39 @@ app.post("/viewed", async (req, res) => {
   res.status(200).json({ message: "Viewed job added", job: newViewedJob });
 });
 
-app.get("/viewed/:userId", async (req, res) => {
+app.get("/viewed/:userId", verifyToken, async (req, res) => {
   const { userId } = req.params;
   const jobs = await ViewedJobs.readAll(userId);
   res.json(jobs);
 });
 
-app.get("/viewed/company/:userId/:company", async (req, res) => {
+app.get("/viewed/company/:userId/:company", verifyToken, async (req, res) => {
   const { userId, company } = req.params;
   const jobs = await ViewedJobs.sortByCompany(userId, company);
   res.json(jobs);
 });
 
-app.get("/viewed/search/:userId", async (req, res) => {
+app.get("/viewed/search/:userId", verifyToken, async (req, res) => {
   const { userId } = req.params;
   const keyword = req.query.keyword;
   const jobs = await ViewedJobs.sortByKeyword(userId, keyword);
   res.json(jobs);
 });
 
-app.delete("/viewed/:userId/:jobId", async (req, res) => {
+app.delete("/viewed/:userId/:jobId", verifyToken, async (req, res) => {
   const { userId, jobId } = req.params;
   const result = await ViewedJobs.delete(jobId, userId);
   res.json(result);
 });
 
-app.get("/viewed/recent/:userId", async (req, res) => {
+app.get("/viewed/recent/:userId", verifyToken, async (req, res) => {
   const { userId } = req.params;
   const job = await ViewedJobs.findMostRecent(userId);
   res.json(job);
 });
 
 //applied jobs
-app.post("/applied", async (req, res) => {
+app.post("/applied", verifyToken, async (req, res) => {
   const job = req.body;
   if (!job || !job.title || !job.company) {
     return res.status(400).json({ message: "missing job information" });
@@ -199,39 +199,39 @@ app.post("/applied", async (req, res) => {
   res.status(200).json({ message: "applied job added", job: newAppliedJob });
 });
 
-app.get("/applied/:userId", async (req, res) => {
+app.get("/applied/:userId", verifyToken, async (req, res) => {
   const { userId } = req.params;
   const jobs = await AppliedJobs.readAll(userId);
   res.json(jobs);
 });
 
-app.get("/applied/company/:userId/:company", async (req, res) => {
+app.get("/applied/company/:userId/:company", verifyToken, async (req, res) => {
   const { userId, company } = req.params;
   const jobs = await AppliedJobs.sortByCompany(userId, company);
   res.json(jobs);
 });
 
-app.get("/applied/search/:userId", async (req, res) => {
+app.get("/applied/search/:userId", verifyToken, async (req, res) => {
   const { userId } = req.params;
   const keyword = req.query.keyword;
   const jobs = await AppliedJobs.sortByKeyword(userId, keyword);
   res.json(jobs);
 });
 
-app.delete("/applied/:userId/:jobId", async (req, res) => {
+app.delete("/applied/:userId/:jobId", verifyToken, async (req, res) => {
   const { userId, jobId } = req.params;
   const result = await AppliedJobs.delete(jobId, userId);
   res.json(result);
 });
 
-app.get("/applied/recent/:userId", async (req, res) => {
+app.get("/applied/recent/:userId", verifyToken, async (req, res) => {
   const { userId } = req.params;
   const job = await AppliedJobs.findMostRecent(userId);
   res.json(job);
 });
 
 //favorite jobs
-app.post("/addFavorite", async (req, res) => {
+app.post("/addFavorite", verifyToken, async (req, res) => {
   const job = req.body;
   if (!job || !job.title || !job.company || !job.userId) {
     return res.status(400).json({ message: "Missing job or user information" });
@@ -240,25 +240,22 @@ app.post("/addFavorite", async (req, res) => {
   res.status(200).json({ message: "fav job added", job: newFavJob });
 });
 
-app.get("/favorite/:userId", async (req, res) => {
+app.get("/favorite/:userId", verifyToken, async (req, res) => {
   const { userId } = req.params;
-
   if (!userId) {
     return res.status(400).json({ message: "Missing userId" });
   }
-
   const favorites = await FavoriteJobs.getAllFavoriteUser(userId);
   res.status(200).json(favorites);
 });
 
-app.delete("/favorite/:userId/:jobId", async (req, res) => {
+app.delete("/favorite/:userId/:jobId", verifyToken, async (req, res) => {
   const { userId, jobId } = req.params;
-
   if (!userId || !jobId) {
     return res.status(400).json({ message: "Missing userId or jobId" });
   }
-
   await FavoriteJobs.deleteFavoriteUser(userId, jobId);
+  res.status(200).json({ message: "Favorite job deleted" });
 });
 
 // ---------------------------------------USERS-----------------------------------------------------
