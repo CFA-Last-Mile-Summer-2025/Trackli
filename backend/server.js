@@ -5,6 +5,7 @@ const Listing = require("./models/Listing");
 const User = require("./models/User");
 const AppliedJobs = require("./models/AppliedJobs");
 const ViewedJobs = require("./models/ViewedJobs");
+const FavoriteJobs = require("./models/FavoriteJobs");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
@@ -165,6 +166,36 @@ app.get("/listings", async (req, res) => {
   }
 });
 
+app.post("/addFavorite", async (req, res) => {
+  const job = req.body;
+  if (!job || !job.title || !job.company || !job.userId) {
+    return res.status(400).json({ message: "Missing job or user information" });
+  }
+  const newFavJob = await FavoriteJobs.createNew(job);
+  res.status(200).json({ message: "fav job added", job: newFavJob });
+});
+
+app.get("/favorite/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  if (!userId) {
+    return res.status(400).json({ message: "Missing userId" });
+  }
+
+  const favorites = await FavoriteJobs.getAllFavoriteUser(userId);
+  res.status(200).json(favorites);
+});
+
+app.delete("/favorite/:userId/:jobId", async (req, res) => {
+  const { userId, jobId } = req.params;
+
+  if (!userId || !jobId) {
+    return res.status(400).json({ message: "Missing userId or jobId" });
+  }
+
+  await FavoriteJobs.deleteFavoriteUser(userId, jobId);
+});
+
 // ---------------------------------------USERS-----------------------------------------------------
 app.get("/users", async (req, res) => {
   const results = await User.readAll();
@@ -281,7 +312,8 @@ app.post("/ai/resume-chat", async (req, res) => {
       config: {
         thinkingConfig: {
           thinkingBudget: 0,
-          systemInstruction: "You are a professional AI assistant that provides expert resume assistance to job seekers. Your primary responsibilities are: 1. Review uploaded resumes and provide detailed feedback on: Grammar and spelling errors, Formatting consistency and readability, Clarity, tone, and strength of phrasing, Professional presentation and structure. 2. Tailor resumes based on job descriptions provided by the user: Identify key skills, experiences, and terminology in the job posting, Recommend phrasing and content changes to better align the resume with employer expectations, Suggest additions or deletions that improve relevance and impact. 3. Assist users in building resumes from scratch using a structured template based on: Standard professional formats, Best practices in layout, sectioning, and wording, Appropriate tone for the user's industry and experience level. Your feedback should be practical, actionable, and concise. Always maintain a supportive and professional tone. Assume the user may upload documents (e.g., `.docx`, `.pdf`, or text content) representing resumes and/or job descriptions. Your role is to analyze, compare, and suggest enhancements. Do not invent or fabricate work history or skills. Only work with the information the user provides or requests assistance with. You are designed to support a resume-building application where users can: Create new resumes from templates, Edit existing ones, Tailor applications to specific job postings, Track and version their resumes. Stay focused on helping users improve their chances of success in the job market through resume and cover letter refinement.",
+          systemInstruction:
+            "You are a professional AI assistant that provides expert resume assistance to job seekers. Your primary responsibilities are: 1. Review uploaded resumes and provide detailed feedback on: Grammar and spelling errors, Formatting consistency and readability, Clarity, tone, and strength of phrasing, Professional presentation and structure. 2. Tailor resumes based on job descriptions provided by the user: Identify key skills, experiences, and terminology in the job posting, Recommend phrasing and content changes to better align the resume with employer expectations, Suggest additions or deletions that improve relevance and impact. 3. Assist users in building resumes from scratch using a structured template based on: Standard professional formats, Best practices in layout, sectioning, and wording, Appropriate tone for the user's industry and experience level. Your feedback should be practical, actionable, and concise. Always maintain a supportive and professional tone. Assume the user may upload documents (e.g., `.docx`, `.pdf`, or text content) representing resumes and/or job descriptions. Your role is to analyze, compare, and suggest enhancements. Do not invent or fabricate work history or skills. Only work with the information the user provides or requests assistance with. You are designed to support a resume-building application where users can: Create new resumes from templates, Edit existing ones, Tailor applications to specific job postings, Track and version their resumes. Stay focused on helping users improve their chances of success in the job market through resume and cover letter refinement.",
         },
       },
     });
@@ -330,8 +362,6 @@ app.post("/submit", async (req, res) => {
     res.status(500).send("Server error while handling resume data.");
   }
 });
-
-
 
 // launching the server
 const start = async () => {

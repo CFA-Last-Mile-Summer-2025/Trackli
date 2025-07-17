@@ -2,7 +2,7 @@ const { connectMongoose } = require("../connect");
 const collectionName = process.env.DB_COLL_NAME5;
 const { Schema, model } = require("mongoose");
 
-const favoriteJobSchema = new Schema({
+const favoriteJobsSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
   company: String,
   title: String,
@@ -54,6 +54,6 @@ class FavoriteJobClass {
   }
 }
 
-favoriteJobSchema.loadClass(FavoriteJobClass);
-const FavoriteJob = model("FavoriteJob", favoriteJobSchema, collectionName);
-module.exports = FavoriteJob;
+favoriteJobsSchema.loadClass(FavoriteJobClass);
+const FavoriteJobs = model("FavoriteJobs", favoriteJobsSchema, collectionName);
+module.exports = FavoriteJobs;
