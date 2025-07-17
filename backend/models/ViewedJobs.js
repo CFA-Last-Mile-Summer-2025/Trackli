@@ -3,16 +3,13 @@ const collectionName = process.env.DB_COLL_NAME3;
 const { Schema, model } = require("mongoose");
 
 const viewedJobsSchema = new Schema({
+  userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
   company: String,
   title: String,
   skills: String,
   job_type: String,
   url: String,
   date_expiration: Date,
-  favorite: {
-    type: Boolean,
-    default: false,
-  },
   date_viewed: {
     type: Date,
     default: Date.now,
@@ -23,6 +20,7 @@ class ViewedJobsClass {
   static async createNew(job) {
     try {
       const exists = await ViewedJobs.findOne({
+        userId: job.userId,
         company: job.company,
         title: job.title,
       });
@@ -31,34 +29,35 @@ class ViewedJobsClass {
         const created = await ViewedJobs.create(job);
         return created;
       } else {
-        console.log("Skipped duplicate viewed job:", job.company, job.title);
+        console.log("Skipped duplicate viewed job:", job.company, job.title, userId);
       }
     } catch (e) {
       console.error(e);
     }
   }
 
-  static async readAll() {
+  static async readAll(userId) {
     try {
-      return await ViewedJobs.find();
+      return await ViewedJobs.find({ userId });
     } catch (e) {
       console.error(e);
       return [];
     }
   }
 
-  static async sortByCompany(company) {
+  static async sortByCompany(userId, company) {
     try {
-      return await ViewedJobs.find({ company }).exec();
+      return await ViewedJobs.find({ userId, company }).exec();
     } catch (e) {
       console.error(e);
       return [];
     }
   }
 
-  static async sortByKeyword(keyword) {
+  static async sortByKeyword(userId, keyword) {
     try {
       return await ViewedJobs.find({
+        userId,
         $or: [
           { company: { $regex: keyword, $options: "i" } },
           { title: { $regex: keyword, $options: "i" } },
@@ -72,68 +71,20 @@ class ViewedJobsClass {
     }
   }
 
-  static async delete(viewedJobId) {
+  static async delete(viewedJobId, userId) {
     try {
-      return await ViewedJobs.deleteOne({ _id: viewedJobId });
+      return await ViewedJobs.deleteOne({ _id: viewedJobId, userId });
     } catch (e) {
       console.error(e);
       return { deletedCount: 0 };
     }
   }
 
-  static async findMostRecent() {
+  static async findMostRecent(userId) {
     try {
-      return await ViewedJobs.findOne().sort({ date_viewed: -1 }).exec();
-    } catch (e) {
-      console.error(e);
-      return null;
-    }
-  }
-
-  static async setFavorite(viewedJobId) {
-    try {
-      return await ViewedJobs.updateOne(
-        { _id: viewedJobId },
-        { $set: { favorite: true } }
-      );
-    } catch (e) {
-      console.error(e);
-      return { favoritedItems: 0 };
-    }
-  }
-
-  static async unsetFavorite(viewedJobId) {
-    try {
-      return await ViewedJobs.updateOne(
-        { _id: viewedJobId },
-        { $set: { favorite: false } }
-      );
-    } catch (e) {
-      console.error(e);
-      return { unfavoritedItems: 0 };
-    }
-  }
-
-  // sort by favorites, tie break with date viewed
-  static async getSortedByFavorite() {
-    try {
-      return await ViewedJobs.find()
-        .sort({ favorite: -1, date_viewed: -1 })
+      return await ViewedJobs.findOne({ userId })
+        .sort({ date_viewed: -1 })
         .exec();
-    } catch (e) {
-      console.error(e);
-      return [];
-    }
-  }
-
-  // get a random job from the ones favorited
-  static async getRandomFavorite() {
-    try {
-      const [randomFavorite] = await ViewedJobs.aggregate([
-        { $match: { favorite: true } },
-        { $sample: { size: 1 } },
-      ]);
-      return randomFavorite || null;
     } catch (e) {
       console.error(e);
       return null;

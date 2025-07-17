@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { AppSidebar } from "../components/app-sidebar";
 import JobCard from "../components/NewJobCard";
 import TopBar from "../components/TopBar";
+import AddJobForm from "@/components/AddJobForm";
 import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
 
 interface Job {
