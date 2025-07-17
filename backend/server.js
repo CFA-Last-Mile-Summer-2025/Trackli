@@ -63,6 +63,7 @@ async function fetchDataAndSave() {
   }
 }
 
+//JWT verification
 function verifyToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
@@ -373,7 +374,7 @@ app.get("/companies", async (req, res) => {
   }
 });
 
-// AI
+// ---------------------------------------AI-----------------------------------------------------
 app.post("/ai/resume-chat", async (req, res) => {
   try {
     const userMessage = req.body.message;
