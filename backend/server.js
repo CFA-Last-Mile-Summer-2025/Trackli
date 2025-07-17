@@ -199,6 +199,37 @@ app.post("/applied", async (req, res) => {
   res.status(200).json({ message: "applied job added", job: newAppliedJob });
 });
 
+app.get("/applied/:userId", async (req, res) => {
+  const { userId } = req.params;
+  const jobs = await AppliedJobs.readAll(userId);
+  res.json(jobs);
+});
+
+app.get("/applied/company/:userId/:company", async (req, res) => {
+  const { userId, company } = req.params;
+  const jobs = await AppliedJobs.sortByCompany(userId, company);
+  res.json(jobs);
+});
+
+app.get("/applied/search/:userId", async (req, res) => {
+  const { userId } = req.params;
+  const keyword = req.query.keyword;
+  const jobs = await AppliedJobs.sortByKeyword(userId, keyword);
+  res.json(jobs);
+});
+
+app.delete("/applied/:userId/:jobId", async (req, res) => {
+  const { userId, jobId } = req.params;
+  const result = await AppliedJobs.delete(jobId, userId);
+  res.json(result);
+});
+
+app.get("/applied/recent/:userId", async (req, res) => {
+  const { userId } = req.params;
+  const job = await AppliedJobs.findMostRecent(userId);
+  res.json(job);
+});
+
 //favorite jobs
 app.post("/addFavorite", async (req, res) => {
   const job = req.body;
