@@ -149,41 +149,46 @@ app.get("/listings", async (req, res) => {
 //Viewed jobs
 app.post("/viewed", verifyToken, async (req, res) => {
   const job = req.body;
+  const userId = req.user.userId;
+
   if (!job || !job.title || !job.company) {
-    return res.status(400).json({ message: "missing job information" });
+    return res.status(400).json({ message: "Missing job information" });
   }
 
+  job.userId = userId;
   const newViewedJob = await ViewedJobs.createNew(job);
   res.status(200).json({ message: "Viewed job added", job: newViewedJob });
 });
 
-app.get("/viewed/:userId", verifyToken, async (req, res) => {
-  const { userId } = req.params;
+app.get("/viewed", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
   const jobs = await ViewedJobs.readAll(userId);
   res.json(jobs);
 });
 
-app.get("/viewed/company/:userId/:company", verifyToken, async (req, res) => {
-  const { userId, company } = req.params;
+app.get("/viewed/company/:company", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const { company } = req.params;
   const jobs = await ViewedJobs.sortByCompany(userId, company);
   res.json(jobs);
 });
 
-app.get("/viewed/search/:userId", verifyToken, async (req, res) => {
-  const { userId } = req.params;
+app.get("/viewed/search", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
   const keyword = req.query.keyword;
   const jobs = await ViewedJobs.sortByKeyword(userId, keyword);
   res.json(jobs);
 });
 
-app.delete("/viewed/:userId/:jobId", verifyToken, async (req, res) => {
-  const { userId, jobId } = req.params;
+app.delete("/viewed/:jobId", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const { jobId } = req.params;
   const result = await ViewedJobs.delete(jobId, userId);
   res.json(result);
 });
 
-app.get("/viewed/recent/:userId", verifyToken, async (req, res) => {
-  const { userId } = req.params;
+app.get("/viewed/recent", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
   const job = await ViewedJobs.findMostRecent(userId);
   res.json(job);
 });
@@ -191,41 +196,46 @@ app.get("/viewed/recent/:userId", verifyToken, async (req, res) => {
 //applied jobs
 app.post("/applied", verifyToken, async (req, res) => {
   const job = req.body;
+  const userId = req.user.userId;
+
   if (!job || !job.title || !job.company) {
-    return res.status(400).json({ message: "missing job information" });
+    return res.status(400).json({ message: "Missing job information" });
   }
 
+  job.userId = userId;
   const newAppliedJob = await AppliedJobs.createNew(job);
-  res.status(200).json({ message: "applied job added", job: newAppliedJob });
+  res.status(200).json({ message: "Applied job added", job: newAppliedJob });
 });
 
-app.get("/applied/:userId", verifyToken, async (req, res) => {
-  const { userId } = req.params;
+app.get("/applied", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
   const jobs = await AppliedJobs.readAll(userId);
   res.json(jobs);
 });
 
-app.get("/applied/company/:userId/:company", verifyToken, async (req, res) => {
-  const { userId, company } = req.params;
+app.get("/applied/company/:company", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const { company } = req.params;
   const jobs = await AppliedJobs.sortByCompany(userId, company);
   res.json(jobs);
 });
 
-app.get("/applied/search/:userId", verifyToken, async (req, res) => {
-  const { userId } = req.params;
+app.get("/applied/search", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
   const keyword = req.query.keyword;
   const jobs = await AppliedJobs.sortByKeyword(userId, keyword);
   res.json(jobs);
 });
 
-app.delete("/applied/:userId/:jobId", verifyToken, async (req, res) => {
-  const { userId, jobId } = req.params;
+app.delete("/applied/:jobId", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const { jobId } = req.params;
   const result = await AppliedJobs.delete(jobId, userId);
   res.json(result);
 });
 
-app.get("/applied/recent/:userId", verifyToken, async (req, res) => {
-  const { userId } = req.params;
+app.get("/applied/recent", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
   const job = await AppliedJobs.findMostRecent(userId);
   res.json(job);
 });
@@ -233,27 +243,27 @@ app.get("/applied/recent/:userId", verifyToken, async (req, res) => {
 //favorite jobs
 app.post("/addFavorite", verifyToken, async (req, res) => {
   const job = req.body;
-  if (!job || !job.title || !job.company || !job.userId) {
-    return res.status(400).json({ message: "Missing job or user information" });
+  const userId = req.user.userId;
+
+  if (!job || !job.title || !job.company) {
+    return res.status(400).json({ message: "Missing job or company info" });
   }
+
+  job.userId = userId;
   const newFavJob = await FavoriteJobs.createNew(job);
-  res.status(200).json({ message: "fav job added", job: newFavJob });
+  res.status(200).json({ message: "Favorite job added", job: newFavJob });
 });
 
-app.get("/favorite/:userId", verifyToken, async (req, res) => {
-  const { userId } = req.params;
-  if (!userId) {
-    return res.status(400).json({ message: "Missing userId" });
-  }
+app.get("/favorite", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
   const favorites = await FavoriteJobs.getAllFavoriteUser(userId);
   res.status(200).json(favorites);
 });
 
-app.delete("/favorite/:userId/:jobId", verifyToken, async (req, res) => {
-  const { userId, jobId } = req.params;
-  if (!userId || !jobId) {
-    return res.status(400).json({ message: "Missing userId or jobId" });
-  }
+app.delete("/favorite/:jobId", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const { jobId } = req.params;
+
   await FavoriteJobs.deleteFavoriteUser(userId, jobId);
   res.status(200).json({ message: "Favorite job deleted" });
 });
