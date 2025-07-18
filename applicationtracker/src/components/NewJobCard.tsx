@@ -1,3 +1,4 @@
+import LinkWarning from "./LinkWarning"
 import { Badge } from "./ui/badge"
 import { Button } from "./ui/button"
 
@@ -11,8 +12,18 @@ type JobCardProps = {
     jobTitle: string
     location: string
     tags: Tag[]
+    url: string
 }
-export default function JobCard({jobTitle, location, tags}:JobCardProps) {
+export default function JobCard({jobTitle, location, tags, url}:JobCardProps) {
+
+    const job = {
+        title: jobTitle,
+        company: location,
+        url,
+        skills: tags.map((t) => t.title).join(", "),
+        job_type: "N/A",
+        date_expiration: null,
+    };
 
     return(
         <div className="flex shadow-md/50 rounded-lg">
@@ -33,8 +44,9 @@ export default function JobCard({jobTitle, location, tags}:JobCardProps) {
                     }
                 </div>
                 {/* TODO: look at what onclick redicrection looks like w/shadcn */}
-                <div className="flex items-end justify-start flex-row w-77 h-50">
-                        <Button className="px-10 text-sm"> Apply </Button>
+                <div className="flex items-end justify-end flex-row gap-3 font-lalezar w-77 h-50">
+                        <Button> Update </Button>
+                        <LinkWarning href={url} job={job}><Button>Apply</Button></LinkWarning>
                 </div>
             </div>
         </div>
