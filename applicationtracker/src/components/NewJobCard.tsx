@@ -15,9 +15,9 @@ type JobCardProps = {
 export default function JobCard({jobTitle, location, tags}:JobCardProps) {
 
     return(
-        <div className="flex">
-            <div className="flex flex-col items-start bg-card w-90 h-50 rounded-lg px-7 py-5 justify-start text-white">
-                <h1 className="font-lalezar text-lg">{jobTitle}</h1>
+        <div className="flex shadow-md/50 rounded-lg">
+            <div className="flex flex-col items-start bg-card w-65 h-55 rounded-lg px-7 py-5 justify-start text-foreground">
+                <h1 className="text-lg">{jobTitle}</h1>
                 <p className="font-inter text-xs">{location}</p>
                 <div className="pt-3 flex flex-row flex-wrap gap-1">
                     {
@@ -33,9 +33,8 @@ export default function JobCard({jobTitle, location, tags}:JobCardProps) {
                     }
                 </div>
                 {/* TODO: look at what onclick redicrection looks like w/shadcn */}
-                <div className="flex items-end justify-end flex-row gap-3 font-lalezar w-77 h-50">
-                        <Button> Update </Button>
-                        <Button> Apply </Button>
+                <div className="flex items-end justify-start flex-row w-77 h-50">
+                        <Button className="px-10 text-sm"> Apply </Button>
                 </div>
             </div>
         </div>

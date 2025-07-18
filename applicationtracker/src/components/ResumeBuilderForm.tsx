@@ -67,77 +67,9 @@ export default function ResumeBuilderForm() {
         console.log(err)
     }
   }
-  // const [formData, setFormData] = useState({
-  //   name: '',
-  //   email: '',
-  //   phone: '',
-  //   github: '',
-  //   linkedin: '',
-  //   company1: '',
-  //   jobLocation1: '',
-  //   title1: '',
-  //   dates1: '',
-  //   description1: '',
-  //   description2: '',
-  //   company2: '',
-  //   jobLocation2: '',
-  //   title2: '',
-  //   dates2: '',
-  //   description3: '',
-  //   description4: '',
-  //   schoolName: '',
-  //   schoolLocation: '',
-  //   degree: '',
-  //   schoolDates: '',
-  //   skill1: '',
-  //   skillnum1: '',
-  //   skill2: '',
-  //   skillnum2: '',
-  //   skill3: '',
-  //   skillnum3: '',
-  //   skill4: '',
-  //   skillnum4: '',
-  //   projecttitle1: '',
-  //   projectlink1: '',
-  //   projecttitle2: '',
-  //   projectlink2: '',
-  // });
-  // const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
-  //   const { name, value } = e.target;
-  //   setFormData({
-  //     ...formData,
-  //     [name]: value
-  //   });
-  // };
-  // const handleSubmit = async (e:FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   try {
-  //     const response = await fetch('http://localhost:5173/resumebuilder', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify(formData),
-  //     });
-  //     if (!response.ok) {
-  //       throw new Error('Failed to generate PDF');
-  //     }
-  //     const blob = await response.blob();
-  //     const url = window.URL.createObjectURL(blob);
-  //     const link = document.createElement('a');
-  //     link.href = url;
-  //     link.setAttribute('download', `${formData.name.replace(/\s+/g, "_")}.pdf`);
-  //     document.body.appendChild(link);
-  //     link.click();
-  //     link.remove();
-  //     window.URL.revokeObjectURL(url);
-  //   } catch (error) {
-  //     console.error('Error generating PDF:', error);
-  //     alert('Failed to generate PDF. Please try again.');
-  //   }
-  // };
+
     return(
-      <div className="flex justify-center w-full">
+      <div className="flex justify-center w-full mt-5">
         <Card className="flex w-200 shadow-lg bg-card text-white font-lalezar py-5 mb-10">
         <CardHeader>
             <CardTitle className="text-center text-2xl">Build Your Resume</CardTitle>

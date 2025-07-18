@@ -1,21 +1,16 @@
-import { AppSidebar } from "../components/app-sidebar"
+import Navbar from "@/components/Navbar"
 import JobCard from "../components/NewJobCard"
 import TopBar from "../components/TopBar"
-import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar"
 
 function App() {
   return (
-    <div className="min-h-screen bg-white text-black">
-
-      <SidebarProvider>
-      <AppSidebar />
+    <div className="min-h-screen bg-background text-black">
       <main className="w-full">
-        <SidebarTrigger />
+        <Navbar/>
         <div className="flex flex-col items-center">
             <div className="flex justify-between">
               <TopBar/>
             </div>
-            {/* Job Grid */}
             {/* TODO: Make it so that jobcard content is coming from the actual job postings 
             * NOTE --- if API does not get set up in time, make individual static ones using a separate array with content */}
             <div className=" grid-cols-3 grid gap-4">
@@ -25,7 +20,6 @@ function App() {
             </div>
         </div>
       </main>
-    </SidebarProvider>
 
     </div>
   )
