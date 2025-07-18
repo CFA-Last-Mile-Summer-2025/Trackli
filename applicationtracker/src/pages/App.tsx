@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar"
 import JobCard from "../components/NewJobCard"
 import TopBar from "../components/TopBar"
 import AddJobForm from "@/components/AddJobForm";
+import { useEffect, useState } from "react";
 
 interface Job {
   title: string;
