@@ -8,9 +8,6 @@ export default function ResumeBuilderForm() {
   const submit = (e:FormEvent<HTMLFormElement>)=>{
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-
-    const submitButton = e.currentTarget.querySelector('button[type="submit"]') as HTMLButtonElement;
-    if (submitButton) submitButton.disabled = true;
     const data = {
         name: formData.get("name"),
         email: formData.get("email"),

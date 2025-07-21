@@ -375,18 +375,24 @@ app.get("/companies", async (req, res) => {
 });
 
 // ---------------------------------------AI-----------------------------------------------------
-app.post("/ai/resume-chat", async (req, res) => {
+app.post("/ai/resume-chat", verifyToken, async (req, res) => {
   try {
+    const useSavedResume = req.body;
+    let contentsToSend = [
+      {
+        role: "user",
+        parts: [{ text: "Just give me a short no answer for testing" }],
+      },
+    ];
 
-    ////////////////////////// All of this is just testing whether or not this endpoint works, completely gpt'd code
-    const { message, useSavedResume, userId } = req.body;
-
-    let contentsToSend = message;
+    const userId = req.user.userId;
 
     if (useSavedResume && userId) {
       const user = await User.findById(userId);
       if (!user || !user.resumes || user.resumes.length === 0) {
-        return res.status(404).json({ error: "No resumes found for this user." });
+        return res
+          .status(404)
+          .json({ error: `User: ${!user} + Resumes: ${!user.resumes} + Length: ${user.resumes.length === 0}` });
       }
 
       const resume = user.resumes[user.resumes.length - 1];
@@ -400,7 +406,7 @@ app.post("/ai/resume-chat", async (req, res) => {
           role: "user",
           parts: [
             {
-              text: `Please review this resume and provide feedback on grammar, formatting, and phrasing in one paragraph:\n\n${JSON.stringify(
+              text: `Provide clear and concise feedback in about 1 paragraph describing the strengths and weaknesses of the provided resume. Look at it with intense scrutiny and roleplay as a recruiter if you must: ${JSON.stringify(
                 resume,
                 null,
                 2
@@ -410,7 +416,10 @@ app.post("/ai/resume-chat", async (req, res) => {
         },
       ];
     }
-//////////////////
+    console.log(
+      "Resume sent to Gemini:",
+      JSON.stringify(contentsToSend, null, 2)
+    );
 
     const response = await genAI.models.generateContent({
       model: "gemini-2.5-flash",
@@ -424,6 +433,7 @@ app.post("/ai/resume-chat", async (req, res) => {
       },
     });
 
+    console.log("reply: " + response.text);
     res.json({ reply: response.text });
   } catch (err) {
     console.error("Gemini AI error:", err);
@@ -435,18 +445,18 @@ app.post("/ai/resume-chat", async (req, res) => {
 app.post("/submit", verifyToken, async (req, res) => {
   try {
     const formData = req.body;
-    const userId = req.user.userId
+    const userId = req.user.userId;
 
     const user = await User.findById(userId);
 
-        if (user) {
-          user.resumes = user.resumes || [];
-          user.resumes.push(formData);
-          await user.save();
-        } else {
-          console.log("How did we get here, we have a valid token but no user");
-          res.status(500).send("Valid token, no user?")
-        }
+    if (user) {
+      user.resumes = user.resumes || [];
+      user.resumes.push(formData);
+      await user.save();
+    } else {
+      console.log("How did we get here, we have a valid token but no user");
+      res.status(500).send("Valid token, no user?");
+    }
     res.status(200).send("Resume data received successfully.");
   } catch (error) {
     console.error("Error in /submit:", error);
