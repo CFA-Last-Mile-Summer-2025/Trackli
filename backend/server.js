@@ -6,6 +6,7 @@ const User = require("./models/User");
 const AppliedJobs = require("./models/AppliedJobs");
 const ViewedJobs = require("./models/ViewedJobs");
 const FavoriteJobs = require("./models/FavoriteJobs");
+const MyJobs = require("./models/myJobs");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
@@ -269,6 +270,83 @@ app.delete("/favorite/:jobId", verifyToken, async (req, res) => {
   res.status(200).json({ message: "Favorite job deleted" });
 });
 
+//My Jobs
+app.post("/myjob", verifyToken, async (req, res) => {
+  const job = req.body;
+  const userId = req.user.userId;
+
+  if (!job || !job.title || !job.company) {
+    return res.status(400).json({ message: "Missing job information" });
+  }
+
+  job.userId = userId;
+  const newJob = await MyJobs.createNew(job);
+  res.status(200).json({ message: "Job added", job: newJob });
+});
+
+app.get("/myjob", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const jobs = await MyJobs.readAll(userId);
+  res.status(200).json(jobs);
+});
+
+app.get("/myjob/search", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const keyword = req.query.keyword || "";
+  const jobs = await MyJobs.sortByKeyword(userId, keyword);
+  res.status(200).json(jobs);
+});
+
+app.get("/myjob/company", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const company = req.query.name;
+  const jobs = await MyJobs.sortByCompany(userId, company);
+  res.status(200).json(jobs);
+});
+
+app.patch("/myjob/status/:jobId", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const jobId = req.params.id;
+  const { status } = req.body;
+
+  const allowedStatuses = [
+    "saved",
+    "applied",
+    "offered",
+    "closed",
+    "interview",
+  ];
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({ message: "Invalid status value" });
+  }
+  await MyJobs.updateStatus(jobId, userId, status);
+});
+
+app.delete("/myjob/:jobId", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const jobId = req.params.id;
+  await MyJobs.delete(jobId, userId);
+});
+
+app.get("/myjob/status", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const status = req.query.value;
+
+  const allowedStatuses = [
+    "saved",
+    "applied",
+    "offered",
+    "closed",
+    "interview",
+  ];
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({ message: "Invalid status filter" });
+  }
+
+  const jobs = await MyJobs.findByStatusSorted(userId, status);
+  res.status(200).json(jobs);
+});
+
 // ---------------------------------------USERS-----------------------------------------------------
 app.get("/users", async (req, res) => {
   const results = await User.readAll();
@@ -377,7 +455,6 @@ app.get("/companies", async (req, res) => {
 // ---------------------------------------AI-----------------------------------------------------
 app.post("/ai/resume-chat", async (req, res) => {
   try {
-
     ////////////////////////// All of this is just testing whether or not this endpoint works, completely gpt'd code
     const { message, useSavedResume, userId } = req.body;
 
@@ -386,7 +463,9 @@ app.post("/ai/resume-chat", async (req, res) => {
     if (useSavedResume && userId) {
       const user = await User.findById(userId);
       if (!user || !user.resumes || user.resumes.length === 0) {
-        return res.status(404).json({ error: "No resumes found for this user." });
+        return res
+          .status(404)
+          .json({ error: "No resumes found for this user." });
       }
 
       const resume = user.resumes[user.resumes.length - 1];
@@ -410,7 +489,7 @@ app.post("/ai/resume-chat", async (req, res) => {
         },
       ];
     }
-//////////////////
+    //////////////////
 
     const response = await genAI.models.generateContent({
       model: "gemini-2.5-flash",
@@ -435,18 +514,18 @@ app.post("/ai/resume-chat", async (req, res) => {
 app.post("/submit", verifyToken, async (req, res) => {
   try {
     const formData = req.body;
-    const userId = req.user.userId
+    const userId = req.user.userId;
 
     const user = await User.findById(userId);
 
-        if (user) {
-          user.resumes = user.resumes || [];
-          user.resumes.push(formData);
-          await user.save();
-        } else {
-          console.log("How did we get here, we have a valid token but no user");
-          res.status(500).send("Valid token, no user?")
-        }
+    if (user) {
+      user.resumes = user.resumes || [];
+      user.resumes.push(formData);
+      await user.save();
+    } else {
+      console.log("How did we get here, we have a valid token but no user");
+      res.status(500).send("Valid token, no user?");
+    }
     res.status(200).send("Resume data received successfully.");
   } catch (error) {
     console.error("Error in /submit:", error);
