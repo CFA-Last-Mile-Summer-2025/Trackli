@@ -37,7 +37,7 @@ const handleSend = async () => {
     clearTimeout(timeoutId);
 
     const data = await res.json();
-    setAiResponse(data.reply || "No response");
+    setAiResponse(data.reply || data.error || "No response");
   } catch (error) {
     console.error("AI chat error:", error);
     setAiResponse("No response (timeout or error).");
