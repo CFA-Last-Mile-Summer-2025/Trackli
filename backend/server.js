@@ -347,6 +347,43 @@ app.get("/myjob/status", verifyToken, async (req, res) => {
   res.status(200).json(jobs);
 });
 
+app.get("/myjob/sort/company", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const jobs = await MyJobs.sortByCompanyName(userId);
+  res.status(200).json(jobs);
+});
+
+app.get("/myjob/sort/title", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const jobs = await MyJobs.sortByTitle(userId);
+  res.status(200).json(jobs);
+});
+
+app.get("/myjob/statuses", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  let statuses = req.query.statuses;
+
+  if (typeof statuses === "string") {
+    statuses = statuses.split(",");
+  }
+
+  const allowedStatuses = [
+    "saved",
+    "applied",
+    "offered",
+    "closed",
+    "interview",
+  ];
+  const isValid = statuses.every((s) => allowedStatuses.includes(s));
+  if (!isValid) {
+    return res
+      .status(400)
+      .json({ message: "One or more statuses are invalid" });
+  }
+  const jobs = await MyJobs.findByStatusesSorted(userId, statuses);
+  res.status(200).json(jobs);
+});
+
 // ---------------------------------------USERS-----------------------------------------------------
 app.get("/users", async (req, res) => {
   const results = await User.readAll();
