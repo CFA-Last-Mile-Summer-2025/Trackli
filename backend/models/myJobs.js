@@ -64,6 +64,26 @@ class MyJobsClass {
     }
   }
 
+  //A-Z company names
+  static async sortByCompanyName(userId) {
+    try {
+      return await MyJobs.find({ userId }).sort({ company: 1 }).exec();
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  }
+  
+  //A-Z job titles
+  static async sortByTitle(userId) {
+    try {
+      return await MyJobs.find({ userId }).sort({ title: 1 }).exec();
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  }
+
   static async sortByKeyword(userId, keyword) {
     try {
       return await MyJobs.find({
@@ -118,6 +138,18 @@ class MyJobsClass {
       return await MyJobs.find({ userId, status })
         .sort({ date_added: -1 })
         .exec();
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  }
+
+  static async findByStatusesSorted(userId, statuses) {
+    try {
+      return await MyJobs.find({
+        userId,
+        status: { $in: statuses },
+      }).sort({ date_added: -1 });
     } catch (e) {
       console.error(e);
       return [];
