@@ -6,6 +6,7 @@ const User = require("./models/User");
 const AppliedJobs = require("./models/AppliedJobs");
 const ViewedJobs = require("./models/ViewedJobs");
 const FavoriteJobs = require("./models/FavoriteJobs");
+const MyJobs = require("./models/myJobs");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
@@ -82,6 +83,22 @@ function verifyToken(req, res, next) {
 }
 
 // ---------------------------------------JOBS-----------------------------------------------------
+
+//Listing
+app.post("/createjob", async (req, res) => {
+  const newJob = req.body;
+
+  if (!newJob || Object.keys(newJob).length === 0) {
+    return res.status(400).send("Empty request body");
+  }
+
+  const results = await Listing.createNew(newJob);
+  res.status(201).json(results);
+
+  console.log("POST request received on create route");
+  console.log(`New listing created with id: ${results._id}`);
+});
+
 app.get("/jobs", async (req, res) => {
   const results = await Listing.readAll();
   res.send(results);
@@ -113,18 +130,14 @@ app.get("/searchjob", async (req, res) => {
   }
 });
 
-app.post("/createjob", async (req, res) => {
-  const newJob = req.body;
-
-  if (!newJob || Object.keys(newJob).length === 0) {
-    return res.status(400).send("Empty request body");
+app.get("/listings", async (req, res) => {
+  try {
+    const listings = await Listing.readAll();
+    res.json(listings);
+  } catch (error) {
+    console.error("Failed to fetch listings:", error);
+    res.status(500).json({ error: "Failed to fetch listings" });
   }
-
-  const results = await Listing.createNew(newJob);
-  res.status(201).json(results);
-
-  console.log("POST request received on create route");
-  console.log(`New listing created with id: ${results._id}`);
 });
 
 app.delete("/deletejob", async (req, res) => {
@@ -135,16 +148,6 @@ app.delete("/deletejob", async (req, res) => {
   res.sendStatus(200);
   console.log("DELETE request received on delete route");
   console.log(`Listing deleted with id: ${req.query.id}`);
-});
-
-app.get("/listings", async (req, res) => {
-  try {
-    const listings = await Listing.readAll();
-    res.json(listings);
-  } catch (error) {
-    console.error("Failed to fetch listings:", error);
-    res.status(500).json({ error: "Failed to fetch listings" });
-  }
 });
 
 //Viewed jobs
@@ -181,17 +184,17 @@ app.get("/viewed/search", verifyToken, async (req, res) => {
   res.json(jobs);
 });
 
+app.get("/viewed/recent", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const job = await ViewedJobs.findMostRecent(userId);
+  res.json(job);
+});
+
 app.delete("/viewed/:jobId", verifyToken, async (req, res) => {
   const userId = req.user.userId;
   const { jobId } = req.params;
   const result = await ViewedJobs.delete(jobId, userId);
   res.json(result);
-});
-
-app.get("/viewed/recent", verifyToken, async (req, res) => {
-  const userId = req.user.userId;
-  const job = await ViewedJobs.findMostRecent(userId);
-  res.json(job);
 });
 
 //applied jobs
@@ -228,17 +231,17 @@ app.get("/applied/search", verifyToken, async (req, res) => {
   res.json(jobs);
 });
 
+app.get("/applied/recent", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const job = await AppliedJobs.findMostRecent(userId);
+  res.json(job);
+});
+
 app.delete("/applied/:jobId", verifyToken, async (req, res) => {
   const userId = req.user.userId;
   const { jobId } = req.params;
   const result = await AppliedJobs.delete(jobId, userId);
   res.json(result);
-});
-
-app.get("/applied/recent", verifyToken, async (req, res) => {
-  const userId = req.user.userId;
-  const job = await AppliedJobs.findMostRecent(userId);
-  res.json(job);
 });
 
 //favorite jobs
@@ -267,6 +270,120 @@ app.delete("/favorite/:jobId", verifyToken, async (req, res) => {
 
   await FavoriteJobs.deleteFavoriteUser(userId, jobId);
   res.status(200).json({ message: "Favorite job deleted" });
+});
+
+//My Jobs
+app.post("/myjob", verifyToken, async (req, res) => {
+  const job = req.body;
+  const userId = req.user.userId;
+
+  if (!job || !job.title || !job.company) {
+    return res.status(400).json({ message: "Missing job information" });
+  }
+
+  job.userId = userId;
+  const newJob = await MyJobs.createNew(job);
+  res.status(200).json({ message: "Job added", job: newJob });
+});
+
+app.get("/myjob", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const jobs = await MyJobs.readAll(userId);
+  res.status(200).json(jobs);
+});
+
+app.get("/myjob/search", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const keyword = req.query.keyword || "";
+  const jobs = await MyJobs.sortByKeyword(userId, keyword);
+  res.status(200).json(jobs);
+});
+
+app.get("/myjob/company", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const company = req.query.name;
+  const jobs = await MyJobs.sortByCompany(userId, company);
+  res.status(200).json(jobs);
+});
+
+app.get("/myjob/status", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const status = req.query.value;
+
+  const allowedStatuses = [
+    "saved",
+    "applied",
+    "offered",
+    "closed",
+    "interview",
+  ];
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({ message: "Invalid status filter" });
+  }
+
+  const jobs = await MyJobs.findByStatusSorted(userId, status);
+  res.status(200).json(jobs);
+});
+
+app.get("/myjob/sort/company", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const jobs = await MyJobs.sortByCompanyName(userId);
+  res.status(200).json(jobs);
+});
+
+app.get("/myjob/sort/title", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const jobs = await MyJobs.sortByTitle(userId);
+  res.status(200).json(jobs);
+});
+
+app.get("/myjob/statuses", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  let statuses = req.query.statuses;
+
+  if (typeof statuses === "string") {
+    statuses = statuses.split(",");
+  }
+
+  const allowedStatuses = [
+    "saved",
+    "applied",
+    "offered",
+    "closed",
+    "interview",
+  ];
+  const isValid = statuses.every((s) => allowedStatuses.includes(s));
+  if (!isValid) {
+    return res
+      .status(400)
+      .json({ message: "One or more statuses are invalid" });
+  }
+  const jobs = await MyJobs.findByStatusesSorted(userId, statuses);
+  res.status(200).json(jobs);
+});
+
+app.patch("/myjob/status/:jobId", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const jobId = req.params.id;
+  const { status } = req.body;
+
+  const allowedStatuses = [
+    "saved",
+    "applied",
+    "offered",
+    "closed",
+    "interview",
+  ];
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({ message: "Invalid status value" });
+  }
+  await MyJobs.updateStatus(jobId, userId, status);
+});
+
+app.delete("/myjob/:jobId", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const jobId = req.params.id;
+  await MyJobs.delete(jobId, userId);
 });
 
 // ---------------------------------------USERS-----------------------------------------------------
