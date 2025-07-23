@@ -31,9 +31,15 @@ const options = {
   },
 };
 
-async function fetchDataAndSave() {
+async function fetchDataAndSave(offset = 0) {
   try {
-    const response = await axios.request(options);
+    const response = await axios.request({
+      ...options,
+      params: {
+        ...options.params,
+        offset,
+      },
+    });
     const jobs = response.data;
 
     for (const job of jobs) {
@@ -50,19 +56,32 @@ async function fetchDataAndSave() {
       const exists = await Listing.findOne({
         company: listing.company,
         title: listing.title,
+        url: listing.url
       });
 
       if (!exists) {
         await Listing.createNew(listing);
         console.log("Inserted:", listing.title, "at", listing.company);
       } else {
-        console.log("Skipped duplicate:", listing.title);
+        console.log("Skipped duplicate:", listing.title, "------------------------------------------------------");
       }
     }
   } catch (err) {
     console.error("Error fetching/saving jobs:", err);
   }
 }
+
+//API caller
+app.get("/getjobs", async (req, res) => {
+  const offset = parseInt(req.query.offset) || 0;
+  console.log("offset:", offset)
+  try {
+    await fetchDataAndSave(offset);
+    res.status(200).json("Jobs fetched and saved.");
+  } catch (err) {
+    res.status(500).json("Error fetching jobs.");
+  }
+});
 
 //JWT verification
 function verifyToken(req, res, next) {

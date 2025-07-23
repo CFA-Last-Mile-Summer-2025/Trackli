@@ -24,20 +24,17 @@ export default function ResumeBuilderForm() {
       name: formData.get("name"),
       email: formData.get("email"),
       phone: formData.get("phone"),
-      github: formData.get("github"),
-      linkedin: formData.get("linkedin"),
+      summary: formData.get("summary"),
       company1: formData.get("company1"),
       jobLocation1: formData.get("jobLocation1"),
       title1: formData.get("title1"),
       dates1: formData.get("dates1"),
       description1: formData.get("description1"),
-      description2: formData.get("description2"),
       company2: formData.get("company2"),
       jobLocation2: formData.get("jobLocation2"),
       title2: formData.get("title2"),
       dates2: formData.get("dates2"),
-      description3: formData.get("description3"),
-      description4: formData.get("description4"),
+      description2: formData.get("description2"),
       schoolName: formData.get("schoolName"),
       schoolLocation: formData.get("schoolLocation"),
       degree: formData.get("degree"),
@@ -46,10 +43,6 @@ export default function ResumeBuilderForm() {
       skill2: formData.get("skill2"),
       skill3: formData.get("skill3"),
       skill4: formData.get("skill4"),
-      projecttitle1: formData.get("projecttitle1"),
-      projectlink1: formData.get("projectlink1"),
-      projecttitle2: formData.get("projecttitle2"),
-      projectlink2: formData.get("projectlink2"),
     };
 
     try {
@@ -75,84 +68,113 @@ export default function ResumeBuilderForm() {
   };
 
   const downloadPDF = () => {
+    // https://parallax.github.io/jsPDF/
+    // https://parallax.github.io/jsPDF/docs/jsPDF.html
     const form = document.querySelector("form") as HTMLFormElement;
     if (!form) return;
 
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
+    
 
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 10;
+    const maxLineWidth = pageWidth - margin * 2;
 
     doc.setFontSize(24);
     doc.setFont("garamond", "bold");
-    doc.text((data.name as string) || "Your Name", 10, 15);
+    doc.text((data.name as string) || "Your Name", pageWidth / 2, 15, {
+    align: "center"
+    });
     doc.setFontSize(12);
     doc.setFont("times", "normal");
-    doc.text(`Email: ${data.email} | Phone: ${data.phone} | GitHub: ${data.github} | LinkedIn: ${data.linkedin}`, 10, 23);
-    doc.setLineWidth(0.3);
-    doc.line(10, 27, 200, 27); // doc.line(x1, y1, x2, y2)
+    doc.text(`Email: ${data.email} | Phone: ${data.phone}`, doc.internal.pageSize.getWidth() / 2, 23, {
+    align: "center"
+    });
+    doc.setLineWidth(0.05);
+    let y = 27;
     doc.setFont("times", "bold");
-    doc.text("Work experience", 10, 33);
+    doc.line(margin, y, 200, y); // doc.line(x1, y1, x2, y2)
+    y+=6
+    doc.text("Summary", margin, y); // max length 300?
     doc.setLineWidth(0.3);
-    doc.line(10, 36, 200, 36); // doc.line(x1, y1, x2, y2)
-
-    let y = 45;
+    y+=3
+    doc.line(margin, y, 200, y); // doc.line(x1, y1, x2, y2)
+    y+=6
     doc.setFont("times", "normal");
+    let wrappedText = doc.splitTextToSize(`${data.summary}`, maxLineWidth);
+    doc.text(wrappedText, margin, y);
+
+    y += wrappedText.length * 4.5;
+    doc.setLineWidth(0.05);
+    doc.setFont("times", "bold");
+    doc.line(margin, y, 200, y); // doc.line(x1, y1, x2, y2)
     doc.setFontSize(12);
+    y+=6
+    doc.text("Work experience", margin, y)
+    y+=3
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, 200, y); // doc.line(x1, y1, x2, y2)
+    y+=6
+    doc.setFont("times", "normal");
+    doc.text(`${data.title1} @ ${data.company1} | ${data.jobLocation1} | ${data.dates1}`, margin, y);
+    y += 6;
+    wrappedText = doc.splitTextToSize(`${data.description1}`, maxLineWidth)
+    doc.text(wrappedText, margin, y);
+    y += wrappedText.length * 5.5;
+    doc.text(`${data.title2} @ ${data.company2} | ${data.jobLocation2} | ${data.dates2}`, margin, y);
+    y += 6;
+    wrappedText = doc.splitTextToSize(`${data.description2}`, maxLineWidth)
+    doc.text(wrappedText, margin, y);
+    y += wrappedText.length * 5;
 
-    doc.text(`${data.title1} @ ${data.company1} (${data.dates1})`, 10, y);
-    y += 8;
-    doc.text(`${data.jobLocation1}`, 10, y);
-    y += 8;
-    doc.text(`\u2022 ${data.description1}`, 10, y); // \u2022 is bullet point 
-    y += 8;
-    doc.text(`\u2022 ${data.description2}`, 10, y);
-    y += 10;
-
-    doc.text(`${data.title2} @ ${data.company2} (${data.dates2})`, 10, y);
-    y += 8;
-    doc.text(`${data.jobLocation2}`, 10, y);
-    y += 8;
-    doc.text(`\u2022 ${data.description3}`, 10, y);
-    y += 8;
-    doc.text(`\u2022 ${data.description4}`, 10, y);
-    y += 10;
-
-    doc.setFontSize(16);
-    doc.text("Education", 10, y);
-    y += 8;
+    doc.setLineWidth(0.05);
+    doc.setFont("times", "bold");
+    doc.line(margin, y, 200, y); // doc.line(x1, y1, x2, y2)
+    y+=6
+    doc.text("Education", margin, y);
+    y+=3
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, 200, y); // doc.line(x1, y1, x2, y2)
+    y += 6;
     doc.setFontSize(12);
+        doc.setFont("times", "normal");
+
     doc.text(
-      `${data.degree} - ${data.schoolName} (${data.schoolDates})`,
-      10,
+      `${data.degree} - ${data.schoolName} | ${data.schoolLocation} | ${data.schoolDates}`,
+      margin,
       y
     );
-    y += 8;
-    doc.text(`${data.schoolLocation}`, 10, y);
-    y += 10;
+    y += 3;
 
-    doc.setFontSize(16);
-    doc.text("Skills", 10, y);
-    y += 8;
-    doc.setFontSize(12);
-    for (let i = 1; i <= 4; i++) {
-      const skill = data[`skill${i}`];
-      if (skill) {
-        doc.text(`${skill}`, 10, y);
-        y += 8;
-      }
+    doc.setLineWidth(0.05);
+    doc.setFont("times", "bold");
+    doc.line(margin, y, 200, y); // doc.line(x1, y1, x2, y2)
+    y+=6
+    doc.text("Skills", margin, y);
+    y += 3;
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, 200, y); // doc.line(x1, y1, x2, y2)
+    y+=6
+    doc.setFont("times", "normal");
+    let x = margin;
+    const spacing = 5; // between skills
+for (let i = 1; i <= 4; i++) {
+  const skill = data[`skill${i}`] as string;
+  if (skill) {
+    const textWidth = doc.getTextWidth(skill);
+    
+    if (x + textWidth > maxLineWidth) {
+      x = margin;
+      y += 7;
     }
 
-    doc.setFontSize(16);
-    doc.text("Projects", 10, y);
-    y += 8;
-    doc.setFontSize(12);
-    doc.text(`${data.projecttitle1}: ${data.projectlink1}`, 10, y);
-    y += 8;
-    doc.text(`${data.projecttitle2}: ${data.projectlink2}`, 10, y);
-    y += 8;
-
-    doc.save(`${(data.name as string)?.replace(/\s+/g, "_") || "resume"}.pdf`);
+    doc.text(skill, x, y);
+    x += textWidth + spacing;
+  }
+}
+    doc.save(`${(data.name as string)?.replace(/\s+/g, "_") || "resume"}_resume.pdf`);
   };
 
   return (
@@ -202,23 +224,12 @@ export default function ResumeBuilderForm() {
               />
             </Label>
             <Label className="text-md whitespace-nowrap">
-              Github URL:
+              Summary:
               <Input
-                name="github"
-                type="url"
-                placeholder="Github"
-                // value={formData.github}
-                // onChange={handleChange}
-                required
-              />
-            </Label>
-            <Label className="text-md whitespace-nowrap">
-              LinkedIn URL:
-              <Input
-                name="linkedin"
-                type="url"
-                placeholder="LinkedIn"
-                // value={formData.linkedin}
+                name="summary"
+                type="summary"
+                placeholder="summary"
+                // value={formData.email}
                 // onChange={handleChange}
                 required
               />
@@ -272,14 +283,6 @@ export default function ResumeBuilderForm() {
                 // onChange={handleChange}
                 required
               />
-              <Input
-                name="description2"
-                type="text"
-                placeholder="Description"
-                // value={formData.description2}
-                // onChange={handleChange}
-                required
-              />
             </Label>
             Experience #2
             <Label className="text-xl whitespace-nowrap">
@@ -320,18 +323,10 @@ export default function ResumeBuilderForm() {
             </Label>
             <Label className="text-xl whitespace-nowrap">
               <Input
-                name="description3"
+                name="description2"
                 type="text"
                 placeholder="Description"
                 // value={formData.description3}
-                // onChange={handleChange}
-                required
-              />
-              <Input
-                name="description4"
-                type="text"
-                placeholder="Description"
-                // value={formData.description4}
                 // onChange={handleChange}
                 required
               />
@@ -422,45 +417,6 @@ export default function ResumeBuilderForm() {
                 required
               />
               
-            </Label>
-            <CardTitle className="text-center text-xl mt-5">Projects</CardTitle>
-            Project #1
-            <Label className="text-xl whitespace-nowrap">
-              <Input
-                name="projecttitle1"
-                type="text"
-                placeholder="Project Title"
-                // value={formData.projecttitle1}
-                // onChange={handleChange}
-                required
-              />
-              <Input
-                name="projectlink1"
-                type="url"
-                placeholder="Project URL"
-                // value={formData.projectlink1}
-                // onChange={handleChange}
-                required
-              />
-            </Label>
-            Project #2
-            <Label className="text-xl whitespace-nowrap">
-              <Input
-                name="projecttitle2"
-                type="text"
-                placeholder="Project Title"
-                // value={formData.projecttitle2}
-                // onChange={handleChange}
-                required
-              />
-              <Input
-                name="projectlink2"
-                type="url"
-                placeholder="Project URL"
-                // value={formData.projectlink2}
-                // onChange={handleChange}
-                required
-              />
             </Label>
             <CardFooter>
               <Button className="w-full h-10 text-md mt-5" type="submit">
