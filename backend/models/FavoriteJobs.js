@@ -28,7 +28,8 @@ class FavoriteJobClass {
         const newFavJob = await FavoriteJob.create(favJob);
         return newFavJob;
       } else {
-        console.log("Skipped duplicate favorite job:", favJob.title);
+        deleteFavoriteUser(userId, jobId);
+        console.log("unfavorited:", favJob.title);
       }
     } catch (e) {
       console.error(e);
