@@ -14,19 +14,40 @@ interface Job {
 }
 
 function App() {
+  const [offset, setOffset] = useState<number>(() => {
+    const savedOffset = localStorage.getItem("offset");
+    return savedOffset ? parseInt(savedOffset) : 15;
+  });
+
+  const handleLoadMoreJobs = async () => {
+    try {
+      const res = await fetch(`http://localhost:3002/getjobs?offset=${offset}`);
+      const data = await res.json();
+      console.log(data);
+      fetchJobs();
+      // Update offset in state and localStorage
+      const newOffset = offset + 10;
+      setOffset(newOffset);
+      console.log(newOffset);
+      localStorage.setItem("offset", newOffset.toString());
+    } catch (err) {
+      console.error("Error loading more jobs:", err);
+    }
+  };
+
   const [jobs, setJobs] = useState<Job[]>([]);
 
-  useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        const res = await fetch("http://localhost:3002/listings"); // gh pages will prob need this to be changed if we want hosting
-        const data = await res.json();
-        setJobs(data);
-      } catch (err) {
-        console.error("Failed to fetch jobs:", err);
-      }
-    };
+  const fetchJobs = async () => {
+    try {
+      const res = await fetch("http://localhost:3002/listings"); // gh pages will prob need this to be changed if we want hosting
+      const data = await res.json();
+      setJobs(data);
+    } catch (err) {
+      console.error("Failed to fetch jobs:", err);
+    }
+  };
 
+  useEffect(() => {
     fetchJobs();
   }, []);
 
@@ -70,6 +91,7 @@ function App() {
               )}
             </div>
           </div>
+          <button onClick={handleLoadMoreJobs}>Load More Jobs</button>
         </main>
       </SidebarProvider>
     </div>
