@@ -91,11 +91,13 @@ export function Task({ task }: { task: TTask }) {
     );
   }, [task]);
 
+  //TODO change this to edit actual job status
   const handleStatusChange = (newStatus: TTask['status']) => {
     task.status = newStatus;
     setMenuOpen(false);
   };
 
+  //TODO change this to edit actual job star status
   const toggleStar = () => setStarred(!starred);
 
   return (

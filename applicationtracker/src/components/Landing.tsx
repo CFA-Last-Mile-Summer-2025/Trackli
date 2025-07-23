@@ -2,10 +2,22 @@
 
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import sparkleLeft from '@/assets/sparkleLeft.png';
+import sparkleRight from '@/assets/sparkleRight.png';
 
 export default function Landing() {
   return (
     <main>
+            <img
+        src={sparkleLeft}
+        alt="left sparkle"
+        className="hidden md:block absolute left-20 bottom-60 w-60 h-60 object-contain"
+      />
+      <img
+        src={sparkleRight}
+        alt="right sparkle"
+        className="hidden md:block absolute right-20 top-20 w-60 h-60 object-contain"
+      />
         <div className="flex items-center justify-center h-[calc(100vh-213px)]">
             <div className='space-y-6 text-center'>
                 <h1 className="text-3xl font-semibold">Track applications. Stay on top. Get hired.</h1>

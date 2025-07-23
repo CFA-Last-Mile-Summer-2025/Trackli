@@ -46,7 +46,6 @@ export function Pdnd() {
 
   return (
     <div className="pt-6 my-0 mx-auto w-[900px]">
-      {/* Header row */}
       <div className="grid grid-cols-[3fr_2fr_1fr_1fr_auto] text-xs font-semibold text-slate-500 px-4 py-2 border border-slate-300 border-b-0 rounded-t-md bg-slate-50">
         <span>Job Title</span>
         <span>Company</span>
@@ -55,7 +54,6 @@ export function Pdnd() {
         <span className="text-center">Actions</span>
       </div>
 
-      {/* Task rows */}
       <div className="flex flex-col gap-2 border-x border-b border-slate-300 rounded-b-md">
         {tasks.map((task) => (
           <Task key={task.id} task={task} />
