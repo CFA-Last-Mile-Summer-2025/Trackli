@@ -75,33 +75,38 @@ export default function ResumeBuilderForm() {
 
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
-    
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const margin = 10;
+    const rightMargin = 200;
     const maxLineWidth = pageWidth - margin * 2;
 
     doc.setFontSize(24);
     doc.setFont("garamond", "bold");
     doc.text((data.name as string) || "Your Name", pageWidth / 2, 15, {
-    align: "center"
+      align: "center",
     });
     doc.setFontSize(12);
     doc.setFont("times", "normal");
-    doc.text(`Email: ${data.email} | Phone: ${data.phone}`, doc.internal.pageSize.getWidth() / 2, 23, {
-    align: "center"
-    });
+    doc.text(
+      `Email: ${data.email} | Phone: ${data.phone}`,
+      doc.internal.pageSize.getWidth() / 2,
+      23,
+      {
+        align: "center",
+      }
+    );
     doc.setLineWidth(0.05);
     let y = 27;
     doc.setFont("times", "bold");
-    doc.line(margin, y, 200, y); // doc.line(x1, y1, x2, y2)
-    y+=6
+    doc.line(margin, y, rightMargin, y); // doc.line(x1, y1, x2, y2)
+    y += 6;
     doc.text("Summary", margin, y); // max length 300?
     doc.setLineWidth(0.3);
-    y+=3
-    doc.line(margin, y, 200, y); // doc.line(x1, y1, x2, y2)
-    y+=6
+    y += 3;
+    doc.line(margin, y, rightMargin, y); // doc.line(x1, y1, x2, y2)
+    y += 6;
     doc.setFont("times", "normal");
     let wrappedText = doc.splitTextToSize(`${data.summary}`, maxLineWidth);
     doc.text(wrappedText, margin, y);
@@ -109,37 +114,45 @@ export default function ResumeBuilderForm() {
     y += wrappedText.length * 4.5;
     doc.setLineWidth(0.05);
     doc.setFont("times", "bold");
-    doc.line(margin, y, 200, y); // doc.line(x1, y1, x2, y2)
+    doc.line(margin, y, rightMargin, y); // doc.line(x1, y1, x2, y2)
     doc.setFontSize(12);
-    y+=6
-    doc.text("Work experience", margin, y)
-    y+=3
-    doc.setLineWidth(0.3);
-    doc.line(margin, y, 200, y); // doc.line(x1, y1, x2, y2)
-    y+=6
-    doc.setFont("times", "normal");
-    doc.text(`${data.title1} @ ${data.company1} | ${data.jobLocation1} | ${data.dates1}`, margin, y);
     y += 6;
-    wrappedText = doc.splitTextToSize(`${data.description1}`, maxLineWidth)
+    doc.text("Work experience", margin, y);
+    y += 3;
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, rightMargin, y); // doc.line(x1, y1, x2, y2)
+    y += 6;
+    doc.setFont("times", "normal");
+    doc.text(
+      `${data.title1} @ ${data.company1} | ${data.jobLocation1} | ${data.dates1}`,
+      margin,
+      y
+    );
+    y += 6;
+    wrappedText = doc.splitTextToSize(`${data.description1}`, maxLineWidth);
     doc.text(wrappedText, margin, y);
     y += wrappedText.length * 5.5;
-    doc.text(`${data.title2} @ ${data.company2} | ${data.jobLocation2} | ${data.dates2}`, margin, y);
+    doc.text(
+      `${data.title2} @ ${data.company2} | ${data.jobLocation2} | ${data.dates2}`,
+      margin,
+      y
+    );
     y += 6;
-    wrappedText = doc.splitTextToSize(`${data.description2}`, maxLineWidth)
+    wrappedText = doc.splitTextToSize(`${data.description2}`, maxLineWidth);
     doc.text(wrappedText, margin, y);
     y += wrappedText.length * 5;
 
     doc.setLineWidth(0.05);
     doc.setFont("times", "bold");
-    doc.line(margin, y, 200, y); // doc.line(x1, y1, x2, y2)
-    y+=6
+    doc.line(margin, y, rightMargin, y); // doc.line(x1, y1, x2, y2)
+    y += 6;
     doc.text("Education", margin, y);
-    y+=3
+    y += 3;
     doc.setLineWidth(0.3);
-    doc.line(margin, y, 200, y); // doc.line(x1, y1, x2, y2)
+    doc.line(margin, y, rightMargin, y); // doc.line(x1, y1, x2, y2)
     y += 6;
     doc.setFontSize(12);
-        doc.setFont("times", "normal");
+    doc.setFont("times", "normal");
 
     doc.text(
       `${data.degree} - ${data.schoolName} | ${data.schoolLocation} | ${data.schoolDates}`,
@@ -150,36 +163,38 @@ export default function ResumeBuilderForm() {
 
     doc.setLineWidth(0.05);
     doc.setFont("times", "bold");
-    doc.line(margin, y, 200, y); // doc.line(x1, y1, x2, y2)
-    y+=6
+    doc.line(margin, y, rightMargin, y); // doc.line(x1, y1, x2, y2)
+    y += 6;
     doc.text("Skills", margin, y);
     y += 3;
     doc.setLineWidth(0.3);
-    doc.line(margin, y, 200, y); // doc.line(x1, y1, x2, y2)
-    y+=6
+    doc.line(margin, y, rightMargin, y); // doc.line(x1, y1, x2, y2)
+    y += 6;
     doc.setFont("times", "normal");
     let x = margin;
     const spacing = 5; // between skills
-for (let i = 1; i <= 4; i++) {
-  const skill = data[`skill${i}`] as string;
-  if (skill) {
-    const textWidth = doc.getTextWidth(skill);
-    
-    if (x + textWidth > maxLineWidth) {
-      x = margin;
-      y += 7;
-    }
+    for (let i = 1; i <= 4; i++) { // update when skills is more dynamic
+      const skill = data[`skill${i}`] as string;
+      if (skill) {
+        const textWidth = doc.getTextWidth(skill);
 
-    doc.text(skill, x, y);
-    x += textWidth + spacing;
-  }
-}
-    doc.save(`${(data.name as string)?.replace(/\s+/g, "_") || "resume"}_resume.pdf`);
+        if (x + textWidth > maxLineWidth) {
+          x = margin;
+          y += 6;
+        }
+
+        doc.text(skill, x, y);
+        x += textWidth + spacing;
+      }
+    }
+    doc.save(
+      `${(data.name as string)?.replace(/\s+/g, "_") || "resume"}_resume.pdf`
+    );
   };
 
   return (
     <div className="flex justify-center w-full">
-      <Card className="flex w-200 shadow-lg bg-card text-white font-lalezar py-5 mb-10">
+      <Card className="flex w-rightMargin shadow-lg bg-card text-white font-lalezar py-5 mb-10">
         <CardHeader>
           <CardTitle className="text-center text-2xl">
             Build Your Resume
@@ -373,7 +388,6 @@ for (let i = 1; i <= 4; i++) {
             <CardTitle className="text-center text-xl mt-5">
               Technical Skills
             </CardTitle>
-            
             <Label className="text-xl whitespace-nowrap">
               <Input
                 name="skill1"
@@ -383,7 +397,6 @@ for (let i = 1; i <= 4; i++) {
                 // onChange={handleChange}
                 required
               />
-              
             </Label>
             <Label className="text-xl whitespace-nowrap">
               <Input
@@ -394,7 +407,6 @@ for (let i = 1; i <= 4; i++) {
                 // onChange={handleChange}
                 required
               />
-              
             </Label>
             <Label className="text-xl whitespace-nowrap">
               <Input
@@ -405,7 +417,6 @@ for (let i = 1; i <= 4; i++) {
                 // onChange={handleChange}
                 required
               />
-              
             </Label>
             <Label className="text-xl whitespace-nowrap">
               <Input
@@ -416,20 +427,19 @@ for (let i = 1; i <= 4; i++) {
                 // onChange={handleChange}
                 required
               />
-              
             </Label>
             <CardFooter>
               <Button className="w-full h-10 text-md mt-5" type="submit">
                 Build Your Resume
               </Button>
             </CardFooter>
-              <Button
-                className="w-full h-10 text-md mt-2 bg-green-600 hover:bg-green-700"
-                type="button"
-                onClick={downloadPDF}
-              >
-                Download PDF
-              </Button>
+            <Button
+              className="w-full h-10 text-md mt-2 bg-green-600 hover:bg-green-700"
+              type="button"
+              onClick={downloadPDF}
+            >
+              Download PDF
+            </Button>
           </form>
         </CardContent>
       </Card>
