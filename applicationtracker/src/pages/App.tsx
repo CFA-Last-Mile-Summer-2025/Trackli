@@ -11,6 +11,7 @@ interface Job {
   skills?: string;
   location: string;
   url: string;
+  _id?: string;
 }
 
 function App() {
@@ -23,12 +24,10 @@ function App() {
     try {
       const res = await fetch(`http://localhost:3002/getjobs?offset=${offset}`);
       const data = await res.json();
-      console.log(data);
       fetchJobs();
       // Update offset in state and localStorage
       const newOffset = offset + 10;
       setOffset(newOffset);
-      console.log(newOffset);
       localStorage.setItem("offset", newOffset.toString());
     } catch (err) {
       console.error("Error loading more jobs:", err);
@@ -47,8 +46,55 @@ function App() {
     }
   };
 
+  const [favorites, setFavorites] = useState<Job[]>([]);
+
+  const fetchFavorites = async () => {
+    try {
+      const res = await fetch("http://localhost:3002/favorite", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      const data = await res.json();
+      setFavorites(data);
+    } catch (err) {
+      console.error("Failed to fetch favorites:", err);
+    }
+  };
+
+  const handleFavoriteToggle = async (job: Job) => {
+    const matched = favorites.find(
+      (f) =>
+        f.title === job.title && f.company === job.company && f.url === job.url
+    );
+    try {
+      if (matched) {
+        await fetch(`http://localhost:3002/favorite/${matched._id}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+      } else {
+        await fetch("http://localhost:3002/addFavorite", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify(job),
+        });
+      }
+
+      await fetchFavorites();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchJobs();
+    fetchFavorites();
   }, []);
 
   return (
@@ -65,14 +111,15 @@ function App() {
             {/* TODO: Make it so that jobcard content is coming from the actual job postings
              * NOTE --- if API does not get set up in time, make individual static ones using a separate array with content */}
             <div className="grid-cols-3 grid gap-4">
-              {jobs.map(
-                (
-                  job,
-                  i // ignore red squigglies this works lol
-                ) => (
+              {jobs.map((job, i) => {
+                const isFavorited = favorites.some(
+                  (f) => f.title === job.title && f.url === job.url
+                );
+
+                return (
                   <JobCard
                     key={i}
-                    jobTitle={`${job.title}`}
+                    jobTitle={job.title}
                     location={`@ ${job.company}`}
                     tags={
                       job.skills
@@ -81,14 +128,16 @@ function App() {
                             .slice(0, 3)
                             .map((skill) => ({
                               title: skill.trim(),
-                              variant: "default", // or "progress"/"urgent" based on logic if needed
+                              variant: "default",
                             }))
                         : []
                     }
-                    url={`${job.url}`}
+                    url={job.url}
+                    isFavorited={isFavorited}
+                    onFavoriteToggle={handleFavoriteToggle}
                   />
-                )
-              )}
+                );
+              })}
             </div>
           </div>
           <button onClick={handleLoadMoreJobs}>Load More Jobs</button>
