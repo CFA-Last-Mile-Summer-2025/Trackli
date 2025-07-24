@@ -1,4 +1,5 @@
 import { AppSidebar } from "@/components/app-sidebar"
+import ResumeChat from "@/components/Chatbox"
 import ResumeBuilderForm from "@/components/ResumeBuilderForm"
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 
@@ -11,7 +12,10 @@ function ResumeBuilderPage() {
         <SidebarTrigger />
           <ResumeBuilderForm/>
       </main>
+    <ResumeChat />
+
     </SidebarProvider>
+
     </div>
   )
 }
