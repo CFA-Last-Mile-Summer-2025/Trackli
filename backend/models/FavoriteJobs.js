@@ -18,18 +18,18 @@ const favoriteJobsSchema = new Schema({
 class FavoriteJobClass {
   static async createNew(favJob) {
     try {
-      const exists = await FavoriteJob.findOne({
+      const exists = await FavoriteJobs.findOne({
         userId: favJob.userId,
         title: favJob.title,
         company: favJob.company,
       });
 
       if (!exists) {
-        const newFavJob = await FavoriteJob.create(favJob);
+        const newFavJob = await FavoriteJobs.create(favJob);
+        console.log("listing model added favorite")
         return newFavJob;
       } else {
         deleteFavoriteUser(userId, jobId);
-        console.log("unfavorited:", favJob.title);
       }
     } catch (e) {
       console.error(e);
@@ -38,7 +38,7 @@ class FavoriteJobClass {
 
   static async getAllFavoriteUser(userId) {
     try {
-      return await FavoriteJob.find({ userId }).exec();
+      return await FavoriteJobs.find({ userId }).exec();
     } catch (e) {
       console.error(e);
       return [];
@@ -47,7 +47,7 @@ class FavoriteJobClass {
 
   static async deleteFavoriteUser(userId, jobId) {
     try {
-      return await FavoriteJob.deleteOne({ _id: jobId, userId });
+      return await FavoriteJobs.deleteOne({ _id: jobId, userId });
     } catch (e) {
       console.error(e);
       return { deletedCount: 0 };
