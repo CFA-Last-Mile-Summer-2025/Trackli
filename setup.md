@@ -35,9 +35,9 @@ RAPID_API_KEY="..."
 GEMINI_API_KEY=...
 ```
 
-Make sure to secure any secrets (don’t commit `.env` to git).
-Since it's self-hosted, JWT_SECRET can be anything (ex: '123')
-Rapid is from: https://rapidapi.com/fantastic-jobs-fantastic-jobs-default/api/internships-api
+* Make sure to secure any secrets (don’t commit `.env` to git).
+* Since it's self-hosted, JWT_SECRET can be anything (ex: '123')
+* Rapid is from: https://rapidapi.com/fantastic-jobs-fantastic-jobs-default/api/internships-api
 
 ---
 
