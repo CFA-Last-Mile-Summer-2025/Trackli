@@ -36,6 +36,8 @@ GEMINI_API_KEY=...
 ```
 
 Make sure to secure any secrets (don’t commit `.env` to git).
+Since it's self-hosted, JWT_SECRET can be anything (ex: '123')
+Rapid is from: https://rapidapi.com/fantastic-jobs-fantastic-jobs-default/api/internships-api
 
 ---
 
@@ -58,7 +60,7 @@ npm run start
 ### ✅ Quick‐start Summary
 
 ```bash
-git clone [<repo-url>](https://github.com/CFA-Last-Mile-Summer-2025/Trackli.git)
+git clone https://github.com/CFA-Last-Mile-Summer-2025/Trackli.git
 cd Trackli
 npm run start # everything will install automatically
 ```
