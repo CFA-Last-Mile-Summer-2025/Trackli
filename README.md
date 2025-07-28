@@ -89,5 +89,5 @@ MVP in progress. Prioritized features: job tracker, resume builder. Chatbot and 
 ---
 
 ## 📦 Setup
-See SETUP.md for installation, environment variables, and deployment details.
+See [Setup Instructions](setup.md) for installation, environment variables, and deployment details.
 
