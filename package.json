@@ -1,7 +1,11 @@
 {
   "scripts": {
-  "start": "concurrently \"npm --prefix backend start\" \"npm --prefix applicationtracker run dev\""
+  "ci:applicationtracker": "npm ci --prefix applicationtracker",
+  "ci:backend": "npm ci --prefix backend",
+  "ci": "npm run ci:applicationtracker && npm run ci:backend",
+  "start": "npm ci && npm run ci && concurrently \"npm --prefix backend start\" \"npm --prefix applicationtracker run dev\""
   },
+
   "devDependencies": {
     "concurrently": "^9.2.0"
   }
