@@ -4,6 +4,7 @@ import JobCard from "../components/NewJobCard";
 import TopBar from "../components/TopBar";
 import AddJobForm from "@/components/AddJobForm";
 import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
+import { fetchWithAuth } from "@/utils/tokenChecker";
 
 interface Job {
   title: string;
@@ -50,7 +51,7 @@ function App() {
 
   const fetchFavorites = async () => {
     try {
-      const res = await fetch("http://localhost:3002/favorite", {
+      const res = await fetchWithAuth("http://localhost:3002/favorite", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

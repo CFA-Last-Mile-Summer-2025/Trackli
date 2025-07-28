@@ -21,7 +21,7 @@ function Login() {
       if (res.ok) {
         localStorage.setItem("token", data.token);
         alert("Login successful!");
-        
+        window.location.href = "/";
       } else {
         alert(data.message || "Login failed");
       }
