@@ -56,9 +56,12 @@ function App() {
         },
       });
       const data = await res.json();
-      setFavorites(data);
+      const arrayData = Array.isArray(data)? data : []
+      setFavorites(arrayData);
+      console.log("Number of favorites:", arrayData.length, arrayData, );
     } catch (err) {
       console.error("Failed to fetch favorites:", err);
+      setFavorites([]);
     }
   };
 
