@@ -16,7 +16,7 @@ const myJobsSchema = new Schema({
   },
   status: {
     type: String,
-    enum: ["saved", "applied", "offered", "closed", "interview"],
+    enum: ["saved", "applied", "offered", "closed", "interview", "accepted"],
     default: "saved",
   },
 });
