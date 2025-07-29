@@ -7,6 +7,9 @@ export type TTask = {
   company: string;
   status: Tag;
   starred: boolean;
+  skills?: string;
+  job_type?: string;
+  url: string;
 };
 
 const taskDataKey = Symbol("task");
@@ -39,11 +42,17 @@ export async function getTasks(token: string): Promise<TTask[]> {
       company: string;
       status: string;
       starred: string;
+      skills: string;
+      job_type: string,
       url: string;
     }) => ({
       id: job._id,
+      title: job.title,
       content: job.title,
       company: job.company,
+      skills: job.skills,
+      job_type: job.job_type,
+      url: job.url,
       status: {
         title: job.status.toLowerCase(),
         variant: job.status.toLowerCase(),
