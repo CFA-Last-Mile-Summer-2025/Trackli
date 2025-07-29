@@ -17,6 +17,7 @@ import {
 import { DropIndicator } from "@atlaskit/pragmatic-drag-and-drop-react-drop-indicator/box";
 import { getTaskData, isTaskData, type TTask } from "./Task-data";
 import { Badge } from "./ui/badge";
+import { fetchWithAuth } from "@/utils/tokenChecker";
 
 type TaskState =
   | { type: "idle" }
@@ -32,7 +33,7 @@ const stateStyles: {
 
 const idle: TaskState = { type: "idle" };
 
-export function Task({ task }: { task: TTask }) {
+export function Task({ task, favorites }: { task: TTask; favorites: any[] }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [state, setState] = useState<TaskState>(idle);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -112,7 +113,6 @@ export function Task({ task }: { task: TTask }) {
         body: JSON.stringify({ status: newStatus.title }),
       });
 
-
       if (!res.ok) {
         const { message } = await res.json();
         console.error("Status update failed:", message);
@@ -123,7 +123,41 @@ export function Task({ task }: { task: TTask }) {
   };
 
   //TODO change this to edit actual job star status
-  const toggleStar = () => setStarred(!starred);
+  const toggleStar = async (task: TTask) => {
+    try {
+      const isCurrentlyStarred = task.starred;
+
+      if (isCurrentlyStarred) {
+        // Find favorite and delete it
+        const favorite = favorites.find(
+          (fav) => fav.company === task.company && fav.url === task.url
+        );
+        if (favorite) {
+          await fetchWithAuth(
+            `http://localhost:3002/favorite/${favorite._id}`,
+            { method: "DELETE" }
+          );
+        }
+      } else {
+        // Add to favorites
+        await fetchWithAuth("http://localhost:3002/addFavorite", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            company: task.company.replace(/^@\s*/, ""),
+            title: task.content,
+            skills: task.skills || "",
+            job_type: task.job_type || "N/A",
+            url: task.url,
+          }),
+        });
+      }
+
+      setStarred(!isCurrentlyStarred);
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+    }
+  };
 
   return (
     <>
@@ -144,7 +178,7 @@ export function Task({ task }: { task: TTask }) {
 
           <Badge variant={task.status.variant}> {task.status.title} </Badge>
 
-          <button onClick={toggleStar} className="flex justify-center">
+          <button onClick={() => toggleStar(task)} className="flex justify-center">
             {starred ? (
               <Star className="text-amber-400 fill-amber-400" size={16} />
             ) : (
