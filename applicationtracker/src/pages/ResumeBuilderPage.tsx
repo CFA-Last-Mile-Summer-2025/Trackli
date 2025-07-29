@@ -1,4 +1,5 @@
 import Navbar from "@/components/Navbar"
+import ResumeChat from "@/components/Chatbox"
 import ResumeBuilderForm from "@/components/ResumeBuilderForm"
 
 function ResumeBuilderPage() {
@@ -8,6 +9,9 @@ function ResumeBuilderPage() {
       <main className="w-full">
           <ResumeBuilderForm/>
       </main>
+    <ResumeChat />
+
+
     </div>
   )
 }

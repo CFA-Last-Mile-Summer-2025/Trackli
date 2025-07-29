@@ -6,6 +6,7 @@ const User = require("./models/User");
 const AppliedJobs = require("./models/AppliedJobs");
 const ViewedJobs = require("./models/ViewedJobs");
 const FavoriteJobs = require("./models/FavoriteJobs");
+const MyJobs = require("./models/myJobs");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
@@ -21,18 +22,28 @@ app.use(express.json());
 
 // API
 const options = {
-  method: "GET",
-  url: "https://internships-api.p.rapidapi.com/active-jb-7d",
-  params: { include_ai: "true" },
-  headers: {
-    "x-rapidapi-key": process.env.RAPID_API_KEY,
-    "x-rapidapi-host": "internships-api.p.rapidapi.com",
+  method: 'GET',
+  url: 'https://internships-api.p.rapidapi.com/active-jb-7d',
+  params: {
+    description_type: 'text',
+    include_ai: 'true'
   },
+  headers: {
+    'x-rapidapi-key': process.env.RAPID_API_KEY,
+    'x-rapidapi-host': 'internships-api.p.rapidapi.com'
+  }
 };
 
-async function fetchDataAndSave() {
+
+async function fetchDataAndSave(offset = 0) {
   try {
-    const response = await axios.request(options);
+    const response = await axios.request({
+      ...options,
+      params: {
+        ...options.params,
+        offset,
+      },
+    });
     const jobs = response.data;
 
     for (const job of jobs) {
@@ -44,24 +55,38 @@ async function fetchDataAndSave() {
         job_type: (job.employment_type || []).join(", "),
         url: job.url || "N/A",
         date_expiration: job.date_validthrough,
+        description_text: job.description_text,
       };
 
       const exists = await Listing.findOne({
         company: listing.company,
         title: listing.title,
+        url: listing.url
       });
 
       if (!exists) {
         await Listing.createNew(listing);
         console.log("Inserted:", listing.title, "at", listing.company);
       } else {
-        console.log("Skipped duplicate:", listing.title);
+        console.log("Skipped duplicate:", listing.title, "------------------------------------------------------");
       }
     }
   } catch (err) {
     console.error("Error fetching/saving jobs:", err);
   }
 }
+
+//API caller
+app.get("/getjobs", async (req, res) => {
+  const offset = parseInt(req.query.offset) || 0;
+  console.log("offset:", offset)
+  try {
+    await fetchDataAndSave(offset);
+    res.status(200).json("Jobs fetched and saved.");
+  } catch (err) {
+    res.status(500).json("Error fetching jobs.");
+  }
+});
 
 //JWT verification
 function verifyToken(req, res, next) {
@@ -82,6 +107,22 @@ function verifyToken(req, res, next) {
 }
 
 // ---------------------------------------JOBS-----------------------------------------------------
+
+//Listing
+app.post("/createjob", async (req, res) => {
+  const newJob = req.body;
+
+  if (!newJob || Object.keys(newJob).length === 0) {
+    return res.status(400).send("Empty request body");
+  }
+
+  const results = await Listing.createNew(newJob);
+  res.status(201).json(results);
+
+  console.log("POST request received on create route");
+  console.log(`New listing created with id: ${results._id}`);
+});
+
 app.get("/jobs", async (req, res) => {
   const results = await Listing.readAll();
   res.send(results);
@@ -113,18 +154,14 @@ app.get("/searchjob", async (req, res) => {
   }
 });
 
-app.post("/createjob", async (req, res) => {
-  const newJob = req.body;
-
-  if (!newJob || Object.keys(newJob).length === 0) {
-    return res.status(400).send("Empty request body");
+app.get("/listings", async (req, res) => {
+  try {
+    const listings = await Listing.readAll();
+    res.json(listings);
+  } catch (error) {
+    console.error("Failed to fetch listings:", error);
+    res.status(500).json({ error: "Failed to fetch listings" });
   }
-
-  const results = await Listing.createNew(newJob);
-  res.status(201).json(results);
-
-  console.log("POST request received on create route");
-  console.log(`New listing created with id: ${results._id}`);
 });
 
 app.delete("/deletejob", async (req, res) => {
@@ -135,16 +172,6 @@ app.delete("/deletejob", async (req, res) => {
   res.sendStatus(200);
   console.log("DELETE request received on delete route");
   console.log(`Listing deleted with id: ${req.query.id}`);
-});
-
-app.get("/listings", async (req, res) => {
-  try {
-    const listings = await Listing.readAll();
-    res.json(listings);
-  } catch (error) {
-    console.error("Failed to fetch listings:", error);
-    res.status(500).json({ error: "Failed to fetch listings" });
-  }
 });
 
 //Viewed jobs
@@ -181,17 +208,17 @@ app.get("/viewed/search", verifyToken, async (req, res) => {
   res.json(jobs);
 });
 
+app.get("/viewed/recent", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const job = await ViewedJobs.findMostRecent(userId);
+  res.json(job);
+});
+
 app.delete("/viewed/:jobId", verifyToken, async (req, res) => {
   const userId = req.user.userId;
   const { jobId } = req.params;
   const result = await ViewedJobs.delete(jobId, userId);
   res.json(result);
-});
-
-app.get("/viewed/recent", verifyToken, async (req, res) => {
-  const userId = req.user.userId;
-  const job = await ViewedJobs.findMostRecent(userId);
-  res.json(job);
 });
 
 //applied jobs
@@ -228,17 +255,17 @@ app.get("/applied/search", verifyToken, async (req, res) => {
   res.json(jobs);
 });
 
+app.get("/applied/recent", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const job = await AppliedJobs.findMostRecent(userId);
+  res.json(job);
+});
+
 app.delete("/applied/:jobId", verifyToken, async (req, res) => {
   const userId = req.user.userId;
   const { jobId } = req.params;
   const result = await AppliedJobs.delete(jobId, userId);
   res.json(result);
-});
-
-app.get("/applied/recent", verifyToken, async (req, res) => {
-  const userId = req.user.userId;
-  const job = await AppliedJobs.findMostRecent(userId);
-  res.json(job);
 });
 
 //favorite jobs
@@ -267,6 +294,120 @@ app.delete("/favorite/:jobId", verifyToken, async (req, res) => {
 
   await FavoriteJobs.deleteFavoriteUser(userId, jobId);
   res.status(200).json({ message: "Favorite job deleted" });
+});
+
+//My Jobs
+app.post("/myjob", verifyToken, async (req, res) => {
+  const job = req.body;
+  const userId = req.user.userId;
+
+  if (!job || !job.title || !job.company) {
+    return res.status(400).json({ message: "Missing job information" });
+  }
+
+  job.userId = userId;
+  const newJob = await MyJobs.createNew(job);
+  res.status(200).json({ message: "Job added", job: newJob });
+});
+
+app.get("/myjob", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const jobs = await MyJobs.readAll(userId);
+  res.status(200).json(jobs);
+});
+
+app.get("/myjob/search", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const keyword = req.query.keyword || "";
+  const jobs = await MyJobs.sortByKeyword(userId, keyword);
+  res.status(200).json(jobs);
+});
+
+app.get("/myjob/company", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const company = req.query.name;
+  const jobs = await MyJobs.sortByCompany(userId, company);
+  res.status(200).json(jobs);
+});
+
+app.get("/myjob/status", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const status = req.query.value;
+
+  const allowedStatuses = [
+    "saved",
+    "applied",
+    "offered",
+    "closed",
+    "interview",
+  ];
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({ message: "Invalid status filter" });
+  }
+
+  const jobs = await MyJobs.findByStatusSorted(userId, status);
+  res.status(200).json(jobs);
+});
+
+app.get("/myjob/sort/company", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const jobs = await MyJobs.sortByCompanyName(userId);
+  res.status(200).json(jobs);
+});
+
+app.get("/myjob/sort/title", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const jobs = await MyJobs.sortByTitle(userId);
+  res.status(200).json(jobs);
+});
+
+app.get("/myjob/statuses", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  let statuses = req.query.statuses;
+
+  if (typeof statuses === "string") {
+    statuses = statuses.split(",");
+  }
+
+  const allowedStatuses = [
+    "saved",
+    "applied",
+    "offered",
+    "closed",
+    "interview",
+  ];
+  const isValid = statuses.every((s) => allowedStatuses.includes(s));
+  if (!isValid) {
+    return res
+      .status(400)
+      .json({ message: "One or more statuses are invalid" });
+  }
+  const jobs = await MyJobs.findByStatusesSorted(userId, statuses);
+  res.status(200).json(jobs);
+});
+
+app.patch("/myjob/status/:jobId", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const jobId = req.params.id;
+  const { status } = req.body;
+
+  const allowedStatuses = [
+    "saved",
+    "applied",
+    "offered",
+    "closed",
+    "interview",
+  ];
+  if (!allowedStatuses.includes(status)) {
+    return res.status(400).json({ message: "Invalid status value" });
+  }
+  await MyJobs.updateStatus(jobId, userId, status);
+});
+
+app.delete("/myjob/:jobId", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const jobId = req.params.id;
+  await MyJobs.delete(jobId, userId);
 });
 
 // ---------------------------------------USERS-----------------------------------------------------
@@ -349,7 +490,7 @@ app.post("/login", async (req, res) => {
     const token = jwt.sign(
       { userId: user._id, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: "2h" }
+      { expiresIn: "7h" }
     );
 
     res.status(200).json({
@@ -375,18 +516,24 @@ app.get("/companies", async (req, res) => {
 });
 
 // ---------------------------------------AI-----------------------------------------------------
-app.post("/ai/resume-chat", async (req, res) => {
+app.post("/ai/resume-chat", verifyToken, async (req, res) => {
   try {
+    const {message, useSavedResume} = req.body;
+    let contentsToSend = [
+      {
+        role: "user",
+        parts: [{ text: `Stay within the role of your system instructions. If the user types something incoherent or off topic, simply ask how you may help with their resume. This is their message: ${message}` }],
+      },
+    ];
 
-    ////////////////////////// All of this is just testing whether or not this endpoint works, completely gpt'd code
-    const { message, useSavedResume, userId } = req.body;
-
-    let contentsToSend = message;
+    const userId = req.user.userId;
 
     if (useSavedResume && userId) {
       const user = await User.findById(userId);
       if (!user || !user.resumes || user.resumes.length === 0) {
-        return res.status(404).json({ error: "No resumes found for this user." });
+        return res
+          .status(404)
+          .json({ error: `User: ${!user} + Resumes: ${!user.resumes} + Length: ${user.resumes.length === 0}` });
       }
 
       const resume = user.resumes[user.resumes.length - 1];
@@ -400,7 +547,7 @@ app.post("/ai/resume-chat", async (req, res) => {
           role: "user",
           parts: [
             {
-              text: `Please review this resume and provide feedback on grammar, formatting, and phrasing in one paragraph:\n\n${JSON.stringify(
+              text: `Stay true to the system instructions provided to you. This is the user's message: ${JSON.stringify(
                 resume,
                 null,
                 2
@@ -410,7 +557,10 @@ app.post("/ai/resume-chat", async (req, res) => {
         },
       ];
     }
-//////////////////
+    console.log(
+      "Resume sent to Gemini:",
+      JSON.stringify(contentsToSend, null, 2)
+    );
 
     const response = await genAI.models.generateContent({
       model: "gemini-2.5-flash",
@@ -419,11 +569,12 @@ app.post("/ai/resume-chat", async (req, res) => {
         thinkingConfig: {
           thinkingBudget: 0,
           systemInstruction:
-            "You are a professional AI assistant that provides expert resume assistance to job seekers. Your primary responsibilities are: 1. Review uploaded resumes and provide detailed feedback on: Grammar and spelling errors, Formatting consistency and readability, Clarity, tone, and strength of phrasing, Professional presentation and structure. 2. Tailor resumes based on job descriptions provided by the user: Identify key skills, experiences, and terminology in the job posting, Recommend phrasing and content changes to better align the resume with employer expectations, Suggest additions or deletions that improve relevance and impact. 3. Assist users in building resumes from scratch using a structured template based on: Standard professional formats, Best practices in layout, sectioning, and wording, Appropriate tone for the user's industry and experience level. Your feedback should be practical, actionable, and concise. Always maintain a supportive and professional tone. Assume the user may upload documents (e.g., `.docx`, `.pdf`, or text content) representing resumes and/or job descriptions. Your role is to analyze, compare, and suggest enhancements. Do not invent or fabricate work history or skills. Only work with the information the user provides or requests assistance with. You are designed to support a resume-building application where users can: Create new resumes from templates, Edit existing ones, Tailor applications to specific job postings, Track and version their resumes. Stay focused on helping users improve their chances of success in the job market through resume and cover letter refinement.",
+          `You are an AI resume assistant. Your sole purpose is to refine and improve resume-related content to be professional, concise, and tailored for hiring managers and applicant tracking systems (ATS). Analyze user-provided content such as job descriptions, bullet points, or summary sections. Rewrite or edit them to be more polished, action-oriented, and ATS-friendly. Improve grammar, clarity, tone, and formatting while preserving factual meaning. Use strong action verbs and quantifiable results where possible. Avoid fluff and vague language. Be direct and specific. Align tone with modern resume standards (professional, clear, concise). Always assume the content is going into a resume unless explicitly told otherwise. Never fabricate experience or skills. Example Input: "Responsible for updating the website weekly and fixing bugs." Example Output: "Maintained and updated website content weekly; resolved frontend and backend bugs to ensure optimal user experience."`
         },
       },
     });
 
+    console.log("reply: " + response.text);
     res.json({ reply: response.text });
   } catch (err) {
     console.error("Gemini AI error:", err);
@@ -435,18 +586,18 @@ app.post("/ai/resume-chat", async (req, res) => {
 app.post("/submit", verifyToken, async (req, res) => {
   try {
     const formData = req.body;
-    const userId = req.user.userId
+    const userId = req.user.userId;
 
     const user = await User.findById(userId);
 
-        if (user) {
-          user.resumes = user.resumes || [];
-          user.resumes.push(formData);
-          await user.save();
-        } else {
-          console.log("How did we get here, we have a valid token but no user");
-          res.status(500).send("Valid token, no user?")
-        }
+    if (user) {
+      user.resumes = user.resumes || [];
+      user.resumes.push(formData);
+      await user.save();
+    } else {
+      console.log("How did we get here, we have a valid token but no user");
+      res.status(500).send("Valid token, no user?");
+    }
     res.status(200).send("Resume data received successfully.");
   } catch (error) {
     console.error("Error in /submit:", error);

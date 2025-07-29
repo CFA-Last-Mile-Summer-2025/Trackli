@@ -1,6 +1,7 @@
 import LinkWarning from "./LinkWarning";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import { useState } from "react";
 
 export type Tag = {
   title: string;
@@ -12,16 +13,23 @@ type JobCardProps = {
   location: string;
   tags: Tag[];
   url: string;
+  onFavoriteToggle?: (job: any) => void;
+  isFavorited?: boolean;
 };
-
-//TODO add job_type and to props 
-export default function JobCard({ jobTitle, location, tags, url }: JobCardProps) {
+export default function JobCard({
+  jobTitle,
+  location,
+  tags,
+  url,
+  onFavoriteToggle,
+  isFavorited = false,
+}: JobCardProps) {
   const job = {
     title: jobTitle,
     company: location,
     url,
     skills: tags.map((t) => t.title).join(", "),
-    job_type: "N/A", 
+    job_type: "N/A",
     date_expiration: null,
   };
 
@@ -61,11 +69,13 @@ export default function JobCard({ jobTitle, location, tags, url }: JobCardProps)
         <div className="flex gap-2">
           <LinkWarning href={url} job={job}>
             <Button size="sm" className="text-xs px-4">
-              Apply Now
+              Apply
             </Button>
           </LinkWarning>
-          <Button size="sm" variant="outline" className="text-xs px-4">
-            Save
+          <Button size="sm" variant="outline" className="text-xs px-4"
+            onClick={() => onFavoriteToggle?.(job)}
+          >
+            {isFavorited ? "Favorited" : "Favorite"}
           </Button>
         </div>
       </div>
