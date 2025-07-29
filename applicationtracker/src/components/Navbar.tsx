@@ -28,7 +28,9 @@ export default function Navbar() {
         </nav>
 
         {/* Add pfp/avatar */}
+        <Link to="/signup">
         <User/>
+        </Link>
       </div>
     </header>
   );
