@@ -2,7 +2,7 @@ import { Tag } from "./NewJobCard";
 
 export type TTask = { id: string; content: string; company:string; status: Tag; starred: boolean; };
 
-const taskDataKey = Symbol.for('task');
+const taskDataKey = Symbol('task');
 
 export type TTaskData = { [taskDataKey]: true; taskId: TTask['id'] };
 
