@@ -3,8 +3,8 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Status } from './Status';
 import { href, Link } from 'react-router-dom';
+import { Badge } from './ui/badge';
 
 export default function Dashboard() {
   return (
@@ -33,7 +33,7 @@ export default function Dashboard() {
                   <p className="font-medium">Position</p>
                   <p className="text-sm text-muted-foreground">Company — Location</p>
                 </div>
-                <Status status='offer'/>
+              <Badge variant={"offer"}> Offer </Badge>
               </div>
             ))}
           </CardContent>

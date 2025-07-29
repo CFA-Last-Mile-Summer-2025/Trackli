@@ -194,7 +194,7 @@ export default function ResumeBuilderForm() {
 
   return (
     <div className="flex justify-center w-full">
-      <Card className="flex w-rightMargin shadow-lg bg-card text-white font-lalezar py-5 mb-10">
+      <Card className="flex w-full max-w-3xl shadow- bg-card text-primary py-5 m-10">
         <CardHeader>
           <CardTitle className="text-center text-2xl">
             Build Your Resume
