@@ -29,7 +29,7 @@ export default function Dashboard() {
       const jobsRes = await fetchWithAuth("http://localhost:3002/myjob/recent");
       const jobsData = await jobsRes.json();
       if (jobsData != null) {
-        setRecentJobs(jobsData.slice(0, 3));
+        setRecentJobs(jobsData.slice(0,4));
       }
     } catch (err) {
       console.error("Dashboard fetch error:", err);
@@ -122,11 +122,11 @@ export default function Dashboard() {
                 add bar chart lol
               </div>
               <div className="space-y-2 text-center">
-                <div className="text-3xl font-bold">{viewedWeekCount}</div>
+                <div className="text-3xl font-bold">{appliedWeekCount}</div>
                 <p className="text-sm text-muted-foreground">Applied</p>
               </div>
               <div className="space-y-2 text-center">
-                <div className="text-3xl font-bold">{appliedWeekCount}</div>
+                <div className="text-3xl font-bold">{viewedWeekCount}</div>
                 <p className="text-sm text-muted-foreground">Viewed</p>
               </div>
             </div>

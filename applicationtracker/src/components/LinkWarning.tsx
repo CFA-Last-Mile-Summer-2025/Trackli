@@ -55,6 +55,15 @@ export default function LinkWarning({
         },
         body: JSON.stringify(job),
       });
+
+      await fetch("http://localhost:3002/myjob", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(job),
+      });
     }
   };
 
