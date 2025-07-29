@@ -37,7 +37,7 @@ export default function LinkWarning({
     if (!token) {
       return console.error("No token found");
     }
-    if (choice) {
+    if (!choice) {
       await fetch("http://localhost:3002/viewed", {
         method: "POST",
         headers: {

@@ -214,6 +214,12 @@ app.get("/viewed/recent", verifyToken, async (req, res) => {
   res.json(job);
 });
 
+app.get("/viewed/recentWeek", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const jobcount = await ViewedJobs.countViewedJobsWithinWeek(userId);
+  res.json(jobcount);
+});
+
 app.delete("/viewed/:jobId", verifyToken, async (req, res) => {
   const userId = req.user.userId;
   const { jobId } = req.params;
@@ -259,6 +265,12 @@ app.get("/applied/recent", verifyToken, async (req, res) => {
   const userId = req.user.userId;
   const job = await AppliedJobs.findMostRecent(userId);
   res.json(job);
+});
+
+app.get("/applied/recentWeek", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const jobcount = await AppliedJobs.countAppliedJobsWithinWeek(userId);
+  res.json(jobcount);
 });
 
 app.delete("/applied/:jobId", verifyToken, async (req, res) => {
@@ -308,6 +320,12 @@ app.post("/myjob", verifyToken, async (req, res) => {
   job.userId = userId;
   const newJob = await MyJobs.createNew(job);
   res.status(200).json({ message: "Job added", job: newJob });
+});
+
+app.get("/myjob/recent", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const job = await MyJobs.findMostRecent(userId);
+  res.json(job);
 });
 
 app.get("/myjob", verifyToken, async (req, res) => {

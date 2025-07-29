@@ -29,7 +29,12 @@ class ViewedJobsClass {
         const created = await ViewedJobs.create(job);
         return created;
       } else {
-        console.log("Skipped duplicate viewed job:", job.company, job.title, userId);
+        console.log(
+          "Skipped duplicate viewed job:",
+          job.company,
+          job.title,
+          userId
+        );
       }
     } catch (e) {
       console.error(e);
@@ -88,6 +93,20 @@ class ViewedJobsClass {
     } catch (e) {
       console.error(e);
       return null;
+    }
+  }
+
+  static async countViewedJobsWithinWeek(userId) {
+    try {
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      return await ViewedJobs.countDocuments({
+        userId,
+        date_viewed: { $gte: weekAgo },
+      });
+    } catch (e) {
+      console.error(e);
+      return 0;
     }
   }
 }
