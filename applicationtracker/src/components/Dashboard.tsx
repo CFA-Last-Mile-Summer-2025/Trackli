@@ -68,7 +68,7 @@ export default function Dashboard() {
                     </p>
                   </div>
                   {/* need to somehow change variant as status is changed */}
-                  <Badge variant={"offer"}>{job.status || "Pending"}</Badge>
+                  <Badge variant={job.status}>{job.status || "Pending"}</Badge>
                 </div>
               ))
             ) : (
