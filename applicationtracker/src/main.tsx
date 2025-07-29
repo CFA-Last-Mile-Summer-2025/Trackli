@@ -9,10 +9,15 @@ import StatisticsPage from './pages/StatisticsPage'
 import SettingsPage from './pages/SettingsPage'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
+import DashboardPage from './pages/DashboardPage'
+import LandingPage from './pages/LandingPage'
 
 const router = createBrowserRouter([{
+  path: '/landing',
+  element: <LandingPage/>
+},{
   path: '/',
-  element: <App/>
+  element: <DashboardPage/>
 },{
   path: '/applications',
   element: <ApplicationsPage/>
@@ -20,8 +25,8 @@ const router = createBrowserRouter([{
   path: '/resumebuilder',
   element: <ResumeBuilderPage/>
 },{
-  path: '/stats',
-  element: <StatisticsPage/>
+  path: '/jobs',
+  element: <App/>
 },{
   path: '/settings',
   element: <SettingsPage/>

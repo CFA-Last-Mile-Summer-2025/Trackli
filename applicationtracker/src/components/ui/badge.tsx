@@ -10,11 +10,17 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "border-transparent bg-white text-card font-inter",
-        progress:
-          "border-transparent bg-accent text-card",
-        urgent:
-          "border-transparent bg-destructive text-white ",
+          "border-transparent bg-accent text-popover",
+        applied:
+          "border-transparent bg-violet-200 text-primary",
+        interview: 
+         "border-transparent bg-amber-200 text-primary",
+        offer:
+         "border-transparent bg-lime-200 text-primary",
+        accepted:
+         "border-transparent bg-green-200 text-primary",
+        closed:
+         "border-transparent bg-gray-200 text-primary",
       },
     },
     defaultVariants: {

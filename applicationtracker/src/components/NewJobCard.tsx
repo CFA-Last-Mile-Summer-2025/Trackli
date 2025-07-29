@@ -5,7 +5,7 @@ import { useState } from "react";
 
 export type Tag = {
   title: string;
-  variant: "default" | "progress" | "urgent" | null | undefined;
+  variant: "default" | "applied" | "interview" | "offer" | "accepted" | "closed" | null | undefined;
 };
 
 type JobCardProps = {
@@ -34,30 +34,45 @@ export default function JobCard({
   };
 
   return (
-    <div className="flex">
-      <div className="flex flex-col items-start bg-card w-90 h-50 rounded-lg px-7 py-5 justify-start text-white">
-        <h1 className="font-lalezar text-lg">{jobTitle}</h1>
-        <p className="font-inter text-xs">{location}</p>
-        <div className="pt-3 flex flex-row flex-wrap gap-1">
-          {tags
-            .sort((t1: Tag, t2: Tag) => {
-              if (t1.variant && !t2.variant) {
-                return -1;
-              } else {
-                return 1;
-              }
-            })
-            .map((tag) => {
-              return <Badge variant={tag.variant}>{tag.title}</Badge>;
-            })}
+    <div className="bg-white rounded-xl shadow border p-5 space-y-4 w-full min-w-xs max-w-xs">
+      <div className="flex justify-between items-start">
+        <div className="w-10 h-10 bg-muted rounded-md flex items-center justify-center text-sm font-medium">
+          ??
         </div>
-        {/* TODO: look at what onclick redicrection looks like w/shadcn */}
-        <div className="flex items-end justify-end flex-row gap-3 font-lalezar w-77 h-50">
-          <Button> Update </Button>
+        <Badge className="text-xs px-2 py-1" variant="applied"> {/* TODO edit to change variant  based on job type */}
+            {job.job_type}
+        </Badge>
+      </div>
+
+      <div className="space-y-1">
+        <h2 className="text-md font-semibold">{jobTitle}</h2>
+        <p className="text-sm text-muted-foreground">{location}</p>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {tags
+          .sort((t1: Tag, t2: Tag) => {
+            if (t1.variant && !t2.variant) {
+              return -1;
+            } else {
+              return 1;
+            }
+          })
+          .map((tag, i) => (
+            <Badge key={i} variant="default" className="text-xs">
+              {tag.title}
+            </Badge>
+          ))}
+      </div>
+
+      <div className="flex justify-end items-center pt-2">
+        <div className="flex gap-2">
           <LinkWarning href={url} job={job}>
-            <Button>Apply</Button>
+            <Button size="sm" className="text-xs px-4">
+              Apply
+            </Button>
           </LinkWarning>
-          <Button
+          <Button size="sm" variant="outline" className="text-xs px-4"
             onClick={() => onFavoriteToggle?.(job)}
           >
             {isFavorited ? "Favorited" : "Favorite"}
