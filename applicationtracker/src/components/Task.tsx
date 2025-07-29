@@ -16,7 +16,7 @@ import {
 } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 import { DropIndicator } from '@atlaskit/pragmatic-drag-and-drop-react-drop-indicator/box';
 import { getTaskData, isTaskData, type TTask } from './Task-data';
-import { Status } from './Status';
+import { Badge } from './ui/badge';
 
 type TaskState =
   | { type: 'idle' }
@@ -115,7 +115,7 @@ export function Task({ task }: { task: TTask }) {
 
           <span className="text-slate-700">{task.company}</span>
 
-          <Status status={task.status} />
+          <Badge variant={task.status.variant}> {task.status.title} </Badge>
 
           <button onClick={toggleStar} className="flex justify-center">
             {starred ? <Star className="text-amber-400 fill-amber-400" size={16} /> : <StarOff size={16} />}
@@ -127,11 +127,11 @@ export function Task({ task }: { task: TTask }) {
             </button>
             {menuOpen && (
               <div className="absolute right-0 mt-1 z-10 w-28 bg-white border rounded shadow-md text-sm">
-                <button onClick={() => handleStatusChange('applied')} className="w-full text-left p-2 hover:bg-slate-100">Applied</button>
-                <button onClick={() => handleStatusChange('interview')} className="w-full text-left p-2 hover:bg-slate-100">Interview</button>
-                <button onClick={() => handleStatusChange('offer')} className="w-full text-left p-2 hover:bg-slate-100">Offer</button>
-                <button onClick={() => handleStatusChange('accepted')} className="w-full text-left p-2 hover:bg-slate-100">Accepted</button>
-                <button onClick={() => handleStatusChange('closed')} className="w-full text-left p-2 hover:bg-slate-100">Closed</button>
+                <button onClick={() => handleStatusChange({title:'applied', variant:'applied'})} className="w-full text-left p-2 hover:bg-slate-100">Applied</button>
+                <button onClick={() => handleStatusChange({title:'interview', variant:'interview'})} className="w-full text-left p-2 hover:bg-slate-100">Interview</button>
+                <button onClick={() => handleStatusChange({title:'offer', variant:'offer'})} className="w-full text-left p-2 hover:bg-slate-100">Offer</button>
+                <button onClick={() => handleStatusChange({title:'accepted', variant:'accepted'})} className="w-full text-left p-2 hover:bg-slate-100">Accepted</button>
+                <button onClick={() => handleStatusChange({title:'closed', variant:'closed'})} className="w-full text-left p-2 hover:bg-slate-100">Closed</button>
 
               </div>
             )}

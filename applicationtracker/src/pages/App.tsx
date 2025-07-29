@@ -174,50 +174,6 @@ function App() {
                   url={job.url}
                 />
               ))}
-              <JobCard
-                key={1}
-                jobTitle={`dev title`}
-                location={`@ company`}
-                tags={[
-                  { title: "tag1", variant: "default" },
-                  { title: "tag2", variant: "default" },
-                  { title: "tag3", variant: "default" },
-                ]}
-                url={`https://google.com`}
-              />
-              <JobCard
-                key={1}
-                jobTitle={`job title`}
-                location={`@ company`}
-                tags={[
-                  { title: "tag1", variant: "default" },
-                  { title: "tag2", variant: "default" },
-                  { title: "tag3", variant: "default" },
-                ]}
-                url={`https://google.com`}
-              />
-              <JobCard
-                key={1}
-                jobTitle={`job title`}
-                location={`@ company`}
-                tags={[
-                  { title: "tag1", variant: "default" },
-                  { title: "tag2", variant: "default" },
-                  { title: "tag3", variant: "default" },
-                ]}
-                url={`https://google.com`}
-              />
-              <JobCard
-                key={1}
-                jobTitle={`job title`}
-                location={`@ company`}
-                tags={[
-                  { title: "tag1", variant: "default" },
-                  { title: "tag2", variant: "default" },
-                  { title: "tag3", variant: "default" },
-                ]}
-                url={`https://google.com`}
-              />
             </div>
           </div>
         </div>
