@@ -62,7 +62,7 @@ export default function LinkWarning({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(job),
+        body: JSON.stringify({ ...job, status: "applied" }),
       });
     }
   };
