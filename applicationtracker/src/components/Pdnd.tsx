@@ -8,7 +8,21 @@ import { reorderWithEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/util/r
 import { flushSync } from 'react-dom';
 
 export function Pdnd() {
-  const [tasks, setTasks] = useState<TTask[]>(() => getTasks());
+  const [tasks, setTasks] = useState<TTask[]>([]);
+
+    useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const token = localStorage.getItem('token') || '';
+        const data = await getTasks(token);
+        setTasks(data);
+      } catch (err) {
+        console.error('Failed to fetch tasks:', err);
+      }
+    };
+
+    fetchTasks();
+  }, []);
 
   useEffect(() => {
     return monitorForElements({

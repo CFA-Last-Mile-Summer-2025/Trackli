@@ -609,7 +609,6 @@ app.post("/submit", verifyToken, async (req, res) => {
 const start = async () => {
   try {
     await connectMongoose();
-    await fetchDataAndSave();
     app.listen(port, () => console.log(`Server running on port ${port}...`));
   } catch (err) {
     console.error(err);
