@@ -355,9 +355,10 @@ app.get("/myjob/status", verifyToken, async (req, res) => {
   const allowedStatuses = [
     "saved",
     "applied",
-    "offered",
+    "offer",
     "closed",
     "interview",
+    "accepted",
   ];
   if (!allowedStatuses.includes(status)) {
     return res.status(400).json({ message: "Invalid status filter" });
@@ -390,9 +391,10 @@ app.get("/myjob/statuses", verifyToken, async (req, res) => {
   const allowedStatuses = [
     "saved",
     "applied",
-    "offered",
+    "offer",
     "closed",
     "interview",
+    "accepted",
   ];
   const isValid = statuses.every((s) => allowedStatuses.includes(s));
   if (!isValid) {
@@ -406,15 +408,16 @@ app.get("/myjob/statuses", verifyToken, async (req, res) => {
 
 app.patch("/myjob/status/:jobId", verifyToken, async (req, res) => {
   const userId = req.user.userId;
-  const jobId = req.params.id;
+  const jobId = req.params.jobId;
   const { status } = req.body;
 
   const allowedStatuses = [
     "saved",
     "applied",
-    "offered",
+    "offer",
     "closed",
     "interview",
+    "accepted",
   ];
   if (!allowedStatuses.includes(status)) {
     return res.status(400).json({ message: "Invalid status value" });
