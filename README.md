@@ -44,8 +44,6 @@
 ## 🤖 AI-Enhanced Features
 
 * **AI Resume Assistant**: Tailors resume to job descriptions using Gemini Flash 2.5 API
-* **Cover Letter Generator**: Based on job + resume input
-* **AI Manual Job Ingestion**: Scrapes job data from provided links
 
 ---
 
