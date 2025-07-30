@@ -56,6 +56,7 @@ async function fetchDataAndSave(offset = 0) {
         url: job.url || "N/A",
         date_expiration: job.date_validthrough,
         description_text: job.description_text,
+        location: (job.cities_derived || []).join(", "),
       };
 
       const exists = await Listing.findOne({
