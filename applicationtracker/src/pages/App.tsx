@@ -134,6 +134,10 @@ function App() {
                 onChange={(e) => setSearch(e.target.value)}
                 className="flex-1"
               />
+              <Button onClick={handleLoadMoreJobs} className="mt-2 w-fit">
+                TEST Load More Jobs
+              </Button>
+
               <Button variant="outline" className="whitespace-nowrap">
                 Sort by Date
               </Button>
