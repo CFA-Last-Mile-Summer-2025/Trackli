@@ -26,10 +26,7 @@ class FavoriteJobClass {
 
       if (!exists) {
         const newFavJob = await FavoriteJobs.create(favJob);
-        console.log("listing model added favorite")
         return newFavJob;
-      } else {
-        deleteFavoriteUser(userId, jobId);
       }
     } catch (e) {
       console.error(e);

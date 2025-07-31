@@ -33,7 +33,7 @@ const stateStyles: {
 
 const idle: TaskState = { type: "idle" };
 
-export function Task({ task, favorites }: { task: TTask; favorites: any[] }) {
+export function Task({ task }: { task: TTask }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [state, setState] = useState<TaskState>(idle);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -128,16 +128,17 @@ export function Task({ task, favorites }: { task: TTask; favorites: any[] }) {
       const isCurrentlyStarred = task.starred;
 
       if (isCurrentlyStarred) {
-        // Find favorite and delete it
-        const favorite = favorites.find(
-          (fav) => fav.company === task.company && fav.url === task.url
-        );
-        if (favorite) {
-          await fetchWithAuth(
-            `http://localhost:3002/favorite/${favorite._id}`,
-            { method: "DELETE" }
-          );
-        }
+        const favorites = await fetchWithAuth(
+          "http://localhost:3002/favorite",
+          {
+            method: "GET",
+          }
+        ).then((res) => res.json());
+        const favorite = favorites.find((fav: any) => fav.url === task.url);
+
+        await fetchWithAuth(`http://localhost:3002/favorite/${favorite._id}`, {
+          method: "DELETE",
+        });
       } else {
         // Add to favorites
         await fetchWithAuth("http://localhost:3002/addFavorite", {
@@ -154,6 +155,7 @@ export function Task({ task, favorites }: { task: TTask; favorites: any[] }) {
       }
 
       setStarred(!isCurrentlyStarred);
+      task.starred = !isCurrentlyStarred;
     } catch (error) {
       console.error("Error toggling favorite:", error);
     }
@@ -178,7 +180,10 @@ export function Task({ task, favorites }: { task: TTask; favorites: any[] }) {
 
           <Badge variant={task.status.variant}> {task.status.title} </Badge>
 
-          <button onClick={() => toggleStar(task)} className="flex justify-center">
+          <button
+            onClick={() => toggleStar(task)}
+            className="flex justify-center"
+          >
             {starred ? (
               <Star className="text-amber-400 fill-amber-400" size={16} />
             ) : (
