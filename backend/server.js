@@ -175,6 +175,17 @@ app.delete("/deletejob", async (req, res) => {
   console.log(`Listing deleted with id: ${req.query.id}`);
 });
 
+app.get("/locations", async (req, res) => {
+  try {
+    const locations = await Listing.distinct("location");
+    res.json(locations.filter(Boolean));
+  } catch (err) {
+    console.error("Error fetching locations:", err);
+    res.status(500).json({ error: "Failed to fetch locations" });
+  }
+});
+
+
 //Viewed jobs
 app.post("/viewed", verifyToken, async (req, res) => {
   const job = req.body;

@@ -39,6 +39,9 @@ function App() {
 
   const [jobs, setJobs] = useState<Job[]>([]);
   const [search, setSearch] = useState("");
+  const [filters, setFilters] = useState({
+    location: "",
+  });
 
   const fetchJobs = async () => {
     try {
@@ -104,11 +107,16 @@ function App() {
   }, []);
 
   // --- Add filteredJobs for search functionality ---
-  const filteredJobs = jobs.filter(
-    (job) =>
+  const filteredJobs = jobs.filter((job) => {
+    const matchesSearch =
       job.title.toLowerCase().includes(search.toLowerCase()) ||
-      job.company.toLowerCase().includes(search.toLowerCase())
-  );
+      job.company.toLowerCase().includes(search.toLowerCase());
+
+    const matchesLocation =
+      !filters.location || job.location === filters.location;
+
+    return matchesSearch && matchesLocation;
+  });
 
   return (
     <div className="min-h-screen bg-background text-black">
@@ -118,8 +126,7 @@ function App() {
           <div className="w-full md:w-[250px]">
             <Filters
               onFilterChange={(newFilters) => {
-                // implement real filtering here based on newFilters
-                console.log("Filters updated:", newFilters);
+                setFilters((prev) => ({ ...prev, ...newFilters }));
               }}
             />
           </div>
