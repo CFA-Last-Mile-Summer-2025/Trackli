@@ -28,8 +28,6 @@ export async function getTasks(token: string): Promise<TTask[]> {
 
   const myJobs = await myJobsRes.json();
   const favJobs = await favRes.json();
-  console.log("Favorites:", favJobs);
-  console.log("MyJobs:", myJobs);
 
   const favSet = new Set(
     favJobs.map((fav: any) => `${fav.title}-${fav.url}`)
