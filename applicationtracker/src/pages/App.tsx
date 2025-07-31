@@ -15,7 +15,10 @@ interface Job {
   location: string;
   url: string;
   _id?: string;
+  date_expiration?: string;
 }
+
+type SortOrder = "newest" | "oldest" | "none";
 
 function App() {
   const [offset, setOffset] = useState<number>(() => {
@@ -39,6 +42,7 @@ function App() {
 
   const [jobs, setJobs] = useState<Job[]>([]);
   const [search, setSearch] = useState("");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("none");
   const [filters, setFilters] = useState({
     location: "",
   });
@@ -97,22 +101,59 @@ function App() {
     }
   };
 
+  const handleDateSort = () => {
+    if (sortOrder === "none") {
+      setSortOrder("newest");
+    } else if (sortOrder === "newest") {
+      setSortOrder("oldest");
+    } else {
+      setSortOrder("none");
+    }
+  };
+
+  const getSortButtonText = () => {
+    switch (sortOrder) {
+      case "newest":
+        return "Sort: Newest First";
+      case "oldest":
+        return "Sort: Oldest First";
+      default:
+        return "Sort by Date";
+    }
+  };
+
   useEffect(() => {
     fetchJobs();
     fetchFavorites();
   }, []);
 
-  // --- Add filteredJobs for search functionality ---
-  const filteredJobs = jobs.filter((job) => {
-    const matchesSearch =
-      job.title.toLowerCase().includes(search.toLowerCase()) ||
-      job.company.toLowerCase().includes(search.toLowerCase());
+  const filteredAndSortedJobs = (() => {
+    const filtered = jobs.filter((job) => {
+      const matchesSearch =
+        job.title.toLowerCase().includes(search.toLowerCase()) ||
+        job.company.toLowerCase().includes(search.toLowerCase());
 
-    const matchesLocation =
-      !filters.location || job.location === filters.location;
+      const matchesLocation =
+        !filters.location || job.location === filters.location;
 
-    return matchesSearch && matchesLocation;
-  });
+      return matchesSearch && matchesLocation;
+    });
+
+    if (sortOrder === 'none') {
+      return filtered;
+    }
+
+    return filtered.sort((a, b) => {
+      const dateA = a.date_expiration ? new Date(a.date_expiration) : new Date(0);
+      const dateB = b.date_expiration ? new Date(b.date_expiration) : new Date(0);
+
+      if (sortOrder === 'newest') {
+        return dateB.getTime() - dateA.getTime();
+      } else {
+        return dateA.getTime() - dateB.getTime();
+      }
+    });
+  })();
 
   return (
     <div className="min-h-screen bg-background text-black">
@@ -141,12 +182,16 @@ function App() {
                 TEST Load More Jobs
               </Button>
 
-              <Button variant="outline" className="whitespace-nowrap">
-                Sort by Date
+              <Button 
+                variant="outline" 
+                className="whitespace-nowrap"
+                onClick={handleDateSort}
+              >
+                {getSortButtonText()}
               </Button>
             </div>
             <div className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 grid gap-x-4 gap-y-4">
-              {filteredJobs.map((job, i) => {
+              {filteredAndSortedJobs.map((job, i) => {
                 const isFavorited = favorites.some(
                   (f) => f.title === job.title && f.url === job.url
                 );
