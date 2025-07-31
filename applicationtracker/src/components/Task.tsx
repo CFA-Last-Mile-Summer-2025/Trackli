@@ -104,11 +104,10 @@ export function Task({ task }: { task: TTask }) {
       const token = localStorage.getItem("token");
       task.status = newStatus;
       setMenuOpen(false);
-      const res = await fetch(`http://localhost:3002/myjob/status/${task.id}`, {
+      const res = await fetchWithAuth(`http://localhost:3002/myjob/status/${task.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ status: newStatus.title }),
       });

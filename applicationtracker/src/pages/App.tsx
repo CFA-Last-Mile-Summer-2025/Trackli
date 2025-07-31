@@ -78,18 +78,14 @@ function App() {
     );
     try {
       if (matched) {
-        await fetch(`http://localhost:3002/favorite/${matched._id}`, {
+        await fetchWithAuth(`http://localhost:3002/favorite/${matched._id}`, {
           method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
         });
       } else {
-        await fetch("http://localhost:3002/addFavorite", {
+        await fetchWithAuth("http://localhost:3002/addFavorite", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify(job),
         });
