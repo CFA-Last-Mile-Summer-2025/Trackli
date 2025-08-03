@@ -16,7 +16,7 @@ const myJobsSchema = new Schema({
   },
   status: {
     type: String,
-    enum: ["saved", "applied", "offered", "closed", "interview"],
+    enum: ["saved", "applied", "offered", "closed", "interview", "accepted"],
     default: "saved",
   },
 });
@@ -112,7 +112,7 @@ class MyJobsClass {
 
   static async findMostRecent(userId) {
     try {
-      return await MyJobs.findOne({ userId }).sort({ date_added: -1 }).exec();
+      return await MyJobs.find({ userId }).sort({ date_added: -1 }).exec();
     } catch (e) {
       console.error(e);
       return null;

@@ -56,6 +56,7 @@ async function fetchDataAndSave(offset = 0) {
         url: job.url || "N/A",
         date_expiration: job.date_validthrough,
         description_text: job.description_text,
+        location: (job.cities_derived || []).join(", "),
       };
 
       const exists = await Listing.findOne({
@@ -174,6 +175,17 @@ app.delete("/deletejob", async (req, res) => {
   console.log(`Listing deleted with id: ${req.query.id}`);
 });
 
+app.get("/locations", async (req, res) => {
+  try {
+    const locations = await Listing.distinct("location");
+    res.json(locations.filter(Boolean));
+  } catch (err) {
+    console.error("Error fetching locations:", err);
+    res.status(500).json({ error: "Failed to fetch locations" });
+  }
+});
+
+
 //Viewed jobs
 app.post("/viewed", verifyToken, async (req, res) => {
   const job = req.body;
@@ -212,6 +224,12 @@ app.get("/viewed/recent", verifyToken, async (req, res) => {
   const userId = req.user.userId;
   const job = await ViewedJobs.findMostRecent(userId);
   res.json(job);
+});
+
+app.get("/viewed/recentWeek", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const jobcount = await ViewedJobs.countViewedJobsWithinWeek(userId);
+  res.json(jobcount);
 });
 
 app.delete("/viewed/:jobId", verifyToken, async (req, res) => {
@@ -259,6 +277,12 @@ app.get("/applied/recent", verifyToken, async (req, res) => {
   const userId = req.user.userId;
   const job = await AppliedJobs.findMostRecent(userId);
   res.json(job);
+});
+
+app.get("/applied/recentWeek", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const jobcount = await AppliedJobs.countAppliedJobsWithinWeek(userId);
+  res.json(jobcount);
 });
 
 app.delete("/applied/:jobId", verifyToken, async (req, res) => {
@@ -310,6 +334,12 @@ app.post("/myjob", verifyToken, async (req, res) => {
   res.status(200).json({ message: "Job added", job: newJob });
 });
 
+app.get("/myjob/recent", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const job = await MyJobs.findMostRecent(userId);
+  res.json(job);
+});
+
 app.get("/myjob", verifyToken, async (req, res) => {
   const userId = req.user.userId;
   const jobs = await MyJobs.readAll(userId);
@@ -337,9 +367,10 @@ app.get("/myjob/status", verifyToken, async (req, res) => {
   const allowedStatuses = [
     "saved",
     "applied",
-    "offered",
+    "offer",
     "closed",
     "interview",
+    "accepted",
   ];
   if (!allowedStatuses.includes(status)) {
     return res.status(400).json({ message: "Invalid status filter" });
@@ -372,9 +403,10 @@ app.get("/myjob/statuses", verifyToken, async (req, res) => {
   const allowedStatuses = [
     "saved",
     "applied",
-    "offered",
+    "offer",
     "closed",
     "interview",
+    "accepted",
   ];
   const isValid = statuses.every((s) => allowedStatuses.includes(s));
   if (!isValid) {
@@ -388,15 +420,16 @@ app.get("/myjob/statuses", verifyToken, async (req, res) => {
 
 app.patch("/myjob/status/:jobId", verifyToken, async (req, res) => {
   const userId = req.user.userId;
-  const jobId = req.params.id;
+  const jobId = req.params.jobId;
   const { status } = req.body;
 
   const allowedStatuses = [
     "saved",
     "applied",
-    "offered",
+    "offer",
     "closed",
     "interview",
+    "accepted",
   ];
   if (!allowedStatuses.includes(status)) {
     return res.status(400).json({ message: "Invalid status value" });
@@ -609,7 +642,6 @@ app.post("/submit", verifyToken, async (req, res) => {
 const start = async () => {
   try {
     await connectMongoose();
-    await fetchDataAndSave();
     app.listen(port, () => console.log(`Server running on port ${port}...`));
   } catch (err) {
     console.error(err);

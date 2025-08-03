@@ -1,11 +1,11 @@
-import Navbar from "@/components/Navbar"
-import JobCard from "../components/NewJobCard"
-import TopBar from "../components/TopBar"
-import AddJobForm from "@/components/AddJobForm"
-import { useEffect, useState } from "react"
-import Filters from "@/components/Filters"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import Navbar from "@/components/Navbar";
+import JobCard from "../components/NewJobCard";
+import TopBar from "../components/TopBar";
+import AddJobForm from "@/components/AddJobForm";
+import { useEffect, useState } from "react";
+import Filters from "@/components/Filters";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { fetchWithAuth } from "@/utils/tokenChecker";
 
 interface Job {
@@ -15,7 +15,10 @@ interface Job {
   location: string;
   url: string;
   _id?: string;
+  date_expiration?: string;
 }
+
+type SortOrder = "newest" | "oldest" | "none";
 
 function App() {
   const [offset, setOffset] = useState<number>(() => {
@@ -37,8 +40,12 @@ function App() {
     }
   };
 
-  const [jobs, setJobs] = useState<Job[]>([])
-  const [search, setSearch] = useState("")
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [search, setSearch] = useState("");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("none");
+  const [filters, setFilters] = useState({
+    location: "",
+  });
 
   const fetchJobs = async () => {
     try {
@@ -60,9 +67,8 @@ function App() {
         },
       });
       const data = await res.json();
-      const arrayData = Array.isArray(data)? data : []
+      const arrayData = Array.isArray(data) ? data : [];
       setFavorites(arrayData);
-      console.log("Number of favorites:", arrayData.length, arrayData, );
     } catch (err) {
       console.error("Failed to fetch favorites:", err);
       setFavorites([]);
@@ -76,18 +82,14 @@ function App() {
     );
     try {
       if (matched) {
-        await fetch(`http://localhost:3002/favorite/${matched._id}`, {
+        await fetchWithAuth(`http://localhost:3002/favorite/${matched._id}`, {
           method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
         });
       } else {
-        await fetch("http://localhost:3002/addFavorite", {
+        await fetchWithAuth("http://localhost:3002/addFavorite", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify(job),
         });
@@ -99,17 +101,59 @@ function App() {
     }
   };
 
+  const handleDateSort = () => {
+    if (sortOrder === "none") {
+      setSortOrder("newest");
+    } else if (sortOrder === "newest") {
+      setSortOrder("oldest");
+    } else {
+      setSortOrder("none");
+    }
+  };
+
+  const getSortButtonText = () => {
+    switch (sortOrder) {
+      case "newest":
+        return "Sort: Newest First";
+      case "oldest":
+        return "Sort: Oldest First";
+      default:
+        return "Sort by Date";
+    }
+  };
+
   useEffect(() => {
     fetchJobs();
     fetchFavorites();
   }, []);
 
-  // --- Add filteredJobs for search functionality ---
-  const filteredJobs = jobs.filter(
-    (job) =>
-      job.title.toLowerCase().includes(search.toLowerCase()) ||
-      job.company.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredAndSortedJobs = (() => {
+    const filtered = jobs.filter((job) => {
+      const matchesSearch =
+        job.title.toLowerCase().includes(search.toLowerCase()) ||
+        job.company.toLowerCase().includes(search.toLowerCase());
+
+      const matchesLocation =
+        !filters.location || job.location === filters.location;
+
+      return matchesSearch && matchesLocation;
+    });
+
+    if (sortOrder === 'none') {
+      return filtered;
+    }
+
+    return filtered.sort((a, b) => {
+      const dateA = a.date_expiration ? new Date(a.date_expiration) : new Date(0);
+      const dateB = b.date_expiration ? new Date(b.date_expiration) : new Date(0);
+
+      if (sortOrder === 'newest') {
+        return dateB.getTime() - dateA.getTime();
+      } else {
+        return dateA.getTime() - dateB.getTime();
+      }
+    });
+  })();
 
   return (
     <div className="min-h-screen bg-background text-black">
@@ -117,10 +161,11 @@ function App() {
         <Navbar />
         <div className="flex flex-col md:flex-row gap-6 px-6 py-8 mt-10">
           <div className="w-full md:w-[250px]">
-            <Filters onFilterChange={(newFilters) => {
-              // implement real filtering here based on newFilters
-              console.log("Filters updated:", newFilters);
-            }} />
+            <Filters
+              onFilterChange={(newFilters) => {
+                setFilters((prev) => ({ ...prev, ...newFilters }));
+              }}
+            />
           </div>
           <div className="flex-1 flex flex-col gap-6 items-center">
             <div className="bg-card rounded-md w-3/4 p-3">
@@ -137,25 +182,33 @@ function App() {
               </div>
             </div>
             <div className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 grid gap-x-4 gap-y-4">
-              {filteredJobs.map((job, i) => (
-                <JobCard
-                  key={i}
-                  jobTitle={job.title}
-                  location={`@ ${job.company}`}
-                  tags={
-                    job.skills
-                      ? job.skills
-                          .split(",")
-                          .slice(0, 3)
-                          .map((skill) => ({
-                            title: skill.trim(),
-                            variant: "default",
-                          }))
-                      : []
-                  }
-                  url={job.url}
-                />
-              ))}
+              {filteredAndSortedJobs.map((job, i) => {
+                const isFavorited = favorites.some(
+                  (f) => f.title === job.title && f.url === job.url
+                );
+
+                return (
+                  <JobCard
+                    key={i}
+                    jobTitle={job.title}
+                    location={`@ ${job.company}`}
+                    tags={
+                      job.skills
+                        ? job.skills
+                            .split(",")
+                            .slice(0, 3)
+                            .map((skill) => ({
+                              title: skill.trim(),
+                              variant: "default",
+                            }))
+                        : []
+                    }
+                    url={job.url}
+                    isFavorited={isFavorited}
+                    onFavoriteToggle={() => handleFavoriteToggle(job)}
+                  />
+                );
+              })}
             </div>
           </div>
         </div>

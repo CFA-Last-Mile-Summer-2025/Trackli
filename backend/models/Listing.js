@@ -9,7 +9,8 @@ const listingSchema = new Schema({
     job_type: String,
     url: String,
     date_expiration: Date,
-    description_text: String
+    description_text: String,
+    location: String
   });
 
 class ListingClass {

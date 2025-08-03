@@ -1,11 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export default function Filters({ onFilterChange }: { onFilterChange: (filters: any) => void }) {
+export default function Filters({
+  onFilterChange,
+}: {
+  onFilterChange: (filters: any) => void;
+}) {
   const [filters, setFilters] = useState({
     location: "",
     jobTypes: new Set<string>(),
     experienceLevels: new Set<string>(),
   });
+  const [availableLocations, setAvailableLocations] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        const res = await fetch("http://localhost:3002/locations");
+        const data = await res.json();
+        setAvailableLocations(data);
+      } catch (err) {
+        console.error("Failed to fetch locations:", err);
+      }
+    };
+    fetchLocations();
+  }, []);
 
   function toggleSetValue(set: Set<string>, value: string) {
     const newSet = new Set(set);
@@ -13,7 +31,10 @@ export default function Filters({ onFilterChange }: { onFilterChange: (filters: 
     return newSet;
   }
 
-  function handleCheckboxChange(type: "jobTypes" | "experienceLevels", value: string) {
+  function handleCheckboxChange(
+    type: "jobTypes" | "experienceLevels",
+    value: string
+  ) {
     const updated = {
       ...filters,
       [type]: toggleSetValue(filters[type], value),
@@ -30,9 +51,9 @@ export default function Filters({ onFilterChange }: { onFilterChange: (filters: 
 
   function clearFilters() {
     const cleared = {
-    location: "",
-    jobTypes: new Set<string>(),
-    experienceLevels: new Set<string>(),
+      location: "",
+      jobTypes: new Set<string>(),
+      experienceLevels: new Set<string>(),
     };
     setFilters(cleared);
     onFilterChange(cleared);
@@ -40,7 +61,9 @@ export default function Filters({ onFilterChange }: { onFilterChange: (filters: 
 
   return (
     <aside className="w-full max-w-[260px] border rounded-lg p-4 bg-white shadow-md space-y-4">
-      <h2 className="text-md font-semibold flex items-center gap-2">🔍 Filters</h2>
+      <h2 className="text-md font-semibold flex items-center gap-2">
+        🔍 Filters
+      </h2>
 
       <div>
         <label className="block text-xs font-semibold mb-1">Location</label>
@@ -50,9 +73,11 @@ export default function Filters({ onFilterChange }: { onFilterChange: (filters: 
           className="w-full border px-3 py-2 rounded-md shadow-sm text-sm"
         >
           <option value="">All Locations</option>
-          <option value="remote">Remote</option>
-          <option value="new-york">New York</option>
-          <option value="seattle">Seattle</option>
+          {availableLocations.map((loc) => (
+            <option key={loc} value={loc}>
+              {loc}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -71,7 +96,9 @@ export default function Filters({ onFilterChange }: { onFilterChange: (filters: 
       </div>
 
       <div>
-        <label className="block text-xs font-semibold mb-1">Experience Level</label>
+        <label className="block text-xs font-semibold mb-1">
+          Experience Level
+        </label>
         {["Entry Level", "Mid Level", "Senior Level"].map((level) => (
           <div key={level} className="flex items-center space-x-2 text-sm">
             <input
