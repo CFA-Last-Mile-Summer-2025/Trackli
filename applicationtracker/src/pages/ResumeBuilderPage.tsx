@@ -1,17 +1,19 @@
 import Navbar from "@/components/Navbar"
 import ResumeChat from "@/components/Chatbox"
-import ResumeBuilderForm from "@/components/ResumeBuilderForm"
+import ResumeBuilder from "@/components/ResumeBuilder"
 
 function ResumeBuilderPage() {
   return (
-    <div>
-      <Navbar/>
-      <main className="w-full">
-          <ResumeBuilderForm/>
-      </main>
-    <ResumeChat />
+    <div className="min-h-screen flex flex-col bg-[url(assets/gradientBg.svg)] bg-cover bg-no-repeat bg-center">
+      <Navbar />
 
+      <div className="flex-1 flex flex-col">
+        <ResumeBuilder />
 
+        <div className="mt-auto">
+          <ResumeChat />
+        </div>
+      </div>
     </div>
   )
 }

@@ -40,7 +40,8 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <main className="max-w-6xl mx-auto p-6 space-y-6">
+    <main className="max-w-6xl mx-auto p-6 space-y-6 mt-15">
+
       <section className="text-center space-y-1">
         <h1 className="text-2xl font-semibold">Welcome back, User</h1>
         <p className="text-muted-foreground text-sm">

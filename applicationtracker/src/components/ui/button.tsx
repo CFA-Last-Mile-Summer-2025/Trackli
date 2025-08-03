@@ -11,8 +11,8 @@ const buttonVariants = cva(
       variant: {
         default:
           "bg-popover text-card shadow-xs hover:bg-popover/70 cursor-pointer",
-        destructive:
-          "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+        gradient:
+          "bg-gradient-to-r from-[#667EEA] to-[#764BA2] text-white font-semibold flex items-center gap-1 shadow-sm hover:from-[#678EEA] hover:to-[#895fb6] transition-all duration-200 hover:shadow-md",
         outline:
           "border border-accent shadow-xs hover:bg-accent hover:text-primary",
         secondary:
