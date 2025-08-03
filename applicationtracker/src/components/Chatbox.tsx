@@ -49,7 +49,7 @@ const handleSend = async () => {
 
 
   return (
-    <div className="max-w-xl mx-auto p-4 border rounded-lg shadow-md">
+    <div className="max-w-xl mx-auto mt-6 mb-10 p-4 border border-white/30 rounded-xl bg-white/10 backdrop-blur-xl shadow-xl">
       {!useSavedResume && (
         <textarea
           className="w-full p-2 border rounded mb-2"

@@ -1,3 +1,6 @@
+//This file is not used in the currrent version of the application.
+//Delete this file after all necessary code snippets are transferred to the new ResumeBuilder.tsx file.
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FormEvent } from "react";
 import { jsPDF } from "jspdf";
+import { Car } from "lucide-react";
 
 export default function ResumeBuilderForm() {
   const submit = (e: FormEvent<HTMLFormElement>) => {
@@ -194,7 +198,7 @@ export default function ResumeBuilderForm() {
 
   return (
     <div className="flex justify-center w-full">
-      <Card className="flex w-full max-w-3xl shadow- bg-card text-primary py-5 m-10">
+      <Card className="flex w-full max-w-3xl bg-card text-primary py-5 m-10">
         <CardHeader>
           <CardTitle className="text-center text-2xl">
             Build Your Resume

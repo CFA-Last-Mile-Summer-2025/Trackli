@@ -115,27 +115,26 @@ function App() {
     <div className="min-h-screen bg-background text-black">
       <main className="w-full">
         <Navbar />
-        <div className="flex flex-col md:flex-row gap-6 px-6 py-8">
+        <div className="flex flex-col md:flex-row gap-6 px-6 py-8 mt-10">
           <div className="w-full md:w-[250px]">
             <Filters onFilterChange={(newFilters) => {
               // implement real filtering here based on newFilters
               console.log("Filters updated:", newFilters);
             }} />
           </div>
-          <div className="flex-1 flex flex-col gap-6">
-            {/* <div className="flex justify-between">
-              <TopBar results={setJobs} />
-            </div> */}
-            <div className="flex flex-col sm:flex-row gap-3 w-full items-stretch sm:items-center">
-              <Input
-                placeholder="Search jobs or companies..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="flex-1"
-              />
-              <Button variant="outline" className="whitespace-nowrap">
-                Sort by Date
-              </Button>
+          <div className="flex-1 flex flex-col gap-6 items-center">
+            <div className="bg-card rounded-md w-3/4 p-3">
+              <div className="flex flex-col sm:flex-row gap-3 w-full items-center sm:items-center">
+                <Input
+                  placeholder="Search jobs or companies..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="flex-1 placeholder:text-muted-foreground"
+                />
+                <Button variant="outline" className="whitespace-nowrap">
+                  Sort by Date
+                </Button>
+              </div>
             </div>
             <div className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 grid gap-x-4 gap-y-4">
               {filteredJobs.map((job, i) => (
