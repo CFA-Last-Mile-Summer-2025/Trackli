@@ -13,6 +13,7 @@ interface Job {
   company: string;
   skills?: string;
   location: string;
+  jobType?: string;
   url: string;
   _id?: string;
 }
@@ -41,6 +42,7 @@ function App() {
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({
     location: "",
+    jobTypes: new Set<string>(),
   });
 
   const fetchJobs = async () => {
@@ -111,7 +113,14 @@ function App() {
     const matchesLocation =
       !filters.location || job.location === filters.location;
 
-    return matchesSearch && matchesLocation;
+    const matchesJobType =
+      filters.jobTypes.size === 0 || filters.jobTypes.has(job.jobType || "");
+
+    return (
+      matchesSearch &&
+      matchesLocation &&
+      matchesJobType
+    );
   });
 
   return (
