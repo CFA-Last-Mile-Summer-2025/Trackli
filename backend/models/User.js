@@ -7,11 +7,11 @@ const userSchema = new Schema({
   email: { type: String, unique: true },
   password: String,
   resumes: [
-  {
-    type: Object,
-    required: false,
-  }
-]
+    {
+      type: Object,
+      required: false,
+    },
+  ],
 });
 
 class UserClass {
@@ -68,6 +68,16 @@ class UserClass {
     } catch (e) {
       console.error(e);
       return { deletedCount: 0 };
+    }
+  }
+
+  static async getUsernameById(userId) {
+    try {
+      const user = await User.findById(userId).select("name");
+      return user ? user.name : null;
+    } catch (e) {
+      console.error(e);
+      return null;
     }
   }
 }

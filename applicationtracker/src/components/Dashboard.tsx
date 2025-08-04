@@ -12,16 +12,24 @@ export default function Dashboard() {
   const [recentJobs, setRecentJobs] = useState<any[]>([]);
   const [viewedWeekCount, setViewedWeekCount] = useState(0);
   const [appliedWeekCount, setAppliedWeekCount] = useState(0);
+  const [username, setUsername] = useState("User");
 
   const loadDashboardData = async () => {
+
+    // Fetch username
     try {
+      const usernameRes = await fetchWithAuth("http://localhost:3002/username");
+      const usernameData = await usernameRes.json();
+      const displayName = usernameData.name.includes("@") ? usernameData.name.split("@")[0] : usernameData.name;
+      setUsername(displayName);
+
       // Fetch applied count
       const appliedRes = await fetchWithAuth("http://localhost:3002/applied/recentWeek");
       const appliedData = await appliedRes.json();
 
       setAppliedWeekCount(appliedData);
       // Fetch viewed count
-      const viewedRes = await fetchWithAuth( "http://localhost:3002/viewed/recentWeek");
+      const viewedRes = await fetchWithAuth("http://localhost:3002/viewed/recentWeek");
       const viewedData = await viewedRes.json();
 
       setViewedWeekCount(viewedData);
@@ -29,7 +37,7 @@ export default function Dashboard() {
       const jobsRes = await fetchWithAuth("http://localhost:3002/myjob/recent");
       const jobsData = await jobsRes.json();
       if (jobsData != null) {
-        setRecentJobs(jobsData.slice(0,4));
+        setRecentJobs(jobsData.slice(0, 4));
       }
     } catch (err) {
       console.error("Dashboard fetch error:", err);
@@ -41,9 +49,8 @@ export default function Dashboard() {
 
   return (
     <main className="max-w-6xl mx-auto p-6 space-y-6 mt-15">
-
       <section className="text-center space-y-1">
-        <h1 className="text-2xl font-semibold">Welcome back, User</h1>
+        <h1 className="text-2xl font-semibold">Welcome back, {username}</h1>
         <p className="text-muted-foreground text-sm">
           Track your job applications and discover new opportunities
         </p>
