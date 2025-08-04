@@ -17,6 +17,7 @@ interface Job {
   date_expiration?: string;
   description_text?: string;
   location: string;
+  experience_level?: string;
   _id?: string;
 }
 
@@ -48,11 +49,12 @@ function App() {
   const [filters, setFilters] = useState({
     location: "",
     jobTypes: new Set<string>(),
+    experienceLevels: new Set<string>(),
   });
 
   const fetchJobs = async () => {
     try {
-      const res = await fetch("http://localhost:3002/listings"); // gh pages will prob need this to be changed if we want hosting
+      const res = await fetch("http://localhost:3002/listings");
       const data = await res.json();
       setJobs(data);
     } catch (err) {
@@ -142,7 +144,16 @@ function App() {
       const matchesJobType =
         filters.jobTypes.size === 0 || filters.jobTypes.has(job.job_type || "");
 
-      return matchesSearch && matchesLocation && matchesJobType;
+      const matchesExperienceLevel =
+        filters.experienceLevels.size === 0 ||
+        filters.experienceLevels.has(job.experience_level || "");
+
+      return (
+        matchesSearch &&
+        matchesLocation &&
+        matchesJobType &&
+        matchesExperienceLevel
+      );
     });
 
     if (sortOrder === "none") {

@@ -99,14 +99,19 @@ export default function Filters({
         <label className="block text-xs font-semibold mb-1">
           Experience Level
         </label>
-        {["0-2 years", "2-5 years", "5-10 years", "10+ years"].map((level) => (
-          <div key={level} className="flex items-center space-x-2 text-sm">
+        {[
+          { value: "0-2", label: "0-2 years" },
+          { value: "2-5", label: "2-5 years" },
+          { value: "5-10", label: "5-10 years" },
+          { value: "10+", label: "10+ years" }
+        ].map((level) => (
+          <div key={level.value} className="flex items-center space-x-2 text-sm">
             <input
               type="checkbox"
-              checked={filters.experienceLevels.has(level)}
-              onChange={() => handleCheckboxChange("experienceLevels", level)}
+              checked={filters.experienceLevels.has(level.value)}
+              onChange={() => handleCheckboxChange("experienceLevels", level.value)}
             />
-            <label>{level}</label>
+            <label>{level.label}</label>
           </div>
         ))}
       </div>
