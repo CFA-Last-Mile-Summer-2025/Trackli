@@ -13,6 +13,7 @@ interface Job {
   company: string;
   skills?: string;
   location: string;
+  jobType?: string;
   url: string;
   _id?: string;
   date_expiration?: string;
@@ -45,6 +46,7 @@ function App() {
   const [sortOrder, setSortOrder] = useState<SortOrder>("none");
   const [filters, setFilters] = useState({
     location: "",
+    jobTypes: new Set<string>(),
   });
 
   const fetchJobs = async () => {
@@ -136,7 +138,10 @@ function App() {
       const matchesLocation =
         !filters.location || job.location === filters.location;
 
-      return matchesSearch && matchesLocation;
+      const matchesJobType =
+        filters.jobTypes.size === 0 || filters.jobTypes.has(job.jobType || "");
+
+      return matchesSearch && matchesLocation && matchesJobType;
     });
 
     if (sortOrder === "none") {
