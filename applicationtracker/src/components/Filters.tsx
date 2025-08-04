@@ -99,7 +99,7 @@ export default function Filters({
         <label className="block text-xs font-semibold mb-1">
           Experience Level
         </label>
-        {["Entry Level", "Mid Level", "Senior Level"].map((level) => (
+        {["0-2 years", "2-5 years", "5-10 years", "10+ years"].map((level) => (
           <div key={level} className="flex items-center space-x-2 text-sm">
             <input
               type="checkbox"

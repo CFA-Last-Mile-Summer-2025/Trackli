@@ -186,6 +186,7 @@ function App() {
                   onChange={(e) => setSearch(e.target.value)}
                   className="flex-1 placeholder:text-muted-foreground"
                 />
+                <Button onClick={handleLoadMoreJobs}>Load More Jobs</Button>
                 <Button
                   variant="outline"
                   className="whitespace-nowrap"
