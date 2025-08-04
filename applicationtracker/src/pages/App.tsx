@@ -139,15 +139,19 @@ function App() {
       return matchesSearch && matchesLocation;
     });
 
-    if (sortOrder === 'none') {
+    if (sortOrder === "none") {
       return filtered;
     }
 
     return filtered.sort((a, b) => {
-      const dateA = a.date_expiration ? new Date(a.date_expiration) : new Date(0);
-      const dateB = b.date_expiration ? new Date(b.date_expiration) : new Date(0);
+      const dateA = a.date_expiration
+        ? new Date(a.date_expiration)
+        : new Date(0);
+      const dateB = b.date_expiration
+        ? new Date(b.date_expiration)
+        : new Date(0);
 
-      if (sortOrder === 'newest') {
+      if (sortOrder === "newest") {
         return dateB.getTime() - dateA.getTime();
       } else {
         return dateA.getTime() - dateB.getTime();
@@ -176,8 +180,12 @@ function App() {
                   onChange={(e) => setSearch(e.target.value)}
                   className="flex-1 placeholder:text-muted-foreground"
                 />
-                <Button variant="outline" className="whitespace-nowrap">
-                  Sort by Date
+                <Button
+                  variant="outline"
+                  className="whitespace-nowrap"
+                  onClick={handleDateSort}
+                >
+                  {getSortButtonText()}
                 </Button>
               </div>
             </div>
