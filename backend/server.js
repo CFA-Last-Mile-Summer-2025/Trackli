@@ -290,6 +290,12 @@ app.get("/applied/recentWeek", verifyToken, async (req, res) => {
   res.json(jobcount);
 });
 
+app.get("/applied/weekly-breakdown", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const dayMap = await AppliedJobs.groupByDate(userId);
+  res.json(dayMap);
+});
+
 app.delete("/applied/:jobId", verifyToken, async (req, res) => {
   const userId = req.user.userId;
   const { jobId } = req.params;
