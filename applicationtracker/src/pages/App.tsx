@@ -9,14 +9,15 @@ import { Button } from "@/components/ui/button";
 import { fetchWithAuth } from "@/utils/tokenChecker";
 
 interface Job {
-  title: string;
   company: string;
+  title: string;
   skills?: string;
-  location: string;
-  jobType?: string;
+  job_type?: string;
   url: string;
-  _id?: string;
   date_expiration?: string;
+  description_text?: string;
+  location: string;
+  _id?: string;
 }
 
 type SortOrder = "newest" | "oldest" | "none";
@@ -139,7 +140,7 @@ function App() {
         !filters.location || job.location === filters.location;
 
       const matchesJobType =
-        filters.jobTypes.size === 0 || filters.jobTypes.has(job.jobType || "");
+        filters.jobTypes.size === 0 || filters.jobTypes.has(job.job_type || "");
 
       return matchesSearch && matchesLocation && matchesJobType;
     });

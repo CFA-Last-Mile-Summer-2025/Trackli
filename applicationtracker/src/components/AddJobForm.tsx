@@ -2,12 +2,15 @@ import { useState } from "react";
 
 export default function AddJobForm() {
   const [formData, setFormData] = useState({
-    title: "",
     company: "",
+    title: "",
     skills: "",
     job_type: "",
     url: "",
     date_expiration: "",
+    description_text: "",
+    location: "",
+    _id: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
