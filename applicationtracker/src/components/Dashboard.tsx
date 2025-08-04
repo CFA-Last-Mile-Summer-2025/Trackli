@@ -7,12 +7,15 @@ import { Separator } from "@/components/ui/separator";
 import { href, Link } from "react-router-dom";
 import { Badge } from "./ui/badge";
 import { fetchWithAuth } from "@/utils/tokenChecker";
+import { BarChartDisplay } from "@/components/BarChartDisplay";
 
 export default function Dashboard() {
   const [recentJobs, setRecentJobs] = useState<any[]>([]);
   const [viewedWeekCount, setViewedWeekCount] = useState(0);
   const [appliedWeekCount, setAppliedWeekCount] = useState(0);
   const [username, setUsername] = useState("User");
+  const [barChartData, setBarChartData] = useState<{ day: string; desktop: number }[]>([]);
+
 
   const loadDashboardData = async () => {
 
@@ -39,6 +42,10 @@ export default function Dashboard() {
       if (jobsData != null) {
         setRecentJobs(jobsData.slice(0, 4));
       }
+
+      const chartRes = await fetchWithAuth("http://localhost:3002/applied/weekly-breakdown");
+      const chartData = await chartRes.json();
+      setBarChartData(chartData);
     } catch (err) {
       console.error("Dashboard fetch error:", err);
     }
@@ -126,9 +133,9 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-3 gap-4 items-center py-10">
-              <div className="bg-muted text-muted-foreground text-center py-12">
-                add bar chart lol
-              </div>
+        <div className="col-span-1">
+          <BarChartDisplay data={barChartData} />
+        </div>
               <div className="space-y-2 text-center">
                 <div className="text-3xl font-bold">{appliedWeekCount}</div>
                 <p className="text-sm text-muted-foreground">Applied</p>
@@ -144,3 +151,28 @@ export default function Dashboard() {
     </main>
   );
 }
+
+function groupJobsByDayOfWeek(jobs: any[]) {
+  const dayMap: Record<string, number> = {
+    Sunday: 0,
+    Monday: 0,
+    Tuesday: 0,
+    Wednesday: 0,
+    Thursday: 0,
+    Friday: 0,
+    Saturday: 0,
+  };
+
+  jobs.forEach((job) => {
+    const date = new Date(job.dateApplied || job.createdAt);
+    const day = date.toLocaleDateString("en-US", { weekday: "long" });
+    dayMap[day] += 1;
+  });
+
+  return Object.entries(dayMap).map(([day, count]) => ({
+    month: day,
+    desktop: count,
+  }));
+}
+
+

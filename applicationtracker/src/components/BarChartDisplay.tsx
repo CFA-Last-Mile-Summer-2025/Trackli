@@ -1,60 +1,61 @@
-"use client"
+"use client";
 
-import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts"
-
+import {
+  BarChart,
+  Bar,
+  CartesianGrid,
+  LabelList,
+  XAxis,
+} from "recharts";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
-const chartData = [
-  { month: "January", desktop: 10 },
-  { month: "February", desktop: 14 },
-  { month: "March", desktop: 20 },
-  { month: "April", desktop: 10 },
-  { month: "May", desktop: 4 },
-  { month: "June", desktop: 0 },
-]
+} from "@/components/ui/chart";
+
+type BarChartDisplayProps = {
+  data: { day: string; desktop: number }[];
+};
 
 const chartConfig = {
   desktop: {
-    label: "Desktop",
+    label: "Applications",
     color: "hsl(var(--chart-1))",
   },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
-export function BarChartDisplay() {
+export function BarChartDisplay({ data }: BarChartDisplayProps) {
   return (
-    <Card className="flex flex-col py-5 text-center max-w-250 max-h-122">
+    <Card className="flex flex-col py-5 text-center min-w-100 max-w-125 max-h-122">
       <CardHeader>
-        <CardTitle className="text-indigo-100">Applications Per Month</CardTitle>
-        <CardDescription className="text-indigo-300">January - June 2024</CardDescription>
+        <CardTitle className="text-indigo-100">Applications This Week</CardTitle>
+        <CardDescription className="text-indigo-300">
+          Weekly Application Activity
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} >
-        <BarChart
+        <ChartContainer config={chartConfig}>
+          <BarChart
             className="fill-indigo-100"
             accessibilityLayer
-            data={chartData}
-            margin={{
-              top: 20,
-            }}
+            data={data}
+            margin={{ top: 20 }}
           >
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="month"
+              dataKey="date"
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickFormatter={(value) => value} 
             />
             <ChartTooltip
               cursor={false}
@@ -62,6 +63,7 @@ export function BarChartDisplay() {
             />
             <Bar dataKey="desktop" radius={8} className="fill-indigo-300">
               <LabelList
+                dataKey="desktop"
                 position="top"
                 offset={12}
                 className="fill-indigo-100"
@@ -71,39 +73,6 @@ export function BarChartDisplay() {
           </BarChart>
         </ChartContainer>
       </CardContent>
-      {/* <CardContent className="flex justify-center">
-        <ChartContainer config={chartConfig}>
-          <BarChart
-            className="fill-indigo-100"
-            accessibilityLayer
-            data={chartData}
-            margin={{
-              top: 20,
-            }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Bar dataKey="desktop" radius={8} className="fill-indigo-300">
-              <LabelList
-                position="top"
-                offset={12}
-                className="fill-indigo-100"
-                fontSize={12}
-              />
-            </Bar>
-          </BarChart>
-        </ChartContainer>
-      </CardContent> */}
     </Card>
-  )
+  );
 }
