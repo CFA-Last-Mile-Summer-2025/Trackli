@@ -22,18 +22,17 @@ app.use(express.json());
 
 // API
 const options = {
-  method: 'GET',
-  url: 'https://internships-api.p.rapidapi.com/active-jb-7d',
+  method: "GET",
+  url: "https://internships-api.p.rapidapi.com/active-jb-7d",
   params: {
-    description_type: 'text',
-    include_ai: 'true'
+    description_type: "text",
+    include_ai: "true",
   },
   headers: {
-    'x-rapidapi-key': process.env.RAPID_API_KEY,
-    'x-rapidapi-host': 'internships-api.p.rapidapi.com'
-  }
+    "x-rapidapi-key": process.env.RAPID_API_KEY,
+    "x-rapidapi-host": "internships-api.p.rapidapi.com",
+  },
 };
-
 
 async function fetchDataAndSave(offset = 0) {
   try {
@@ -62,14 +61,18 @@ async function fetchDataAndSave(offset = 0) {
       const exists = await Listing.findOne({
         company: listing.company,
         title: listing.title,
-        url: listing.url
+        url: listing.url,
       });
 
       if (!exists) {
         await Listing.createNew(listing);
         console.log("Inserted:", listing.title, "at", listing.company);
       } else {
-        console.log("Skipped duplicate:", listing.title, "------------------------------------------------------");
+        console.log(
+          "Skipped duplicate:",
+          listing.title,
+          "------------------------------------------------------"
+        );
       }
     }
   } catch (err) {
@@ -80,7 +83,7 @@ async function fetchDataAndSave(offset = 0) {
 //API caller
 app.get("/getjobs", async (req, res) => {
   const offset = parseInt(req.query.offset) || 0;
-  console.log("offset:", offset)
+  console.log("offset:", offset);
   try {
     await fetchDataAndSave(offset);
     res.status(200).json("Jobs fetched and saved.");
@@ -184,7 +187,6 @@ app.get("/locations", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch locations" });
   }
 });
-
 
 //Viewed jobs
 app.post("/viewed", verifyToken, async (req, res) => {
@@ -475,6 +477,16 @@ app.delete("/deleteuser", async (req, res) => {
   console.log(`Listing deleted with id: ${req.query.id}`);
 });
 
+app.get("/username", verifyToken, async (req, res) => {
+    const userId = req.user.userId;
+    const user = await User.findById(userId).select("name");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json({ name: user.name });
+});
+
 //Login/Signup
 // Signup Route
 app.post("/signup", async (req, res) => {
@@ -551,11 +563,15 @@ app.get("/companies", async (req, res) => {
 // ---------------------------------------AI-----------------------------------------------------
 app.post("/ai/resume-chat", verifyToken, async (req, res) => {
   try {
-    const {message, useSavedResume} = req.body;
+    const { message, useSavedResume } = req.body;
     let contentsToSend = [
       {
         role: "user",
-        parts: [{ text: `Stay within the role of your system instructions. If the user types something incoherent or off topic, simply ask how you may help with their resume. This is their message: ${message}` }],
+        parts: [
+          {
+            text: `Stay within the role of your system instructions. If the user types something incoherent or off topic, simply ask how you may help with their resume. This is their message: ${message}`,
+          },
+        ],
       },
     ];
 
@@ -566,7 +582,11 @@ app.post("/ai/resume-chat", verifyToken, async (req, res) => {
       if (!user || !user.resumes || user.resumes.length === 0) {
         return res
           .status(404)
-          .json({ error: `User: ${!user} + Resumes: ${!user.resumes} + Length: ${user.resumes.length === 0}` });
+          .json({
+            error: `User: ${!user} + Resumes: ${!user.resumes} + Length: ${
+              user.resumes.length === 0
+            }`,
+          });
       }
 
       const resume = user.resumes[user.resumes.length - 1];
@@ -601,8 +621,7 @@ app.post("/ai/resume-chat", verifyToken, async (req, res) => {
       config: {
         thinkingConfig: {
           thinkingBudget: 0,
-          systemInstruction:
-          `You are an AI resume assistant. Your sole purpose is to refine and improve resume-related content to be professional, concise, and tailored for hiring managers and applicant tracking systems (ATS). Analyze user-provided content such as job descriptions, bullet points, or summary sections. Rewrite or edit them to be more polished, action-oriented, and ATS-friendly. Improve grammar, clarity, tone, and formatting while preserving factual meaning. Use strong action verbs and quantifiable results where possible. Avoid fluff and vague language. Be direct and specific. Align tone with modern resume standards (professional, clear, concise). Always assume the content is going into a resume unless explicitly told otherwise. Never fabricate experience or skills. Example Input: "Responsible for updating the website weekly and fixing bugs." Example Output: "Maintained and updated website content weekly; resolved frontend and backend bugs to ensure optimal user experience."`
+          systemInstruction: `You are an AI resume assistant. Your sole purpose is to refine and improve resume-related content to be professional, concise, and tailored for hiring managers and applicant tracking systems (ATS). Analyze user-provided content such as job descriptions, bullet points, or summary sections. Rewrite or edit them to be more polished, action-oriented, and ATS-friendly. Improve grammar, clarity, tone, and formatting while preserving factual meaning. Use strong action verbs and quantifiable results where possible. Avoid fluff and vague language. Be direct and specific. Align tone with modern resume standards (professional, clear, concise). Always assume the content is going into a resume unless explicitly told otherwise. Never fabricate experience or skills. Example Input: "Responsible for updating the website weekly and fixing bugs." Example Output: "Maintained and updated website content weekly; resolved frontend and backend bugs to ensure optimal user experience."`,
         },
       },
     });
