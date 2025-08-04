@@ -27,6 +27,7 @@ const options = {
   params: {
     description_type: "text",
     include_ai: "true",
+    location_filter: 'United States',
   },
   headers: {
     "x-rapidapi-key": process.env.RAPID_API_KEY,
@@ -47,6 +48,7 @@ async function fetchDataAndSave(offset = 0) {
 
     for (const job of jobs) {
       console.log("ai_key_skills:", job.ai_key_skills);
+      console.log("ai experience level: ", job.ai_experience_level)
       const listing = {
         company: job.organization || "Unknown",
         title: job.title || "N/A",
@@ -56,6 +58,7 @@ async function fetchDataAndSave(offset = 0) {
         date_expiration: job.date_validthrough,
         description_text: job.description_text,
         location: (job.cities_derived || []).join(", "),
+        experience_level: job.ai_experience_level
       };
 
       const exists = await Listing.findOne({
