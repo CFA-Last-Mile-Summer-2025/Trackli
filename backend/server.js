@@ -27,6 +27,7 @@ const options = {
   params: {
     description_type: "text",
     include_ai: "true",
+    location_filter: 'United States',
   },
   headers: {
     "x-rapidapi-key": process.env.RAPID_API_KEY,
