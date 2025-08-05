@@ -83,14 +83,19 @@ export default function Filters({
 
       <div>
         <label className="block text-xs font-semibold mb-1">Job Type</label>
-        {["Full-time", "Part-time", "Internship", "Contract"].map((type) => (
-          <div key={type} className="flex items-center space-x-2 text-sm">
+        {[{value: "FULL TIME", label: "Full-time"},
+          {value: "PART TIME", label: "Part-time"},
+          {value: "INTERN", label: "Internship"},
+          {value: "CONTRACT", label: "Contract"}
+          // "Full-time", "Part-time", "Internship", "Contract"}
+        ].map((type) => (
+          <div key={type.value} className="flex items-center space-x-2 text-sm">
             <input
               type="checkbox"
-              checked={filters.jobTypes.has(type)}
-              onChange={() => handleCheckboxChange("jobTypes", type)}
+              checked={filters.jobTypes.has(type.value)}
+              onChange={() => handleCheckboxChange("jobTypes", type.value)}
             />
-            <label>{type}</label>
+            <label>{type.label}</label>
           </div>
         ))}
       </div>
