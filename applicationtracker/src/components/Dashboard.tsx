@@ -14,25 +14,33 @@ export default function Dashboard() {
   const [viewedWeekCount, setViewedWeekCount] = useState(0);
   const [appliedWeekCount, setAppliedWeekCount] = useState(0);
   const [username, setUsername] = useState("User");
-  const [barChartData, setBarChartData] = useState<{ day: string; desktop: number }[]>([]);
-
+  const [barChartData, setBarChartData] = useState<
+    { day: string; desktop: number }[]
+  >([]);
+  const [suggestedJob, setSuggestedJob] = useState<any>(null);
+  const [loadingSuggestion, setLoadingSuggestion] = useState(true);
 
   const loadDashboardData = async () => {
-
     // Fetch username
     try {
       const usernameRes = await fetchWithAuth("http://localhost:3002/username");
       const usernameData = await usernameRes.json();
-      const displayName = usernameData.name.includes("@") ? usernameData.name.split("@")[0] : usernameData.name;
+      const displayName = usernameData.name.includes("@")
+        ? usernameData.name.split("@")[0]
+        : usernameData.name;
       setUsername(displayName);
 
       // Fetch applied count
-      const appliedRes = await fetchWithAuth("http://localhost:3002/applied/recentWeek");
+      const appliedRes = await fetchWithAuth(
+        "http://localhost:3002/applied/recentWeek"
+      );
       const appliedData = await appliedRes.json();
 
       setAppliedWeekCount(appliedData);
       // Fetch viewed count
-      const viewedRes = await fetchWithAuth("http://localhost:3002/viewed/recentWeek");
+      const viewedRes = await fetchWithAuth(
+        "http://localhost:3002/viewed/recentWeek"
+      );
       const viewedData = await viewedRes.json();
 
       setViewedWeekCount(viewedData);
@@ -43,13 +51,72 @@ export default function Dashboard() {
         setRecentJobs(jobsData.slice(0, 4));
       }
 
-      const chartRes = await fetchWithAuth("http://localhost:3002/applied/weekly-breakdown");
+      const chartRes = await fetchWithAuth(
+        "http://localhost:3002/applied/weekly-breakdown"
+      );
       const chartData = await chartRes.json();
       setBarChartData(chartData);
+
+      const suggestionRes = await fetchWithAuth(
+        "http://localhost:3002/jobs/random"
+      );
+      const suggestionData = await suggestionRes.json();
+      setSuggestedJob(suggestionData);
+      setLoadingSuggestion(false);
     } catch (err) {
       console.error("Dashboard fetch error:", err);
     }
   };
+
+  const handleViewJobDetails = async () => {
+    if (suggestedJob) {
+      try {
+        // Add to viewed jobs when user clicks details
+        await fetchWithAuth("http://localhost:3002/viewed", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: suggestedJob.title,
+            company: suggestedJob.company,
+            location: suggestedJob.location,
+            url: suggestedJob.url,
+            skills: suggestedJob.skills,
+            job_type: suggestedJob.job_type,
+            description_text: suggestedJob.description_text,
+            experience_level: suggestedJob.experience_level,
+          }),
+        });
+
+        // Open job URL in new tab
+        if (suggestedJob.url && suggestedJob.url !== "N/A") {
+          window.open(suggestedJob.url, "_blank");
+        }
+      } catch (err) {
+        console.error("Error tracking job view:", err);
+        // Still open the job even if tracking fails
+        if (suggestedJob.url && suggestedJob.url !== "N/A") {
+          window.open(suggestedJob.url, "_blank");
+        }
+      }
+    }
+  };
+
+  const getNewSuggestion = async () => {
+    setLoadingSuggestion(true);
+    try {
+      const suggestionRes = await fetchWithAuth(
+        "http://localhost:3002/jobs/random"
+      );
+      const suggestionData = await suggestionRes.json();
+      setSuggestedJob(suggestionData);
+    } catch (err) {
+      console.error("Error fetching new suggestion:", err);
+    }
+    setLoadingSuggestion(false);
+  };
+
   useEffect(() => {
     loadDashboardData();
   }, []);
@@ -82,7 +149,6 @@ export default function Dashboard() {
                       {job.company} — {job.location || "N/A"}
                     </p>
                   </div>
-                  {/* need to somehow change variant as status is changed */}
                   <Badge variant={job.status}>{job.status || "Pending"}</Badge>
                 </div>
               ))
@@ -113,12 +179,38 @@ export default function Dashboard() {
               <CardTitle>Suggested Job</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 mb-5">
-              <p className="font-medium">Position</p>
-              <p className="text-sm text-muted-foreground mb-3">
-                Company — Location
-              </p>
-              {/* add route to reach job card so user can view details and apply */}
-              <Button className="h-[30px]"> Details </Button>
+              {loadingSuggestion ? (
+                <div className="space-y-2">
+                  <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-3 bg-gray-200 rounded animate-pulse w-3/4"></div>
+                </div>
+              ) : suggestedJob ? (
+                <>
+                  <p className="font-medium">{suggestedJob.title}</p>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    {suggestedJob.company} — {suggestedJob.location || "Remote"}
+                  </p>
+                  <Button
+                    className="h-[30px] w-full"
+                    onClick={handleViewJobDetails}
+                  >
+                    View Details
+                  </Button>
+                </>
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    No suggestions available
+                  </p>
+                  <Button
+                    className="h-[30px] w-full"
+                    variant="outline"
+                    onClick={getNewSuggestion}
+                  >
+                    Try Again
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -133,9 +225,9 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-3 gap-4 items-center py-10">
-        <div className="col-span-1">
-          <BarChartDisplay data={barChartData} />
-        </div>
+              <div className="col-span-1">
+                <BarChartDisplay data={barChartData} />
+              </div>
               <div className="space-y-2 text-center">
                 <div className="text-3xl font-bold">{appliedWeekCount}</div>
                 <p className="text-sm text-muted-foreground">Applied</p>
@@ -174,5 +266,3 @@ function groupJobsByDayOfWeek(jobs: any[]) {
     desktop: count,
   }));
 }
-
-

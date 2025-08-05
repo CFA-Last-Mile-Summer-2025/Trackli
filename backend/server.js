@@ -35,6 +35,7 @@ const options = {
   },
 };
 
+// Call API
 async function fetchDataAndSave(offset = 0) {
   try {
     const response = await axios.request({
@@ -83,7 +84,7 @@ async function fetchDataAndSave(offset = 0) {
   }
 }
 
-//API caller
+// Route API caller
 app.get("/getjobs", async (req, res) => {
   const offset = parseInt(req.query.offset) || 0;
   console.log("offset:", offset);
@@ -134,6 +135,24 @@ app.get("/jobs", async (req, res) => {
   const results = await Listing.readAll();
   res.send(results);
   console.log("GET request received on home page, jobs: " + results);
+});
+
+// Randomize jobs for the suggestions dashboard
+app.get("/jobs/random", async (req, res) => {
+  try {
+    const randomJob = await Listing.aggregate([
+      { $sample: { size: 1 } }
+    ]);
+    
+    if (randomJob.length > 0) {
+      res.json(randomJob[0]);
+    } else {
+      res.status(404).json({ message: "No jobs available" });
+    }
+  } catch (err) {
+    console.error("Error fetching random job:", err);
+    res.status(500).json({ error: "Failed to fetch random job" });
+  }
 });
 
 app.get("/searchjob", async (req, res) => {
@@ -331,7 +350,7 @@ app.delete("/favorite/:jobId", verifyToken, async (req, res) => {
   res.status(200).json({ message: "Favorite job deleted" });
 });
 
-//My Jobs
+//My Jobs page routes
 app.post("/myjob", verifyToken, async (req, res) => {
   const job = req.body;
   const userId = req.user.userId;
@@ -603,7 +622,6 @@ app.post("/ai/resume-chat", verifyToken, async (req, res) => {
       // below is command to test the AI's response on the user '321' in our db
       //$ curl -X POST http://localhost:3002/ai/resume-chat   -H "Content-Type: application/json"   -d '{"useSavedResume": true, "userId": "68795b4d6d22097bbdaf4930"}'
       // if you want to put in your own resume info, you need to fill in the resume builder on the website and look for the userID in the DB
-      // When we restructure the resume builder, we should have more descriptive variable names so gemini isn't just criticizing stuff like 'skills1 skill2'
       contentsToSend = [
         {
           role: "user",
@@ -643,7 +661,7 @@ app.post("/ai/resume-chat", verifyToken, async (req, res) => {
   }
 });
 
-// RESUME BUILDER
+// RESUME BUILDER upload to db
 app.post("/submit", verifyToken, async (req, res) => {
   try {
     const formData = req.body;
