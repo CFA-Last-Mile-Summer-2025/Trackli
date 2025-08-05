@@ -19,6 +19,7 @@ interface Job {
   location: string;
   experience_level?: string;
   _id?: string;
+  city: string;
 }
 
 type SortOrder = "newest" | "oldest" | "none";
@@ -232,6 +233,8 @@ function App() {
                     url={job.url}
                     isFavorited={isFavorited}
                     onFavoriteToggle={() => handleFavoriteToggle(job)}
+                    city={job.location}
+                    job_type={job.job_type}
                   />
                 );
               })}
