@@ -15,6 +15,8 @@ type JobCardProps = {
   url: string;
   onFavoriteToggle?: (job: any) => void;
   isFavorited?: boolean;
+  city: string;
+  job_type: string | undefined
 };
 export default function JobCard({
   jobTitle,
@@ -23,21 +25,25 @@ export default function JobCard({
   url,
   onFavoriteToggle,
   isFavorited = false,
+  city,
+  job_type,
 }: JobCardProps) {
   const job = {
     title: jobTitle,
     company: location,
     url,
     skills: tags.map((t) => t.title).join(", "),
-    job_type: "N/A",
+    job_type: job_type,
     date_expiration: null,
+    city: city,
+    location: city
   };
 
   return (
     <div className="bg-white rounded-xl shadow border p-5 space-y-4 w-full min-w-xs max-w-xs">
       <div className="flex justify-between items-start">
-        <div className="w-10 h-10 bg-muted rounded-md flex items-center justify-center text-sm font-medium">
-          ??
+        <div className="w-25 h-10 bg-muted rounded-md flex items-center justify-center text-sm font-medium">
+          {job.city || 'Unknown'}
         </div>
         <Badge className="text-xs px-2 py-1" variant="applied"> {/* TODO edit to change variant  based on job type */}
             {job.job_type}
