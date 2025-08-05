@@ -143,7 +143,7 @@ function App() {
 
       const matchesJobType =
         filters.jobTypes.size === 0 || filters.jobTypes.has(job.job_type || "");
-
+        
       const matchesExperienceLevel =
         filters.experienceLevels.size === 0 ||
         filters.experienceLevels.has(job.experience_level || "");
