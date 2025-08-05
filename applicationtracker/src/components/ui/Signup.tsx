@@ -83,6 +83,7 @@ function Signup() {
       const data = await res.json();
       if (res.ok) {
         alert("Signup successful!");
+        window.location.href = "/login";
       } else {
         alert(data.message || "Signup failed");
       }
@@ -96,7 +97,7 @@ function Signup() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <Card className="w-full max-w-md shadow-lg bg-card text-white font-lalezar">
         <CardHeader>
-          <CardTitle className="text-center text-2xl">
+          <CardTitle className="text-center text-2xl text-black">
             Create an Account
           </CardTitle>
         </CardHeader>
@@ -109,6 +110,7 @@ function Signup() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              className="placeholder-white text-black"
             />
             <div className="space-y-2">
               <Input
@@ -118,13 +120,14 @@ function Signup() {
                 value={password}
                 onChange={handlePasswordChange}
                 required
-                className={`${
+                className={`text-black placeholder-white${
                   password.length > 0 && !isPasswordValid(password)
                     ? "border-red-500 focus:border-red-500"
                     : password.length > 0 && isPasswordValid(password)
                     ? "border-green-500 focus:border-green-500"
                     : ""
                 }`}
+                
               />
 
               {showPasswordRequirements && (
@@ -167,7 +170,7 @@ function Signup() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className={`${
+              className={`text-black placeholder-black${
                 confirmPassword.length > 0 && password !== confirmPassword
                   ? "border-red-500 focus:border-red-500"
                   : confirmPassword.length > 0 &&
@@ -182,7 +185,7 @@ function Signup() {
               <p className="text-red-400 text-xs">Passwords do not match</p>
             )}
 
-            <p>
+            <p className="text-black">
               Already have an account? Login{" "}
               <a href="/login" className="cursor-pointer underline">
                 here
