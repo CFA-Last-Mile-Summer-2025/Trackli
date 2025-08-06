@@ -127,6 +127,31 @@ class UserClass {
   }
 }
 
+userSchema.pre(
+  "deleteOne",
+  { document: false, query: true },
+  async function (next) {
+    try {
+      const filter = this.getFilter();
+      const userId = filter._id;
+
+      const AppliedJobs = require("./AppliedJobs");
+      const ViewedJobs = require("./ViewedJobs");
+      const FavoriteJobs = require("./FavoriteJobs");
+      const MyJobs = require("./myJobs");
+
+      await AppliedJobs.deleteMany({ userId });
+      await ViewedJobs.deleteMany({ userId });
+      await FavoriteJobs.deleteMany({ userId });
+      await MyJobs.deleteMany({ userId });
+      next();
+    } catch (e) {
+      console.error(e);
+      next(e);
+    }
+  }
+);
+
 userSchema.loadClass(UserClass);
 const User = model("User", userSchema, collectionName);
 module.exports = User;
