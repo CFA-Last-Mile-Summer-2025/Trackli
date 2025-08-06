@@ -29,7 +29,7 @@ const options = {
   params: {
     description_type: "text",
     include_ai: "true",
-    location_filter: 'United States',
+    location_filter: "United States",
   },
   headers: {
     "x-rapidapi-key": process.env.RAPID_API_KEY,
@@ -51,7 +51,7 @@ async function fetchDataAndSave(offset = 0) {
 
     for (const job of jobs) {
       console.log("ai_key_skills:", job.ai_key_skills);
-      console.log("ai experience level: ", job.ai_experience_level)
+      console.log("ai experience level: ", job.ai_experience_level);
       const listing = {
         company: job.organization || "Unknown",
         title: job.title || "N/A",
@@ -61,7 +61,7 @@ async function fetchDataAndSave(offset = 0) {
         date_expiration: job.date_validthrough,
         description_text: job.description_text,
         location: (job.cities_derived || []).join(", "),
-        experience_level: job.ai_experience_level
+        experience_level: job.ai_experience_level,
       };
 
       const exists = await Listing.findOne({
@@ -142,10 +142,8 @@ app.get("/jobs", async (req, res) => {
 // Randomize jobs for the suggestions dashboard
 app.get("/jobs/random", async (req, res) => {
   try {
-    const randomJob = await Listing.aggregate([
-      { $sample: { size: 1 } }
-    ]);
-    
+    const randomJob = await Listing.aggregate([{ $sample: { size: 1 } }]);
+
     if (randomJob.length > 0) {
       res.json(randomJob[0]);
     } else {
@@ -508,14 +506,55 @@ app.delete("/deleteuser", async (req, res) => {
 });
 
 app.get("/username", verifyToken, async (req, res) => {
-    const userId = req.user.userId;
-    const user = await User.findById(userId).select("name");
+  const userId = req.user.userId;
+  const user = await User.findById(userId).select("name");
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    res.status(200).json({ name: user.name });
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+  res.status(200).json({ name: user.name });
 });
+
+app.patch("/updateusername", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const { newName } = req.body;
+
+  if (!newName) {
+    return res.status(400).send("Missing newName");
+  }
+  await User.updateName(userId, newName);
+  res.status(200).send("Name updated successfully");
+});
+
+app.patch("/updateemail", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const { newEmail } = req.body;
+
+  if (!newEmail) {
+    return res.status(400).send("Missing newEmail");
+  }
+  await User.updateEmail(userId, newEmail);
+  res.status(200).send("Email updated successfully");
+});
+
+app.patch("/updatepassword", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const { oldPassword, newPassword } = req.body;
+
+  if (!oldPassword || !newPassword) {
+    return res.status(400).send("Both old and new passwords are required");
+  }
+
+  const result = await User.updatePasswordWithOldCheck(userId, oldPassword, newPassword);
+
+  if (!result.success) {
+    return res.status(400).send(result.message);
+  }
+
+  res.status(200).send("Password updated successfully");
+});
+
+
 
 /////// Email ////////////
 
@@ -672,13 +711,11 @@ app.post("/ai/resume-chat", verifyToken, async (req, res) => {
     if (useSavedResume && userId) {
       const user = await User.findById(userId);
       if (!user || !user.resumes || user.resumes.length === 0) {
-        return res
-          .status(404)
-          .json({
-            error: `User: ${!user} + Resumes: ${!user.resumes} + Length: ${
-              user.resumes.length === 0
-            }`,
-          });
+        return res.status(404).json({
+          error: `User: ${!user} + Resumes: ${!user.resumes} + Length: ${
+            user.resumes.length === 0
+          }`,
+        });
       }
 
       const resume = user.resumes[user.resumes.length - 1];

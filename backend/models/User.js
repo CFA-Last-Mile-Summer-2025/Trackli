@@ -1,6 +1,7 @@
 const { connectMongoose } = require("../connect");
 const collectionName = process.env.DB_COLL_NAME2;
 const { Schema, model } = require("mongoose");
+const bcrypt = require("bcrypt");
 
 const userSchema = new Schema({
   name: String,
@@ -81,6 +82,50 @@ class UserClass {
     } catch (e) {
       console.error(e);
       return null;
+    }
+  }
+
+  static async updateName(userId, newName) {
+    try {
+      const result = await User.updateOne(
+        { _id: userId },
+        { $set: { name: newName } }
+      );
+      return result;
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  }
+
+  static async updateEmail(userId, newEmail) {
+    try {
+      const result = await User.updateOne({ _id: userId }, { email: newEmail });
+      return result;
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  }
+
+  static async updatePassword(userId, oldPassword, newPassword) {
+    try {
+      const user = await User.findById(userId);
+      if (!user) return { message: "User not found" };
+
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
+      if (!isMatch) return { message: "Incorrect current password" };
+
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+      await User.updateOne(
+        { _id: userId },
+        { $set: { password: hashedNewPassword } }
+      );
+
+      return { message: "Password updated" };
+    } catch (e) {
+      console.error(e);
+      return { message: "Server error" };
     }
   }
 }
