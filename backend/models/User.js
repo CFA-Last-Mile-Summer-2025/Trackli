@@ -12,6 +12,9 @@ const userSchema = new Schema({
       required: false,
     },
   ],
+  verified: { type: Boolean, default: false },
+  verificationToken: String,
+  verificationExpires: Date,
 });
 
 class UserClass {
