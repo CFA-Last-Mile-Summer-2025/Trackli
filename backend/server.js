@@ -11,6 +11,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
 const { GoogleGenAI } = require("@google/genai");
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
 
 const port = process.env.PORT || 3002;
 const app = express();
@@ -554,7 +556,61 @@ app.patch("/updatepassword", verifyToken, async (req, res) => {
 
 
 
-//Login/Signup
+/////// Email ////////////
+
+// Email transporter for verification
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USERNAME,
+    pass: process.env.EMAIL_PASSWORD, 
+  },
+});
+
+function sendVerificationEmail(email, token) {
+  const verificationUrl = `http://localhost:3002/verify-email?token=${token}`;
+    const mailOptions = {
+    from: process.env.EMAIL_USERNAME,
+    to: email,
+    subject: "Verify your email",
+    html: `
+      <p>Thanks for signing up! Please verify your email by clicking the button below:</p>
+      <p><a href="${verificationUrl}">Click here to verify</a></p>
+    `,
+  };
+  return transporter.sendMail(mailOptions);
+}
+
+app.get("/verify-email", async (req, res) => {
+  const { token } = req.query;
+
+  if (!token) return res.status(400).send("Missing verification token");
+
+  try {
+    const user = await User.findOne({
+      verificationToken: token,
+      verificationExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).send("Invalid or expired verification token");
+    }
+
+    user.verified = true;
+    user.verificationToken = undefined;
+    user.verificationExpires = undefined;
+
+    await user.save();
+
+    res.send("Email successfully verified! You can now log in.");
+  } catch (err) {
+    console.error("Verification error:", err);
+    res.status(500).send("Internal server error");
+  }
+});
+
+
+//    Login/Signup //
 // Signup Route
 app.post("/signup", async (req, res) => {
   console.log(" /signup endpoint hit");
@@ -571,14 +627,22 @@ app.post("/signup", async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationExpires = Date.now() + 1000 * 60 * 60; // 1 hour
+
     const newUser = await User.create({
       name,
       email,
       password: hashedPassword,
+      verified: false,
+      verificationToken,
+      verificationExpires,
     });
 
+    await sendVerificationEmail(email, verificationToken);
+
     res.status(201).json({
-      message: "Signup successful",
+      message: "Signup successful. Please check your email to verify your account.",
       user: { id: newUser._id, name: newUser.name, email: newUser.email },
     });
   } catch (err) {
