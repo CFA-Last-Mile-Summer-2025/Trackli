@@ -1,7 +1,7 @@
 const { connectMongoose } = require("../connect");
 const collectionName = process.env.DB_COLL_NAME2;
 const { Schema, model } = require("mongoose");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 const userSchema = new Schema({
   name: String,
