@@ -1,23 +1,24 @@
-import { useEffect, useState } from 'react';
-import { getTasks, type TTask } from './Task-data';
-import { Task } from './Task';
-import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { isTaskData } from './Task-data';
-import { extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
-import { reorderWithEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/util/reorder-with-edge';
-import { flushSync } from 'react-dom';
+import { useEffect, useState } from "react";
+import { getTasks, type TTask } from "./Task-data";
+import { Task } from "./Task";
+import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import { isTaskData } from "./Task-data";
+import { extractClosestEdge } from "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge";
+import { reorderWithEdge } from "@atlaskit/pragmatic-drag-and-drop-hitbox/util/reorder-with-edge";
+import { flushSync } from "react-dom";
+import { fetchWithAuth } from "@/utils/tokenChecker";
 
 export function Pdnd() {
   const [tasks, setTasks] = useState<TTask[]>([]);
 
-    useEffect(() => {
+  useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const token = localStorage.getItem('token') || '';
+        const token = localStorage.getItem("token") || "";
         const data = await getTasks(token);
         setTasks(data);
       } catch (err) {
-        console.error('Failed to fetch tasks:', err);
+        console.error("Failed to fetch tasks:", err);
       }
     };
 
@@ -29,7 +30,7 @@ export function Pdnd() {
       canMonitor({ source }) {
         return isTaskData(source.data);
       },
-      onDrop({ location, source }) {
+      async onDrop({ location, source }) {
         const target = location.current.dropTargets[0];
         if (!target) return;
 
@@ -37,23 +38,41 @@ export function Pdnd() {
         const targetData = target.data;
         if (!isTaskData(sourceData) || !isTaskData(targetData)) return;
 
-        const indexOfSource = tasks.findIndex((t) => t.id === sourceData.taskId);
-        const indexOfTarget = tasks.findIndex((t) => t.id === targetData.taskId);
+        const indexOfSource = tasks.findIndex(
+          (t) => t.id === sourceData.taskId
+        );
+        const indexOfTarget = tasks.findIndex(
+          (t) => t.id === targetData.taskId
+        );
         if (indexOfSource < 0 || indexOfTarget < 0) return;
 
         const closestEdge = extractClosestEdge(targetData);
 
+        let newTasks: TTask[] = [];
         flushSync(() => {
-          setTasks(
-            reorderWithEdge({
-              list: tasks,
-              startIndex: indexOfSource,
-              indexOfTarget,
-              closestEdgeOfTarget: closestEdge,
-              axis: 'vertical',
-            }),
-          );
+          newTasks = reorderWithEdge({
+            list: tasks,
+            startIndex: indexOfSource,
+            indexOfTarget,
+            closestEdgeOfTarget: closestEdge,
+            axis: "vertical",
+          });
+          setTasks(newTasks);
         });
+
+        try {
+          const orderedIds = newTasks.map((task) => task.id);
+
+          await fetchWithAuth(`http://localhost:3002/myjob/reorder`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ orderedIds }),
+          });
+        } catch (err) {
+          console.error("Reorder route failure:", err);
+        }
       },
     });
   }, [tasks]);

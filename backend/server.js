@@ -372,7 +372,7 @@ app.get("/myjob/recent", verifyToken, async (req, res) => {
 
 app.get("/myjob", verifyToken, async (req, res) => {
   const userId = req.user.userId;
-  const jobs = await MyJobs.readAll(userId);
+  const jobs = await MyJobs.find({ userId }).sort({ position: 1 });
   res.status(200).json(jobs);
 });
 
@@ -472,6 +472,28 @@ app.delete("/myjob/:jobId", verifyToken, async (req, res) => {
   const jobId = req.params.id;
   await MyJobs.delete(jobId, userId);
 });
+
+app.post("/myjob/reorder", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const { orderedIds } = req.body;
+
+  if (!Array.isArray(orderedIds)) {
+    return res.status(400).json({ message: "orderedIds must be an array" });
+  }
+
+  try {
+    await Promise.all(
+      orderedIds.map((jobId, index) =>
+        MyJobs.updateOne({ _id: jobId, userId }, { position: index })
+      )
+    );
+    res.status(200).json({ message: "Job order updated successfully" });
+  } catch (err) {
+    console.error("Error updating job order:", err);
+    res.status(500).json({ message: "Failed to update job order" });
+  }
+});
+
 
 // ---------------------------------------USERS-----------------------------------------------------
 app.get("/users", async (req, res) => {
