@@ -8,6 +8,7 @@ import { href, Link } from "react-router-dom";
 import { Badge } from "./ui/badge";
 import { fetchWithAuth } from "@/utils/tokenChecker";
 import { BarChartDisplay } from "@/components/BarChartDisplay";
+import LinkWarning from "./LinkWarning";
 
 export default function Dashboard() {
   const [recentJobs, setRecentJobs] = useState<any[]>([]);
@@ -65,41 +66,6 @@ export default function Dashboard() {
       setLoadingSuggestion(false);
     } catch (err) {
       console.error("Dashboard fetch error:", err);
-    }
-  };
-
-  const handleViewJobDetails = async () => {
-    if (suggestedJob) {
-      try {
-        // Add to viewed jobs when user clicks details
-        await fetchWithAuth("http://localhost:3002/viewed", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            title: suggestedJob.title,
-            company: suggestedJob.company,
-            location: suggestedJob.location,
-            url: suggestedJob.url,
-            skills: suggestedJob.skills,
-            job_type: suggestedJob.job_type,
-            description_text: suggestedJob.description_text,
-            experience_level: suggestedJob.experience_level,
-          }),
-        });
-
-        // Open job URL in new tab
-        if (suggestedJob.url && suggestedJob.url !== "N/A") {
-          window.open(suggestedJob.url, "_blank");
-        }
-      } catch (err) {
-        console.error("Error tracking job view:", err);
-        // Still open the job even if tracking fails
-        if (suggestedJob.url && suggestedJob.url !== "N/A") {
-          window.open(suggestedJob.url, "_blank");
-        }
-      }
     }
   };
 
@@ -190,12 +156,9 @@ export default function Dashboard() {
                   <p className="text-sm text-muted-foreground mb-3">
                     {suggestedJob.company} — {suggestedJob.location || "Remote"}
                   </p>
-                  <Button
-                    className="h-[30px] w-full"
-                    onClick={handleViewJobDetails}
-                  >
-                    View Details
-                  </Button>
+                  <LinkWarning href={suggestedJob.url} job={suggestedJob}>
+                    <Button className="h-[30px] w-full">View Details</Button>
+                  </LinkWarning>
                 </>
               ) : (
                 <div className="space-y-2">
