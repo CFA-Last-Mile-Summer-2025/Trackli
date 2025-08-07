@@ -715,55 +715,17 @@ app.get("/companies", async (req, res) => {
 
 // ---------------------------------------AI-----------------------------------------------------
 app.post("/ai/resume-chat", verifyToken, async (req, res) => {
-  try {
-    const { message, useSavedResume } = req.body;
+  try{
     let contentsToSend = [
-      {
-        role: "user",
-        parts: [
-          {
-            text: `Stay within the role of your system instructions. If the user types something incoherent or off topic, simply ask how you may help with their resume. This is their message: ${message}`,
-          },
-        ],
-      },
-    ];
-
-    const userId = req.user.userId;
-
-    if (useSavedResume && userId) {
-      const user = await User.findById(userId);
-      if (!user || !user.resumes || user.resumes.length === 0) {
-        return res.status(404).json({
-          error: `User: ${!user} + Resumes: ${!user.resumes} + Length: ${
-            user.resumes.length === 0
-          }`,
-        });
-      }
-
-      const resume = user.resumes[user.resumes.length - 1];
-      //console.log(resume)
-      // below is command to test the AI's response on the user '321' in our db
-      //$ curl -X POST http://localhost:3002/ai/resume-chat   -H "Content-Type: application/json"   -d '{"useSavedResume": true, "userId": "68795b4d6d22097bbdaf4930"}'
-      // if you want to put in your own resume info, you need to fill in the resume builder on the website and look for the userID in the DB
-      contentsToSend = [
         {
           role: "user",
           parts: [
             {
-              text: `Stay true to the system instructions provided to you. This is the user's message: ${JSON.stringify(
-                resume,
-                null,
-                2
-              )}`,
+              text: `Stay true to the system instructions provided to you. This is the user's message: ${req.body}`,
             },
           ],
         },
       ];
-    }
-    console.log(
-      "Resume sent to Gemini:",
-      JSON.stringify(contentsToSend, null, 2)
-    );
 
     const response = await genAI.models.generateContent({
       model: "gemini-2.5-flash",
