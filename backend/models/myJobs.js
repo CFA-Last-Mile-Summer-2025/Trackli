@@ -19,6 +19,7 @@ const myJobsSchema = new Schema({
     enum: ["saved", "applied", "offered", "closed", "interview", "accepted"],
     default: "saved",
   },
+  position: { type: Number, default: 0 },
 });
 
 class MyJobsClass {
