@@ -2,7 +2,7 @@ import Signup from "@/components/ui/Signup"
 
 function SignupPage() {
   return (
-    <div>
+    <div className="bg-[url(assets/gradientBg.svg)]">
       <Signup/>
     </div>
   )
