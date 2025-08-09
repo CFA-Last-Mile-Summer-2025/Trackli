@@ -157,36 +157,36 @@ const WorkExperienceItem: React.FC<{
 ));
 
 // Side navigation component
-const SideNavigation: React.FC<{
-  sections: Array<{ id: string; title: string; icon: React.ReactNode }>;
-}> = ({ sections }) => {
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  };
+// const SideNavigation: React.FC<{
+//   sections: Array<{ id: string; title: string; icon: React.ReactNode }>;
+// }> = ({ sections }) => {
+//   const scrollToSection = (sectionId: string) => {
+//     const element = document.getElementById(sectionId);
+//     if (element) {
+//       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+//     }
+//   };
 
-  return (
-    <div className="fixed left-6 top-1/2 transform -translate-y-1/2 z-10 hidden lg:block">
-      <div className="bg-white/10 backdrop-blur-xl rounded-xl p-3 shadow-2xl border border-white/20 hover:shadow-2xl transition-all duration-300">
-        <div className="space-y-2">
-          {sections.map((section) => (
-            <button
-              key={section.id}
-              onClick={() => scrollToSection(section.id)}
-              className="flex items-center gap-3 text-sm text-gray-700 hover:text-slate-800 transition-all duration-200 p-2.5 rounded-lg hover:bg-white/20 hover:shadow-sm w-full text-left group"
-              title={section.title}
-            >
-              <span className="text-base group-hover:scale-110 transition-transform duration-200">{section.icon}</span>
-              <span className="font-medium whitespace-nowrap">{section.title}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
+//   return (
+//     <div className="fixed left-6 top-1/2 transform -translate-y-1/2 z-10 hidden lg:block">
+//       <div className="bg-white/10 backdrop-blur-xl rounded-xl p-3 shadow-2xl border border-white/20 hover:shadow-2xl transition-all duration-300">
+//         <div className="space-y-2">
+//           {sections.map((section) => (
+//             <button
+//               key={section.id}
+//               onClick={() => scrollToSection(section.id)}
+//               className="flex items-center gap-3 text-sm text-gray-700 hover:text-slate-800 transition-all duration-200 p-2.5 rounded-lg hover:bg-white/20 hover:shadow-sm w-full text-left group"
+//               title={section.title}
+//             >
+//               <span className="text-base group-hover:scale-110 transition-transform duration-200">{section.icon}</span>
+//               <span className="font-medium whitespace-nowrap">{section.title}</span>
+//             </button>
+//           ))}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
 
 const ResumeBuilder: React.FC = () => {
   const [personalOpen, setPersonalOpen] = useState(true);
@@ -323,9 +323,7 @@ const ResumeBuilder: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-slate-600/20 via-transparent to-slate-200/10"></div>
       </div> */}
 
-    {/* Resumebuilder form content (beyond background) beings here */}
-      <SideNavigation sections={navigationSections} />
-      
+    {/* Resumebuilder form content (beyond background) beings here */}      
       <div className="relative z-10 backdrop-blur-lg bg-white/20 border border-white/30 rounded-2xl p-8 max-w-4xl mx-auto my-10 mt-20 shadow-2xl">
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-800 tracking-tight text-left mb-2">Build Your Resume</h2>

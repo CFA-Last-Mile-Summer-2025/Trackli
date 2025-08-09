@@ -33,11 +33,19 @@ const stateStyles: {
 
 const idle: TaskState = { type: "idle" };
 
-export function Task({ task }: { task: TTask }) {
+interface TaskProps {
+  task: TTask;
+  onRefresh?: () => void;
+  isLastItems?: boolean;
+}
+
+export function Task({ task, onRefresh, isLastItems = false }: TaskProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [state, setState] = useState<TaskState>(idle);
   const [menuOpen, setMenuOpen] = useState(false);
   const [starred, setStarred] = useState(task.starred ?? false);
+  const [currentStatus, setCurrentStatus] = useState(task.status);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     const element = ref.current;
@@ -98,12 +106,13 @@ export function Task({ task }: { task: TTask }) {
     );
   }, [task]);
 
-  //TODO change this to edit actual job status
   const handleStatusChange = async (newStatus: TTask["status"]) => {
     try {
-      const token = localStorage.getItem("token");
-      task.status = newStatus;
+      setIsUpdating(true);
+      // Immediately update UI for instant feedback
+      setCurrentStatus(newStatus);
       setMenuOpen(false);
+      
       const res = await fetchWithAuth(`http://localhost:3002/myjob/status/${task.id}`, {
         method: "PATCH",
         headers: {
@@ -112,16 +121,28 @@ export function Task({ task }: { task: TTask }) {
         body: JSON.stringify({ status: newStatus.title }),
       });
 
-      if (!res.ok) {
+      if (res.ok) {
+        // Update the original task object
+        task.status = newStatus;
+        // Refresh the task list to get updated data from server
+        if (onRefresh) {
+          await onRefresh();
+        }
+      } else {
+        // Revert UI change if server update failed
+        setCurrentStatus(task.status);
         const { message } = await res.json();
         console.error("Status update failed:", message);
       }
     } catch (error) {
+      // Revert UI change if request failed
+      setCurrentStatus(task.status);
       console.error("Error updating job status:", error);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
-  //TODO change this to edit actual job star status
   const toggleStar = async (task: TTask) => {
     try {
       const isCurrentlyStarred = task.starred;
@@ -160,88 +181,117 @@ export function Task({ task }: { task: TTask }) {
     }
   };
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuOpen && !ref.current?.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [menuOpen]);
+
   return (
     <>
       <div className="relative">
         <div
           ref={ref}
           data-task-id={task.id}
-          className={`grid grid-cols-[3fr_2fr_1fr_1fr_auto] items-center bg-white text-sm border-b last:rounded-b px-4 py-2 hover:bg-slate-100 hover:cursor-grab ${
+          className={`grid grid-cols-[3fr_2fr_1fr_1fr_auto] items-center bg-black/3 backdrop-blur-sm text-sm border-b border-white/5 last:border-b-0 px-6 py-4 hover:bg-black/20 hover:cursor-grab text-white transition-colors duration-200 ${
             stateStyles[state.type] ?? ""
           }`}
         >
           <span className="flex items-center gap-2">
-            <GripVertical size={10} />
-            {task.content}
+            <GripVertical size={12} className="text-white/50" />
+            <span className="text-white">{task.content}</span>
           </span>
 
-          <span className="text-slate-700">{task.company}</span>
+          <span className="text-white/80">{task.company}</span>
 
-          <Badge variant={task.status.variant}> {task.status.title} </Badge>
+          <Badge variant={currentStatus.variant} className={isUpdating ? "opacity-50" : ""}>
+            {currentStatus.title}
+          </Badge>
 
           <button
             onClick={() => toggleStar(task)}
-            className="flex justify-center"
+            className="flex justify-center hover:scale-110 transition-transform duration-200"
           >
             {starred ? (
               <Star className="text-amber-400 fill-amber-400" size={16} />
             ) : (
-              <StarOff size={16} />
+              <StarOff size={16} className="text-white/60 hover:text-white/80" />
             )}
           </button>
 
           <div className="relative flex justify-end">
-            <button onClick={() => setMenuOpen(!menuOpen)}>
-              <MoreVertical size={18} />
+            <button 
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="p-1 hover:bg-white/10 rounded transition-colors duration-200"
+            >
+              <MoreVertical size={18} className="text-white/70" />
             </button>
             {menuOpen && (
-              <div className="absolute right-0 mt-1 z-10 w-28 bg-white border rounded shadow-md text-sm">
-                <button
-                  onClick={() =>
-                    handleStatusChange({ title: "applied", variant: "applied" })
-                  }
-                  className="w-full text-left p-2 hover:bg-slate-100"
-                >
-                  Applied
-                </button>
-                <button
-                  onClick={() =>
-                    handleStatusChange({
-                      title: "interview",
-                      variant: "interview",
-                    })
-                  }
-                  className="w-full text-left p-2 hover:bg-slate-100"
-                >
-                  Interview
-                </button>
-                <button
-                  onClick={() =>
-                    handleStatusChange({ title: "offer", variant: "offer" })
-                  }
-                  className="w-full text-left p-2 hover:bg-slate-100"
-                >
-                  Offer
-                </button>
-                <button
-                  onClick={() =>
-                    handleStatusChange({
-                      title: "accepted",
-                      variant: "accepted",
-                    })
-                  }
-                  className="w-full text-left p-2 hover:bg-slate-100"
-                >
-                  Accepted
-                </button>
-                <button
-                  onClick={() =>
-                    handleStatusChange({ title: "closed", variant: "closed" })
-                  }
-                  className="w-full text-left p-2 hover:bg-slate-100"
-                >
-                  Closed
-                </button>
+              <div 
+                className={`absolute right-0 z-[9999] w-36 backdrop-blur-xl bg-gray-900/95 border border-gray-600/50 rounded-xl shadow-2xl text-sm overflow-hidden ${
+                  isLastItems ? 'bottom-full mb-2' : 'top-full mt-2'
+                }`}
+                style={{ zIndex: 9999 }}
+              >
+                <div className="py-1">
+                  <button
+                    onClick={() =>
+                      handleStatusChange({ title: "applied", variant: "applied" })
+                    }
+                    disabled={isUpdating}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-700/50 text-gray-100 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Applied
+                  </button>
+                  <button
+                    onClick={() =>
+                      handleStatusChange({
+                        title: "interview",
+                        variant: "interview",
+                      })
+                    }
+                    disabled={isUpdating}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-700/50 text-gray-100 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Interview
+                  </button>
+                  <button
+                    onClick={() =>
+                      handleStatusChange({ title: "offer", variant: "offer" })
+                    }
+                    disabled={isUpdating}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-700/50 text-gray-100 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Offer
+                  </button>
+                  <button
+                    onClick={() =>
+                      handleStatusChange({
+                        title: "accepted",
+                        variant: "accepted",
+                      })
+                    }
+                    disabled={isUpdating}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-700/50 text-gray-100 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Accepted
+                  </button>
+                  <button
+                    onClick={() =>
+                      handleStatusChange({ title: "closed", variant: "closed" })
+                    }
+                    disabled={isUpdating}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-700/50 text-gray-100 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Closed
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -260,6 +310,8 @@ export function Task({ task }: { task: TTask }) {
 
 function DragPreview({ task }: { task: TTask }) {
   return (
-    <div className="border-solid rounded p-2 bg-white">{task.content}</div>
+    <div className="border border-white/20 rounded-lg p-3 backdrop-blur-md bg-black/80 text-white shadow-xl">
+      {task.content}
+    </div>
   );
 }

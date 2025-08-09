@@ -10,18 +10,18 @@ import { flushSync } from 'react-dom';
 export function Pdnd() {
   const [tasks, setTasks] = useState<TTask[]>([]);
 
-    useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const token = localStorage.getItem('token') || '';
-        const data = await getTasks(token);
-        setTasks(data);
-      } catch (err) {
-        console.error('Failed to fetch tasks:', err);
-      }
-    };
+  const refreshTasks = async () => {
+    try {
+      const token = localStorage.getItem('token') || '';
+      const data = await getTasks(token);
+      setTasks(data);
+    } catch (err) {
+      console.error('Failed to fetch tasks:', err);
+    }
+  };
 
-    fetchTasks();
+  useEffect(() => {
+    refreshTasks();
   }, []);
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export function Pdnd() {
 
   return (
     <div className="pt-6 my-0 mx-auto w-[900px]">
-      <div className="grid grid-cols-[3fr_2fr_1fr_1fr_auto] text-xs font-semibold text-slate-500 px-4 py-2 border border-slate-300 border-b-0 rounded-t-md bg-slate-50">
+      <div className="grid grid-cols-[3fr_2fr_1fr_1fr_auto] text-sm font-medium text-white/50 px-6 py-4 backdrop-blur-md bg-black/30 border border-white/10 border-b-0 rounded-t-lg">
         <span>Job Title</span>
         <span>Company</span>
         <span>Status</span>
@@ -68,9 +68,15 @@ export function Pdnd() {
         <span className="text-center">Actions</span>
       </div>
 
-      <div className="flex flex-col gap-2 border-x border-b border-slate-300 rounded-b-md">
-        {tasks.map((task) => (
-          <Task key={task.id} task={task} />
+      <div className="flex flex-col backdrop-blur-md bg-black/20 border-x border-b border-white/10 rounded-b-lg">
+        {tasks.map((task, index) => (
+          <div key={task.id} className="relative">
+            <Task 
+              task={task} 
+              onRefresh={refreshTasks}
+              isLastItems={index >= tasks.length - 3}
+            />
+          </div>
         ))}
       </div>
     </div>

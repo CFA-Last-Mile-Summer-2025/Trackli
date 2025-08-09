@@ -34,19 +34,19 @@ export default function JobCard({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow border p-5 space-y-4 w-full min-w-xs max-w-xs">
-      <div className="flex justify-between items-start">
+    <div className="rounded-xl shadow border p-5 space-y-4 w-full min-w-xs max-w-xs backdrop-blur-lg bg-black/20 border-white/30 max-w-4xl shadow-2xl">
+      {/* <div className="flex justify-between items-start">
         <div className="w-10 h-10 bg-muted rounded-md flex items-center justify-center text-sm font-medium">
           ??
         </div>
-        <Badge className="text-xs px-2 py-1" variant="applied"> {/* TODO edit to change variant  based on job type */}
+        <Badge className="text-xs px-2 py-1" variant="applied"> {/* TODO edit to change variant  based on job type
             {job.job_type}
         </Badge>
-      </div>
+      </div> */}
 
       <div className="space-y-1">
-        <h2 className="text-md font-semibold">{jobTitle}</h2>
-        <p className="text-sm text-muted-foreground">{location}</p>
+        <h2 className="text-md font-semibold text-white">{jobTitle}</h2>
+        <p className="text-sm text-white">{location}</p>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -59,7 +59,7 @@ export default function JobCard({
             }
           })
           .map((tag, i) => (
-            <Badge key={i} variant="default" className="text-xs">
+            <Badge key={i} variant="applied" className="text-xs">
               {tag.title}
             </Badge>
           ))}

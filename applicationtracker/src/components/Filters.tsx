@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Button } from "./ui/button";
 
 export default function Filters({
   onFilterChange,
@@ -60,7 +61,7 @@ export default function Filters({
   }
 
   return (
-    <aside className="w-full max-w-[260px] border rounded-lg p-4 bg-white shadow-md space-y-4">
+    <aside className="w-full max-w-[260px] border rounded-lg p-4 space-y-4 backdrop-blur-lg bg-white/20 border-white/30 max-w-4xl mx-auto my-10 mt-20 shadow-2xl">
       <h2 className="text-md font-semibold flex items-center gap-2">
         🔍 Filters
       </h2>
@@ -70,7 +71,7 @@ export default function Filters({
         <select
           value={filters.location}
           onChange={handleLocationChange}
-          className="w-full border px-3 py-2 rounded-md shadow-sm text-sm"
+          className="w-full px-3 py-2 rounded-md shadow-sm text-sm border border-white/30"
         >
           <option value="">All Locations</option>
           {availableLocations.map((loc) => (
@@ -111,12 +112,13 @@ export default function Filters({
         ))}
       </div>
 
-      <button
-        className="w-full mt-2 px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition"
+      <Button
+        className="w-full mt-2 px-4 py-2"
         onClick={clearFilters}
+        variant="gradient"
       >
         Clear All Filters
-      </button>
+      </Button>
     </aside>
   );
 }
