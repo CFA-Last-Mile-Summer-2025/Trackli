@@ -28,13 +28,6 @@ class AppliedJobsClass {
       if (!exists) {
         const newAppliedJob = await AppliedJobs.create(appliedJob);
         return newAppliedJob;
-      } else {
-        console.log(
-          "Skipped duplicate applied job:",
-          appliedJob.company,
-          appliedJob.title,
-          userId
-        );
       }
     } catch (e) {
       console.error(e);
