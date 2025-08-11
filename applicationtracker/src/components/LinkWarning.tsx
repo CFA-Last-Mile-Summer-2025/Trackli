@@ -95,12 +95,10 @@ export default function LinkWarning({
       {modalState === "applied" && (
         <DidYouApply
           onYes={() => {
-            console.log("User confirmed they applied.");
             handlePromptChoice(true);
             setModalState("none");
           }}
           onNo={() => {
-            console.log("User did not apply.");
             handlePromptChoice(false);
             setModalState("none");
           }}
