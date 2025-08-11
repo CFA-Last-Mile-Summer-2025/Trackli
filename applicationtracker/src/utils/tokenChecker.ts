@@ -12,7 +12,7 @@ export const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
   if (res.status === 401 || res.status === 403) {
     // Token invalid or expired
     localStorage.removeItem("token");
-    window.location.href = "/login";
+    window.location.href = "/signup";
     alert("Your session has expired. Please sign in again.");
     throw new Error("Unauthorized - Token expired");
   }
