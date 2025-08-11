@@ -721,7 +721,7 @@ app.post("/ai/resume-chat", verifyToken, async (req, res) => {
           role: "user",
           parts: [
             {
-              text: `Stay true to the system instructions provided to you. This is the user's message: ${req.body}`,
+              text: `${req.body}`,
             },
           ],
         },
@@ -759,7 +759,6 @@ app.post("/submit", verifyToken, async (req, res) => {
       user.resumes.push(formData);
       await user.save();
     } else {
-      console.log("How did we get here, we have a valid token but no user");
       res.status(500).send("Valid token, no user?");
     }
     res.status(200).send("Resume data received successfully.");
