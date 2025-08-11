@@ -9,6 +9,7 @@ export default function Filters({
     location: "",
     jobTypes: new Set<string>(),
     experienceLevels: new Set<string>(),
+    favoritesOnly: false,
   });
   const [availableLocations, setAvailableLocations] = useState<string[]>([]);
 
@@ -49,11 +50,18 @@ export default function Filters({
     onFilterChange(updated);
   }
 
+  function handleFavoritesOnlyChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const updated = { ...filters, favoritesOnly: e.target.checked };
+    setFilters(updated);
+    onFilterChange(updated);
+  }
+
   function clearFilters() {
     const cleared = {
       location: "",
       jobTypes: new Set<string>(),
       experienceLevels: new Set<string>(),
+      favoritesOnly: false,
     };
     setFilters(cleared);
     onFilterChange(cleared);
@@ -119,6 +127,18 @@ export default function Filters({
             <label>{level.label}</label>
           </div>
         ))}
+      </div>
+
+      <div>
+        <label className="block text-xs font-semibold mb-1">Favorites</label>
+        <label className="flex items-center space-x-2 text-sm ">
+          <input
+            type="checkbox"
+            checked={filters.favoritesOnly}
+            onChange={handleFavoritesOnlyChange}
+          />
+          <span>Show Favorites Only</span>
+        </label>
       </div>
 
       <button

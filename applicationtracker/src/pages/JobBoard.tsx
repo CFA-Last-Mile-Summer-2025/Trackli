@@ -51,6 +51,7 @@ function App() {
     location: "",
     jobTypes: new Set<string>(),
     experienceLevels: new Set<string>(),
+    favoritesOnly: false,
   });
 
   const fetchJobs = async () => {
@@ -144,22 +145,25 @@ function App() {
 
       const matchesJobType =
         filters.jobTypes.size === 0 || filters.jobTypes.has(job.job_type || "");
-        
+
       const matchesExperienceLevel =
         filters.experienceLevels.size === 0 ||
         filters.experienceLevels.has(job.experience_level || "");
+
+      const matchesFavorites =
+        !filters.favoritesOnly ||
+        favorites.some((f) => f.title === job.title && f.url === job.url);
 
       return (
         matchesSearch &&
         matchesLocation &&
         matchesJobType &&
-        matchesExperienceLevel
+        matchesExperienceLevel &&
+        matchesFavorites
       );
     });
 
-    if (sortOrder === "none") {
-      return filtered;
-    }
+    if (sortOrder === "none") return filtered;
 
     return filtered.sort((a, b) => {
       const dateA = a.date_expiration
@@ -168,12 +172,9 @@ function App() {
       const dateB = b.date_expiration
         ? new Date(b.date_expiration)
         : new Date(0);
-
-      if (sortOrder === "newest") {
-        return dateB.getTime() - dateA.getTime();
-      } else {
-        return dateA.getTime() - dateB.getTime();
-      }
+      return sortOrder === "newest"
+        ? dateB.getTime() - dateA.getTime()
+        : dateA.getTime() - dateB.getTime();
     });
   })();
 
