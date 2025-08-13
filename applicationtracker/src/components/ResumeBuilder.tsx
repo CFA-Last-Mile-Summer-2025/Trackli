@@ -7,9 +7,11 @@ import {
   Code,
   ChevronUp,
   ChevronDown,
+  X,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import jsPDF from "jspdf";
+import ResumeChat from "./Chatbox";
 
 interface WorkExperience {
   jobTitle: string;
@@ -90,7 +92,8 @@ const SectionHeader: React.FC<{
   title: string;
   isOpen: boolean;
   onToggle: () => void;
-}> = React.memo(({ title, isOpen, onToggle }) => (
+  onEnhance?: () => void;
+}> = React.memo(({ title, isOpen, onToggle, onEnhance }) => (
   <div className="flex items-center justify-between mb-0">
     <div
       className="flex items-center cursor-pointer font-semibold text-lg text-gray-800 group"
@@ -104,6 +107,7 @@ const SectionHeader: React.FC<{
     <Button
       className="ml-4 px-3 py-1 rounded-md font-semibold flex text-sm"
       variant={"gradient"}
+      onClick={onEnhance}
     >
       <span role="img" aria-label="stars">
         ✨
@@ -229,6 +233,7 @@ const ResumeBuilder: React.FC = () => {
   const [skillsOpen, setSkillsOpen] = useState(true);
   const [educationOpen, setEducationOpen] = useState(true);
   const [projectOpen, setProjectOpen] = useState(true);
+   const [chatOpen, setChatOpen] = useState(false);
 
   const [personal, setPersonal] = useState({
     firstName: "",
@@ -570,6 +575,7 @@ const ResumeBuilder: React.FC = () => {
             title="Personal Information"
             isOpen={personalOpen}
             onToggle={() => setPersonalOpen((o) => !o)}
+            onEnhance={() => setChatOpen(true)}
           />
           <div className="w-full h-px bg-white/30 rounded mt-2 mb-3"></div>
           {personalOpen && (
@@ -630,6 +636,7 @@ const ResumeBuilder: React.FC = () => {
             title="Work Experience"
             isOpen={workOpen}
             onToggle={() => setWorkOpen((o) => !o)}
+            onEnhance={() => setChatOpen(true)}
           />
           <div className="w-full h-[1.5px] bg-[#E2E8F0] rounded mt-2 mb-3 opacity-100" />
           {workOpen && (
@@ -662,6 +669,7 @@ const ResumeBuilder: React.FC = () => {
             title="Skills"
             isOpen={skillsOpen}
             onToggle={() => setSkillsOpen((o) => !o)}
+            onEnhance={() => setChatOpen(true)}
           />
           <div className="w-full h-[1.5px] bg-[#E2E8F0] rounded mt-2 mb-3 opacity-100" />
           {skillsOpen && (
@@ -688,6 +696,7 @@ const ResumeBuilder: React.FC = () => {
             title="Education"
             isOpen={educationOpen}
             onToggle={() => setEducationOpen((o) => !o)}
+            onEnhance={() => setChatOpen(true)}
           />
           <div className="w-full h-[1.5px] bg-[#E2E8F0] rounded mt-2 mb-3 opacity-100" />
           {educationOpen && (
@@ -738,6 +747,7 @@ const ResumeBuilder: React.FC = () => {
             title="Project"
             isOpen={projectOpen}
             onToggle={() => setProjectOpen((o) => !o)}
+            onEnhance={() => setChatOpen(true)}
           />
           <div className="w-full h-[1.5px] bg-[#E2E8F0] rounded mt-2 mb-3 opacity-100" />
           {projectOpen && (
@@ -772,6 +782,30 @@ const ResumeBuilder: React.FC = () => {
           Download PDF
         </Button>
       </div>
+
+      {/* TEMP CHATBOX HERE, EDIT/REMOVE AS NEEDED FOR FUTURE DESIGN */}
+      {chatOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div
+            className={`relative w-full sm:w-[300px] bg-white shadow-lg`}
+          >
+            <div className="p-4 border-b flex justify-between items-center">
+              <h2 className="font-semibold text-lg">AI Resume Assistant</h2>
+              <button
+                onClick={() => setChatOpen(false)}
+                className="text-gray-500 hover:text-gray-800 shadow-lg"
+                aria-label="Close AI chat"
+              >
+                ✖
+              </button>
+            </div>
+
+            <div>
+              <ResumeChat />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
