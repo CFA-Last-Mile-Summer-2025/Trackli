@@ -28,13 +28,6 @@ class ViewedJobsClass {
       if (!exists) {
         const created = await ViewedJobs.create(job);
         return created;
-      } else {
-        console.log(
-          "Skipped duplicate viewed job:",
-          job.company,
-          job.title,
-          userId
-        );
       }
     } catch (e) {
       console.error(e);
