@@ -793,10 +793,9 @@ const ResumeBuilder: React.FC = () => {
               <h2 className="font-semibold text-lg">AI Resume Assistant</h2>
               <button
                 onClick={() => setChatOpen(false)}
-                className="text-gray-500 hover:text-gray-800 shadow-lg"
                 aria-label="Close AI chat"
               >
-                ✖
+              <X/>
               </button>
             </div>
 
