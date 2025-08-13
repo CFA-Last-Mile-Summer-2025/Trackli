@@ -72,13 +72,6 @@ async function fetchDataAndSave(offset = 0) {
 
       if (!exists) {
         await Listing.createNew(listing);
-        console.log("Inserted:", listing.title, "at", listing.company);
-      } else {
-        console.log(
-          "Skipped duplicate:",
-          listing.title,
-          "------------------------------------------------------"
-        );
       }
     }
   } catch (err) {
