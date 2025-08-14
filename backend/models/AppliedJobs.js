@@ -150,6 +150,16 @@ static async groupByDate(userId) {
   }
 }
 
+static async countTotalAppliedJobs(userId) {
+  try {
+    return await AppliedJobs.countDocuments({ userId });
+  } catch (e) {
+    console.error(e);
+    return 0;
+  }
+}
+
+
 }
 
 appliedJobsSchema.loadClass(AppliedJobsClass);

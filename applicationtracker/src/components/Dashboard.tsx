@@ -21,6 +21,9 @@ export default function Dashboard() {
   >([]);
   const [suggestedJob, setSuggestedJob] = useState<any>(null);
   const [loadingSuggestion, setLoadingSuggestion] = useState(true);
+  const [appliedTotal, setAppliedTotal] = useState(0);
+  const [interviewCount, setInterviewCount] = useState(0);
+  const [offerCount, setOfferCount] = useState(0);
 
   const loadDashboardData = async () => {
     // Fetch username
@@ -68,6 +71,22 @@ export default function Dashboard() {
     } catch (err) {
       console.error("Dashboard fetch error:", err);
     }
+
+    // Fetch counts for total applied, interviews, offers
+    const [appliedCountRes, interviewCountRes, offerCountRes] =
+      await Promise.all([
+        fetchWithAuth("http://localhost:3002/applied/total"),
+        fetchWithAuth("http://localhost:3002/myjob/status-count?value=interview"),
+        fetchWithAuth("http://localhost:3002/myjob/status-count?value=offer"),
+      ]);
+
+    const appliedCountData = await appliedCountRes.json();
+    const interviewCountData = await interviewCountRes.json();
+    const offerCountData = await offerCountRes.json();
+
+    setAppliedTotal(appliedCountData || 0);
+    setInterviewCount(interviewCountData.count);
+    setOfferCount(offerCountData.count);
   };
 
   const getNewSuggestion = async () => {
@@ -94,27 +113,26 @@ export default function Dashboard() {
         <Card className="rounded-lg p-4 backdrop-blur-lg bg-white/20 border-white/30 shadow-2xl">
           <CardContent className="p-2 text-center">
             {/* Add total applied count */}
-            <div className="text-3xl font-bold">0</div>
+            <div className="text-3xl font-bold">{appliedTotal}</div>
             <p className="text-sm text-muted-foreground">Total Applied</p>
           </CardContent>
         </Card>
         <Card className="rounded-lg p-4 backdrop-blur-lg bg-white/20 border-white/30 shadow-2xl">
           <CardContent className="p-2 text-center">
             {/* Add interview count */}
-            <div className="text-3xl font-bold">0</div>
+            <div className="text-3xl font-bold">{interviewCount}</div>
             <p className="text-sm text-muted-foreground">Interviews</p>
           </CardContent>
         </Card>
         <Card className="rounded-lg p-4 backdrop-blur-lg bg-white/20 border-white/30 shadow-2xl">
           <CardContent className="p-2 text-center">
             {/* Add offers count */}
-            <div className="text-3xl font-bold">0</div>
+            <div className="text-3xl font-bold">{offerCount}</div>
             <p className="text-sm text-muted-foreground">Offers</p>
           </CardContent>
         </Card>
         <Card className="rounded-lg p-4 backdrop-blur-lg bg-white/20 border-white/30 shadow-2xl">
           <CardContent className="p-2 text-center">
-            {/* Add this week total applied count */}
             <div className="text-3xl font-bold">{appliedWeekCount}</div>
             <p className="text-sm text-muted-foreground">This Week</p>
           </CardContent>
@@ -125,7 +143,9 @@ export default function Dashboard() {
         <div className="lg:col-span-2 space-y-6">
           <Card className="rounded-lg p-4 space-y-4 backdrop-blur-lg bg-white/20 border-white/30 shadow-2xl">
             <CardHeader>
-              <CardTitle className="text-black">This Week's Application Activity</CardTitle>
+              <CardTitle className="text-black">
+                This Week's Application Activity
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 gap-4 items-center">
@@ -136,7 +156,9 @@ export default function Dashboard() {
 
           <Card className="lg:col-span-2 rounded-lg p-4 space-y-4 backdrop-blur-lg bg-white/20 border-white/30 shadow-2xl">
             <CardHeader>
-              <CardTitle className="text-primary">Recent Applications</CardTitle>
+              <CardTitle className="text-primary">
+                Recent Applications
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {recentJobs.length > 0 ? (
@@ -152,13 +174,13 @@ export default function Dashboard() {
                       </p>
                     </div>
                     {/* need to somehow change variant as status is changed */}
-                    <Badge variant={job.status}>{job.status || "Pending"}</Badge>
+                    <Badge variant={job.status}>
+                      {job.status || "Pending"}
+                    </Badge>
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-black/60">
-                  No recent jobs found.
-                </p>
+                <p className="text-sm text-black/60">No recent jobs found.</p>
               )}
             </CardContent>
           </Card>
@@ -181,18 +203,29 @@ export default function Dashboard() {
               </p>
             </CardContent>
           </Card> */}
-          <WeeklyGoal appliedWeekCount={appliedWeekCount}/>
+          <WeeklyGoal appliedWeekCount={appliedWeekCount} />
 
           <Card className="rounded-lg p-4 space-y-4 backdrop-blur-lg bg-white/20 border-white/30 shadow-2xl">
-              <CardTitle className="text-black pl-5 pt-2">Quick Actions</CardTitle>
+            <CardTitle className="text-black pl-5 pt-2">
+              Quick Actions
+            </CardTitle>
             <CardContent className="space-y-3 flex flex-col ">
-              <Link to={"/jobs"} className="w-full justify-start bg-white/20 hover:bg-white/30 text-black border-white/30 shadow-lg rounded-md p-3">
+              <Link
+                to={"/jobs"}
+                className="w-full justify-start bg-white/20 hover:bg-white/30 text-black border-white/30 shadow-lg rounded-md p-3"
+              >
                 📝 Add New Application
               </Link>
-              <Link to={"/resumebuilder"} className="w-full justify-start bg-white/20 hover:bg-white/30 text-black border-white/30 shadow-lg rounded-md p-3">
-                📋 Update Resume  
+              <Link
+                to={"/resumebuilder"}
+                className="w-full justify-start bg-white/20 hover:bg-white/30 text-black border-white/30 shadow-lg rounded-md p-3"
+              >
+                📋 Update Resume
               </Link>
-              <Link to={'/applications'} className="w-full justify-start bg-white/20 hover:bg-white/30 text-black border-white/30 shadow-lg rounded-md p-3">
+              <Link
+                to={"/applications"}
+                className="w-full justify-start bg-white/20 hover:bg-white/30 text-black border-white/30 shadow-lg rounded-md p-3"
+              >
                 📊 View All Applications
               </Link>
             </CardContent>

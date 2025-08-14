@@ -156,6 +156,16 @@ class MyJobsClass {
       return [];
     }
   }
+
+  static async countByStatus(userId, status) {
+  try {
+    return await MyJobs.countDocuments({ userId, status });
+  } catch (e) {
+    console.error(e);
+    return 0;
+  }
+}
+
 }
 
 myJobsSchema.loadClass(MyJobsClass);
