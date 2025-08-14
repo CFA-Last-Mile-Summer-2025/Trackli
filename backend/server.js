@@ -302,6 +302,12 @@ app.get("/applied/recentWeek", verifyToken, async (req, res) => {
   res.json(jobcount);
 });
 
+app.get("/applied/total", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const jobcount = await AppliedJobs.countTotalAppliedJobs(userId);
+  res.json(jobcount);
+});
+
 app.get("/applied/weekly-breakdown", verifyToken, async (req, res) => {
   const userId = req.user.userId;
   const dayMap = await AppliedJobs.groupByDate(userId);
@@ -485,6 +491,14 @@ app.post("/myjob/reorder", verifyToken, async (req, res) => {
     console.error("Error updating job order:", err);
     res.status(500).json({ message: "Failed to update job order" });
   }
+});
+
+app.get("/myjob/status-count", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const status = req.query.value;
+
+  const count = await MyJobs.countByStatus(userId, status);
+  res.json({ status, count });
 });
 
 
