@@ -7,22 +7,41 @@ import { Separator } from "@/components/ui/separator";
 import { href, Link } from "react-router-dom";
 import { Badge } from "./ui/badge";
 import { fetchWithAuth } from "@/utils/tokenChecker";
-import { BarChartDisplay } from "./BarChartDisplay";
+import { BarChartDisplay } from "@/components/BarChartDisplay";
+import LinkWarning from "./LinkWarning";
 
 export default function Dashboard() {
   const [recentJobs, setRecentJobs] = useState<any[]>([]);
   const [viewedWeekCount, setViewedWeekCount] = useState(0);
   const [appliedWeekCount, setAppliedWeekCount] = useState(0);
+  const [username, setUsername] = useState("User");
+  const [barChartData, setBarChartData] = useState<
+    { day: string; desktop: number }[]
+  >([]);
+  const [suggestedJob, setSuggestedJob] = useState<any>(null);
+  const [loadingSuggestion, setLoadingSuggestion] = useState(true);
 
   const loadDashboardData = async () => {
+    // Fetch username
     try {
+      const usernameRes = await fetchWithAuth("http://localhost:3002/username");
+      const usernameData = await usernameRes.json();
+      const displayName = usernameData.name.includes("@")
+        ? usernameData.name.split("@")[0]
+        : usernameData.name;
+      setUsername(displayName);
+
       // Fetch applied count
-      const appliedRes = await fetchWithAuth("http://localhost:3002/applied/recentWeek");
+      const appliedRes = await fetchWithAuth(
+        "http://localhost:3002/applied/recentWeek"
+      );
       const appliedData = await appliedRes.json();
 
       setAppliedWeekCount(appliedData);
       // Fetch viewed count
-      const viewedRes = await fetchWithAuth( "http://localhost:3002/viewed/recentWeek");
+      const viewedRes = await fetchWithAuth(
+        "http://localhost:3002/viewed/recentWeek"
+      );
       const viewedData = await viewedRes.json();
 
       setViewedWeekCount(viewedData);
@@ -30,12 +49,40 @@ export default function Dashboard() {
       const jobsRes = await fetchWithAuth("http://localhost:3002/myjob/recent");
       const jobsData = await jobsRes.json();
       if (jobsData != null) {
-        setRecentJobs(jobsData.slice(0,4));
+        setRecentJobs(jobsData.slice(0, 4));
       }
+
+      const chartRes = await fetchWithAuth(
+        "http://localhost:3002/applied/weekly-breakdown"
+      );
+      const chartData = await chartRes.json();
+      setBarChartData(chartData);
+
+      const suggestionRes = await fetchWithAuth(
+        "http://localhost:3002/jobs/random"
+      );
+      const suggestionData = await suggestionRes.json();
+      setSuggestedJob(suggestionData);
+      setLoadingSuggestion(false);
     } catch (err) {
       console.error("Dashboard fetch error:", err);
     }
   };
+
+  const getNewSuggestion = async () => {
+    setLoadingSuggestion(true);
+    try {
+      const suggestionRes = await fetchWithAuth(
+        "http://localhost:3002/jobs/random"
+      );
+      const suggestionData = await suggestionRes.json();
+      setSuggestedJob(suggestionData);
+    } catch (err) {
+      console.error("Error fetching new suggestion:", err);
+    }
+    setLoadingSuggestion(false);
+  };
+
   useEffect(() => {
     loadDashboardData();
   }, []);
@@ -154,16 +201,87 @@ export default function Dashboard() {
               <CardTitle className="text-black">Suggested Job</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 mb-5">
-              <p className="font-medium">Position</p>
-              <p className="text-sm text-muted-foreground mb-3">
-                Company — Location
-              </p>
-              {/* add route to reach job card so user can view details and apply */}
-              <Button className="h-[30px]"> Details </Button>
+              {loadingSuggestion ? (
+                <div className="space-y-2">
+                  <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-3 bg-gray-200 rounded animate-pulse w-3/4"></div>
+                </div>
+              ) : suggestedJob ? (
+                <>
+                  <p className="font-medium">{suggestedJob.title}</p>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    {suggestedJob.company} — {suggestedJob.location || "Remote"}
+                  </p>
+                  <LinkWarning href={suggestedJob.url} job={suggestedJob}>
+                    <Button className="h-[30px] w-full">View Details</Button>
+                  </LinkWarning>
+                </>
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    No suggestions available
+                  </p>
+                  <Button
+                    className="h-[30px] w-full"
+                    variant="outline"
+                    onClick={getNewSuggestion}
+                  >
+                    Try Again
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
       </section>
+
+      <Separator />
+
+      <section>
+        <Card>
+          <CardHeader>
+            <CardTitle>This Week’s Application Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-4 items-center py-10">
+              <div className="col-span-1">
+                <BarChartDisplay data={barChartData} />
+              </div>
+              <div className="space-y-2 text-center">
+                <div className="text-3xl font-bold">{appliedWeekCount}</div>
+                <p className="text-sm text-muted-foreground">Applied</p>
+              </div>
+              <div className="space-y-2 text-center">
+                <div className="text-3xl font-bold">{viewedWeekCount}</div>
+                <p className="text-sm text-muted-foreground">Viewed</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
     </main>
   );
+}
+
+function groupJobsByDayOfWeek(jobs: any[]) {
+  const dayMap: Record<string, number> = {
+    Sunday: 0,
+    Monday: 0,
+    Tuesday: 0,
+    Wednesday: 0,
+    Thursday: 0,
+    Friday: 0,
+    Saturday: 0,
+  };
+
+  jobs.forEach((job) => {
+    const date = new Date(job.dateApplied || job.createdAt);
+    const day = date.toLocaleDateString("en-US", { weekday: "long" });
+    dayMap[day] += 1;
+  });
+
+  return Object.entries(dayMap).map(([day, count]) => ({
+    month: day,
+    desktop: count,
+  }));
 }

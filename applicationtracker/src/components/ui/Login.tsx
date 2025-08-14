@@ -34,7 +34,7 @@ function Login() {
   return (
       <Card className="w-full max-w-md shadow-lg bg-card text-white font-lalezar">
         <CardHeader>
-          <CardTitle className="text-center text-2xl">Log In</CardTitle>
+          <CardTitle className="text-center text-2xl text-black">Log In</CardTitle>
         </CardHeader>
         <CardContent>
           <form className="space-y-4" onSubmit={handleLogin}>
@@ -45,7 +45,7 @@ function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="placeholder-white text-white"
+              className="placeholder-white text-black"
             />
             <Input
               name="password"
@@ -54,9 +54,9 @@ function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="text-white placeholder-white"
+              className="text-black placeholder-white"
             />
-            <p>Don't have an account yet? Sign up <a href="/signup" className="cursor-pointer underline">here</a></p>
+            <p className="text-black">Don't have an account yet? Sign up <a href="/signup" className="cursor-pointer underline">here</a></p>
 
             <Button className="w-full text-md mt-3" type="submit">
               Log In

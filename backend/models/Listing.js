@@ -10,7 +10,8 @@ const listingSchema = new Schema({
     url: String,
     date_expiration: Date,
     description_text: String,
-    location: String
+    location: String,
+    experience_level: String,
   });
 
 class ListingClass {

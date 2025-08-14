@@ -37,11 +37,14 @@ DB_COLL_NAME5=favoritejobs
 DB_COLL_NAME6=myjobs
 RAPID_API_KEY="..."
 GEMINI_API_KEY=...
+EMAIL_USERNAME=...
+EMAIL_PASSWORD=...
 ```
 
 * Make sure to secure any secrets (don’t commit `.env` to git).
 * Since it's self-hosted, JWT_SECRET can be anything (ex: '123')
 * Rapid is from: https://rapidapi.com/fantastic-jobs-fantastic-jobs-default/api/internships-api
+* EMAIL_USERNAME and EMAIL_PASSWORD are for email verification. The email you put into EMAIL_USERNAME will be the email used to send out verification emails. Read this article to create the relevant credentials: https://support.google.com/accounts/answer/185833?hl=en
 
 ---
 

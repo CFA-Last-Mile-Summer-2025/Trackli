@@ -13,10 +13,13 @@ export default function LinkWarning({
   job: {
     company: string;
     title: string;
-    url: string;
     skills?: string;
     job_type?: string;
-    date_expiration?: string | null;
+    url: string;
+    date_expiration?: string;
+    description_text?: string;
+    location: string;
+    _id?: string;
   };
 }) {
   const [modalState, setModalState] = useState<"none" | "link" | "applied">(
@@ -92,12 +95,10 @@ export default function LinkWarning({
       {modalState === "applied" && (
         <DidYouApply
           onYes={() => {
-            console.log("User confirmed they applied.");
             handlePromptChoice(true);
             setModalState("none");
           }}
           onNo={() => {
-            console.log("User did not apply.");
             handlePromptChoice(false);
             setModalState("none");
           }}

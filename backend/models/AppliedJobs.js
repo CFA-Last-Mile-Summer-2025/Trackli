@@ -28,13 +28,6 @@ class AppliedJobsClass {
       if (!exists) {
         const newAppliedJob = await AppliedJobs.create(appliedJob);
         return newAppliedJob;
-      } else {
-        console.log(
-          "Skipped duplicate applied job:",
-          appliedJob.company,
-          appliedJob.title,
-          userId
-        );
       }
     } catch (e) {
       console.error(e);
@@ -109,6 +102,54 @@ class AppliedJobsClass {
       return 0;
     }
   }
+
+static async groupByDate(userId) {
+  try {
+    const today = new Date();
+    const startDate = new Date();
+    startDate.setDate(today.getDate() - 7); // 7 days ago
+
+    const jobs = await AppliedJobs.find({
+      userId,
+      date_applied: { $gte: startDate },
+    });
+
+    // Initialize date map for the last 8 days (today + 7 previous days)
+    const dateMap = {};
+    for (let i = 0; i <= 7; i++) {
+      const d = new Date(startDate);
+      d.setDate(startDate.getDate() + i);
+      const formatted = d.toLocaleDateString("en-US", {
+        month: "numeric",
+        day: "numeric",
+        timeZone: "UTC",
+      });
+      dateMap[formatted] = 0;
+    }
+
+    // Count job applications per day
+    jobs.forEach((job) => {
+      const formatted = new Date(job.date_applied).toLocaleDateString("en-US", {
+        month: "numeric",
+        day: "numeric",
+        timeZone: "UTC",
+      });
+      if (dateMap.hasOwnProperty(formatted)) {
+        dateMap[formatted]++;
+      }
+    });
+
+    // Return array for frontend charting
+    return Object.entries(dateMap).map(([date, count]) => ({
+      date,
+      desktop: count,
+    }));
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
+}
+
 }
 
 appliedJobsSchema.loadClass(AppliedJobsClass);

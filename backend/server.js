@@ -11,6 +11,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
 const { GoogleGenAI } = require("@google/genai");
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
 
 const port = process.env.PORT || 3002;
 const app = express();
@@ -22,19 +24,20 @@ app.use(express.json());
 
 // API
 const options = {
-  method: 'GET',
-  url: 'https://internships-api.p.rapidapi.com/active-jb-7d',
+  method: "GET",
+  url: "https://internships-api.p.rapidapi.com/active-jb-7d",
   params: {
-    description_type: 'text',
-    include_ai: 'true'
+    description_type: "text",
+    include_ai: "true",
+    location_filter: "United States",
   },
   headers: {
-    'x-rapidapi-key': process.env.RAPID_API_KEY,
-    'x-rapidapi-host': 'internships-api.p.rapidapi.com'
-  }
+    "x-rapidapi-key": process.env.RAPID_API_KEY,
+    "x-rapidapi-host": "internships-api.p.rapidapi.com",
+  },
 };
 
-
+// Call API
 async function fetchDataAndSave(offset = 0) {
   try {
     const response = await axios.request({
@@ -48,6 +51,7 @@ async function fetchDataAndSave(offset = 0) {
 
     for (const job of jobs) {
       console.log("ai_key_skills:", job.ai_key_skills);
+      console.log("ai experience level: ", job.ai_experience_level);
       const listing = {
         company: job.organization || "Unknown",
         title: job.title || "N/A",
@@ -57,19 +61,17 @@ async function fetchDataAndSave(offset = 0) {
         date_expiration: job.date_validthrough,
         description_text: job.description_text,
         location: (job.cities_derived || []).join(", "),
+        experience_level: job.ai_experience_level,
       };
 
       const exists = await Listing.findOne({
         company: listing.company,
         title: listing.title,
-        url: listing.url
+        url: listing.url,
       });
 
       if (!exists) {
         await Listing.createNew(listing);
-        console.log("Inserted:", listing.title, "at", listing.company);
-      } else {
-        console.log("Skipped duplicate:", listing.title, "------------------------------------------------------");
       }
     }
   } catch (err) {
@@ -77,10 +79,10 @@ async function fetchDataAndSave(offset = 0) {
   }
 }
 
-//API caller
+// Route API caller
 app.get("/getjobs", async (req, res) => {
   const offset = parseInt(req.query.offset) || 0;
-  console.log("offset:", offset)
+  console.log("offset:", offset);
   try {
     await fetchDataAndSave(offset);
     res.status(200).json("Jobs fetched and saved.");
@@ -128,6 +130,22 @@ app.get("/jobs", async (req, res) => {
   const results = await Listing.readAll();
   res.send(results);
   console.log("GET request received on home page, jobs: " + results);
+});
+
+// Randomize jobs for the suggestions dashboard
+app.get("/jobs/random", async (req, res) => {
+  try {
+    const randomJob = await Listing.aggregate([{ $sample: { size: 1 } }]);
+
+    if (randomJob.length > 0) {
+      res.json(randomJob[0]);
+    } else {
+      res.status(404).json({ message: "No jobs available" });
+    }
+  } catch (err) {
+    console.error("Error fetching random job:", err);
+    res.status(500).json({ error: "Failed to fetch random job" });
+  }
 });
 
 app.get("/searchjob", async (req, res) => {
@@ -184,7 +202,6 @@ app.get("/locations", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch locations" });
   }
 });
-
 
 //Viewed jobs
 app.post("/viewed", verifyToken, async (req, res) => {
@@ -285,6 +302,12 @@ app.get("/applied/recentWeek", verifyToken, async (req, res) => {
   res.json(jobcount);
 });
 
+app.get("/applied/weekly-breakdown", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const dayMap = await AppliedJobs.groupByDate(userId);
+  res.json(dayMap);
+});
+
 app.delete("/applied/:jobId", verifyToken, async (req, res) => {
   const userId = req.user.userId;
   const { jobId } = req.params;
@@ -320,7 +343,7 @@ app.delete("/favorite/:jobId", verifyToken, async (req, res) => {
   res.status(200).json({ message: "Favorite job deleted" });
 });
 
-//My Jobs
+//My Jobs page routes
 app.post("/myjob", verifyToken, async (req, res) => {
   const job = req.body;
   const userId = req.user.userId;
@@ -342,7 +365,7 @@ app.get("/myjob/recent", verifyToken, async (req, res) => {
 
 app.get("/myjob", verifyToken, async (req, res) => {
   const userId = req.user.userId;
-  const jobs = await MyJobs.readAll(userId);
+  const jobs = await MyJobs.find({ userId }).sort({ position: 1 });
   res.status(200).json(jobs);
 });
 
@@ -443,6 +466,28 @@ app.delete("/myjob/:jobId", verifyToken, async (req, res) => {
   await MyJobs.delete(jobId, userId);
 });
 
+app.post("/myjob/reorder", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const { orderedIds } = req.body;
+
+  if (!Array.isArray(orderedIds)) {
+    return res.status(400).json({ message: "orderedIds must be an array" });
+  }
+
+  try {
+    await Promise.all(
+      orderedIds.map((jobId, index) =>
+        MyJobs.updateOne({ _id: jobId, userId }, { position: index })
+      )
+    );
+    res.status(200).json({ message: "Job order updated successfully" });
+  } catch (err) {
+    console.error("Error updating job order:", err);
+    res.status(500).json({ message: "Failed to update job order" });
+  }
+});
+
+
 // ---------------------------------------USERS-----------------------------------------------------
 app.get("/users", async (req, res) => {
   const results = await User.readAll();
@@ -475,7 +520,112 @@ app.delete("/deleteuser", async (req, res) => {
   console.log(`Listing deleted with id: ${req.query.id}`);
 });
 
-//Login/Signup
+app.get("/username", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const user = await User.findById(userId).select("name");
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+  res.status(200).json({ name: user.name });
+});
+
+app.patch("/updateusername", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const { newName } = req.body;
+
+  if (!newName) {
+    return res.status(400).send("Missing newName");
+  }
+  await User.updateName(userId, newName);
+  res.status(200).send("Name updated successfully");
+});
+
+app.patch("/updateemail", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const { newEmail } = req.body;
+
+  if (!newEmail) {
+    return res.status(400).send("Missing newEmail");
+  }
+  await User.updateEmail(userId, newEmail);
+  res.status(200).send("Email updated successfully");
+});
+
+app.patch("/updatepassword", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const { oldPassword, newPassword } = req.body;
+
+  if (!oldPassword || !newPassword) {
+    return res.status(400).send("Both old and new passwords are required");
+  }
+
+  const result = await User.updatePasswordWithOldCheck(userId, oldPassword, newPassword);
+
+  if (!result.success) {
+    return res.status(400).send(result.message);
+  }
+
+  res.status(200).send("Password updated successfully");
+});
+
+
+
+/////// Email ////////////
+
+// Email transporter for verification
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USERNAME,
+    pass: process.env.EMAIL_PASSWORD, 
+  },
+});
+
+function sendVerificationEmail(email, token) {
+  const verificationUrl = `http://localhost:3002/verify-email?token=${token}`;
+    const mailOptions = {
+    from: process.env.EMAIL_USERNAME,
+    to: email,
+    subject: "Verify your email",
+    html: `
+      <p>Thanks for signing up! Please verify your email by clicking the button below:</p>
+      <p><a href="${verificationUrl}">Click here to verify</a></p>
+    `,
+  };
+  return transporter.sendMail(mailOptions);
+}
+
+app.get("/verify-email", async (req, res) => {
+  const { token } = req.query;
+
+  if (!token) return res.status(400).send("Missing verification token");
+
+  try {
+    const user = await User.findOne({
+      verificationToken: token,
+      verificationExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).send("Invalid or expired verification token");
+    }
+
+    user.verified = true;
+    user.verificationToken = undefined;
+    user.verificationExpires = undefined;
+
+    await user.save();
+
+    res.send("Email successfully verified! You can now log in.");
+  } catch (err) {
+    console.error("Verification error:", err);
+    res.status(500).send("Internal server error");
+  }
+});
+
+
+//    Login/Signup //
 // Signup Route
 app.post("/signup", async (req, res) => {
   console.log(" /signup endpoint hit");
@@ -492,14 +642,22 @@ app.post("/signup", async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationExpires = Date.now() + 1000 * 60 * 60; // 1 hour
+
     const newUser = await User.create({
       name,
       email,
       password: hashedPassword,
+      verified: false,
+      verificationToken,
+      verificationExpires,
     });
 
+    await sendVerificationEmail(email, verificationToken);
+
     res.status(201).json({
-      message: "Signup successful",
+      message: "Signup successful. Please check your email to verify your account.",
       user: { id: newUser._id, name: newUser.name, email: newUser.email },
     });
   } catch (err) {
@@ -550,50 +708,17 @@ app.get("/companies", async (req, res) => {
 
 // ---------------------------------------AI-----------------------------------------------------
 app.post("/ai/resume-chat", verifyToken, async (req, res) => {
-  try {
-    const {message, useSavedResume} = req.body;
+  try{
     let contentsToSend = [
-      {
-        role: "user",
-        parts: [{ text: `Stay within the role of your system instructions. If the user types something incoherent or off topic, simply ask how you may help with their resume. This is their message: ${message}` }],
-      },
-    ];
-
-    const userId = req.user.userId;
-
-    if (useSavedResume && userId) {
-      const user = await User.findById(userId);
-      if (!user || !user.resumes || user.resumes.length === 0) {
-        return res
-          .status(404)
-          .json({ error: `User: ${!user} + Resumes: ${!user.resumes} + Length: ${user.resumes.length === 0}` });
-      }
-
-      const resume = user.resumes[user.resumes.length - 1];
-      //console.log(resume)
-      // below is command to test the AI's response on the user '321' in our db
-      //$ curl -X POST http://localhost:3002/ai/resume-chat   -H "Content-Type: application/json"   -d '{"useSavedResume": true, "userId": "68795b4d6d22097bbdaf4930"}'
-      // if you want to put in your own resume info, you need to fill in the resume builder on the website and look for the userID in the DB
-      // When we restructure the resume builder, we should have more descriptive variable names so gemini isn't just criticizing stuff like 'skills1 skill2'
-      contentsToSend = [
         {
           role: "user",
           parts: [
             {
-              text: `Stay true to the system instructions provided to you. This is the user's message: ${JSON.stringify(
-                resume,
-                null,
-                2
-              )}`,
+              text: `Follow your system instruction strictly. If the user types something incoherent or off topic (not talking about job or skills related stuff), simply ask how you may help with their resume. Do not ask how you may help with their resume if their input is on topic. Keep your responses short. It should include a description rewrite that you believe is best given what the user has inputted (at most 1 paragraph). This is the user's message: "${req.body.message}"`
             },
           ],
         },
       ];
-    }
-    console.log(
-      "Resume sent to Gemini:",
-      JSON.stringify(contentsToSend, null, 2)
-    );
 
     const response = await genAI.models.generateContent({
       model: "gemini-2.5-flash",
@@ -601,8 +726,7 @@ app.post("/ai/resume-chat", verifyToken, async (req, res) => {
       config: {
         thinkingConfig: {
           thinkingBudget: 0,
-          systemInstruction:
-          `You are an AI resume assistant. Your sole purpose is to refine and improve resume-related content to be professional, concise, and tailored for hiring managers and applicant tracking systems (ATS). Analyze user-provided content such as job descriptions, bullet points, or summary sections. Rewrite or edit them to be more polished, action-oriented, and ATS-friendly. Improve grammar, clarity, tone, and formatting while preserving factual meaning. Use strong action verbs and quantifiable results where possible. Avoid fluff and vague language. Be direct and specific. Align tone with modern resume standards (professional, clear, concise). Always assume the content is going into a resume unless explicitly told otherwise. Never fabricate experience or skills. Example Input: "Responsible for updating the website weekly and fixing bugs." Example Output: "Maintained and updated website content weekly; resolved frontend and backend bugs to ensure optimal user experience."`
+          systemInstruction: `You are an AI resume assistant. Your sole purpose is to refine and improve resume-related content to be professional, concise, and tailored for hiring managers and applicant tracking systems (ATS). Analyze user-provided content such as job descriptions, bullet points, or summary sections. Rewrite or edit them to be more polished, action-oriented, and ATS-friendly. Improve grammar, clarity, tone, and formatting while preserving factual meaning. Use strong action verbs and quantifiable results where possible. Avoid fluff and vague language. Be direct and specific. Align tone with modern resume standards (professional, clear, concise). Always assume the content is going into a resume unless explicitly told otherwise. Expect the user to give you straight up descriptions of their job/summary. Never fabricate experience or skills. Keep your output short, roughly 1 paragraph at most. Example Input: "Responsible for updating the website weekly and fixing bugs." Example Output: "Maintained and updated website content weekly; resolved frontend and backend bugs to ensure optimal user experience."`,
         },
       },
     });
@@ -615,7 +739,7 @@ app.post("/ai/resume-chat", verifyToken, async (req, res) => {
   }
 });
 
-// RESUME BUILDER
+// RESUME BUILDER upload to db
 app.post("/submit", verifyToken, async (req, res) => {
   try {
     const formData = req.body;
@@ -628,7 +752,6 @@ app.post("/submit", verifyToken, async (req, res) => {
       user.resumes.push(formData);
       await user.save();
     } else {
-      console.log("How did we get here, we have a valid token but no user");
       res.status(500).send("Valid token, no user?");
     }
     res.status(200).send("Resume data received successfully.");

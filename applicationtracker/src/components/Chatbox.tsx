@@ -1,12 +1,9 @@
 import React, { useState } from "react";
 
-
-// Completely vibe coded, feel free to completely delete/replace
 const ResumeChat: React.FC = () => {
   const [message, setMessage] = useState("");
   const [aiResponse, setAiResponse] = useState("");
   const [loading, setLoading] = useState(false);
-  const [useSavedResume, setUseSavedResume] = useState(true);
 
   const backendURL = "http://localhost:3002/ai/resume-chat";
 
@@ -19,9 +16,7 @@ const handleSend = async () => {
     myHeaders.append("Authorization", `Bearer ${token}`);
 
     const body = JSON.stringify(
-      useSavedResume
-        ? { useSavedResume: true }
-        : { useSavedResume: false, message }
+        { useSavedResume: false, message }
     );
 
     const controller = new AbortController();
@@ -50,9 +45,9 @@ const handleSend = async () => {
 
   return (
     <div className="max-w-xl mx-auto mt-6 mb-10 p-4 border border-white/30 rounded-xl bg-white/10 backdrop-blur-xl shadow-xl">
-      {!useSavedResume && (
+      {(
         <textarea
-          className="w-full p-2 border rounded mb-2"
+          className="w-full p-2 border rounded mb-2 bg-gray-100"
           rows={4}
           placeholder="Type a message..."
           value={message}
@@ -61,12 +56,6 @@ const handleSend = async () => {
       )}
       <div className="flex items-center justify-between mb-2">
         <label className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            checked={useSavedResume}
-            onChange={() => setUseSavedResume(!useSavedResume)}
-          />
-          <span>Use saved resume</span>
         </label>
         <button
           onClick={handleSend}
@@ -77,6 +66,7 @@ const handleSend = async () => {
         </button>
       </div>
       <div className="whitespace-pre-wrap bg-gray-100 p-3 rounded">
+        <p>AI Response:</p>
         {aiResponse}
       </div>
     </div>

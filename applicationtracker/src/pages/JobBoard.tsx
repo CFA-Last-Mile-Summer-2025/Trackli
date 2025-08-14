@@ -10,13 +10,17 @@ import { fetchWithAuth } from "@/utils/tokenChecker";
 import Banner from "@/components/Banner";
 
 interface Job {
-  title: string;
   company: string;
+  title: string;
   skills?: string;
-  location: string;
+  job_type?: string;
   url: string;
-  _id?: string;
   date_expiration?: string;
+  description_text?: string;
+  location: string;
+  experience_level?: string;
+  _id?: string;
+  city: string;
 }
 
 type SortOrder = "newest" | "oldest" | "none";
@@ -46,11 +50,14 @@ function App() {
   const [sortOrder, setSortOrder] = useState<SortOrder>("none");
   const [filters, setFilters] = useState({
     location: "",
+    jobTypes: new Set<string>(),
+    experienceLevels: new Set<string>(),
+    favoritesOnly: false,
   });
 
   const fetchJobs = async () => {
     try {
-      const res = await fetch("http://localhost:3002/listings"); // gh pages will prob need this to be changed if we want hosting
+      const res = await fetch("http://localhost:3002/listings");
       const data = await res.json();
       setJobs(data);
     } catch (err) {
@@ -137,22 +144,38 @@ function App() {
       const matchesLocation =
         !filters.location || job.location === filters.location;
 
-      return matchesSearch && matchesLocation;
+      const matchesJobType =
+        filters.jobTypes.size === 0 || filters.jobTypes.has(job.job_type || "");
+
+      const matchesExperienceLevel =
+        filters.experienceLevels.size === 0 ||
+        filters.experienceLevels.has(job.experience_level || "");
+
+      const matchesFavorites =
+        !filters.favoritesOnly ||
+        favorites.some((f) => f.title === job.title && f.url === job.url);
+
+      return (
+        matchesSearch &&
+        matchesLocation &&
+        matchesJobType &&
+        matchesExperienceLevel &&
+        matchesFavorites
+      );
     });
 
-    if (sortOrder === 'none') {
-      return filtered;
-    }
+    if (sortOrder === "none") return filtered;
 
     return filtered.sort((a, b) => {
-      const dateA = a.date_expiration ? new Date(a.date_expiration) : new Date(0);
-      const dateB = b.date_expiration ? new Date(b.date_expiration) : new Date(0);
-
-      if (sortOrder === 'newest') {
-        return dateB.getTime() - dateA.getTime();
-      } else {
-        return dateA.getTime() - dateB.getTime();
-      }
+      const dateA = a.date_expiration
+        ? new Date(a.date_expiration)
+        : new Date(0);
+      const dateB = b.date_expiration
+        ? new Date(b.date_expiration)
+        : new Date(0);
+      return sortOrder === "newest"
+        ? dateB.getTime() - dateA.getTime()
+        : dateA.getTime() - dateB.getTime();
     });
   })();
 
@@ -178,8 +201,13 @@ function App() {
                   onChange={(e) => setSearch(e.target.value)}
                   className="flex-1 placeholder:text-muted-foreground"
                 />
-                <Button variant="outline" className="whitespace-nowrap">
-                  Sort by Date
+                <Button onClick={handleLoadMoreJobs}>Load More Jobs</Button>
+                <Button
+                  variant="outline"
+                  className="whitespace-nowrap"
+                  onClick={handleDateSort}
+                >
+                  {getSortButtonText()}
                 </Button>
               </div>
             </div>
@@ -208,6 +236,8 @@ function App() {
                     url={job.url}
                     isFavorited={isFavorited}
                     onFavoriteToggle={() => handleFavoriteToggle(job)}
+                    city={job.location}
+                    job_type={job.job_type}
                   />
                 );
               })}

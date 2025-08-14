@@ -85,6 +85,7 @@ function Signup() {
       const data = await res.json();
       if (res.ok) {
         alert("Signup successful!");
+        window.location.href = "/login";
       } else {
         alert(data.message || "Signup failed");
       }

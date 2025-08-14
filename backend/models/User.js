@@ -1,17 +1,21 @@
 const { connectMongoose } = require("../connect");
 const collectionName = process.env.DB_COLL_NAME2;
 const { Schema, model } = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 const userSchema = new Schema({
   name: String,
   email: { type: String, unique: true },
   password: String,
   resumes: [
-  {
-    type: Object,
-    required: false,
-  }
-]
+    {
+      type: Object,
+      required: false,
+    },
+  ],
+  verified: { type: Boolean, default: false },
+  verificationToken: String,
+  verificationExpires: Date,
 });
 
 class UserClass {
@@ -70,7 +74,86 @@ class UserClass {
       return { deletedCount: 0 };
     }
   }
+
+  static async getUsernameById(userId) {
+    try {
+      const user = await User.findById(userId).select("name");
+      return user ? user.name : null;
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  }
+
+  static async updateName(userId, newName) {
+    try {
+      const result = await User.updateOne(
+        { _id: userId },
+        { $set: { name: newName } }
+      );
+      return result;
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  }
+
+  static async updateEmail(userId, newEmail) {
+    try {
+      const result = await User.updateOne({ _id: userId }, { email: newEmail });
+      return result;
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  }
+
+  static async updatePassword(userId, oldPassword, newPassword) {
+    try {
+      const user = await User.findById(userId);
+      if (!user) return { message: "User not found" };
+
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
+      if (!isMatch) return { message: "Incorrect current password" };
+
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+      await User.updateOne(
+        { _id: userId },
+        { $set: { password: hashedNewPassword } }
+      );
+
+      return { message: "Password updated" };
+    } catch (e) {
+      console.error(e);
+      return { message: "Server error" };
+    }
+  }
 }
+
+userSchema.pre(
+  "deleteOne",
+  { document: false, query: true },
+  async function (next) {
+    try {
+      const filter = this.getFilter();
+      const userId = filter._id;
+
+      const AppliedJobs = require("./AppliedJobs");
+      const ViewedJobs = require("./ViewedJobs");
+      const FavoriteJobs = require("./FavoriteJobs");
+      const MyJobs = require("./myJobs");
+
+      await AppliedJobs.deleteMany({ userId });
+      await ViewedJobs.deleteMany({ userId });
+      await FavoriteJobs.deleteMany({ userId });
+      await MyJobs.deleteMany({ userId });
+      next();
+    } catch (e) {
+      console.error(e);
+      next(e);
+    }
+  }
+);
 
 userSchema.loadClass(UserClass);
 const User = model("User", userSchema, collectionName);

@@ -10,6 +10,7 @@ export default function Filters({
     location: "",
     jobTypes: new Set<string>(),
     experienceLevels: new Set<string>(),
+    favoritesOnly: false,
   });
   const [availableLocations, setAvailableLocations] = useState<string[]>([]);
 
@@ -50,11 +51,18 @@ export default function Filters({
     onFilterChange(updated);
   }
 
+  function handleFavoritesOnlyChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const updated = { ...filters, favoritesOnly: e.target.checked };
+    setFilters(updated);
+    onFilterChange(updated);
+  }
+
   function clearFilters() {
     const cleared = {
       location: "",
       jobTypes: new Set<string>(),
       experienceLevels: new Set<string>(),
+      favoritesOnly: false,
     };
     setFilters(cleared);
     onFilterChange(cleared);
@@ -84,14 +92,19 @@ export default function Filters({
 
       <div>
         <label className="block text-xs font-semibold mb-1">Job Type</label>
-        {["Full-time", "Part-time", "Internship", "Contract"].map((type) => (
-          <div key={type} className="flex items-center space-x-2 text-sm">
+        {[{value: "FULL TIME", label: "Full-time"},
+          {value: "PART TIME", label: "Part-time"},
+          {value: "INTERN", label: "Internship"},
+          {value: "CONTRACT", label: "Contract"}
+          // "Full-time", "Part-time", "Internship", "Contract"}
+        ].map((type) => (
+          <div key={type.value} className="flex items-center space-x-2 text-sm">
             <input
               type="checkbox"
-              checked={filters.jobTypes.has(type)}
-              onChange={() => handleCheckboxChange("jobTypes", type)}
+              checked={filters.jobTypes.has(type.value)}
+              onChange={() => handleCheckboxChange("jobTypes", type.value)}
             />
-            <label>{type}</label>
+            <label>{type.label}</label>
           </div>
         ))}
       </div>
@@ -100,16 +113,45 @@ export default function Filters({
         <label className="block text-xs font-semibold mb-1">
           Experience Level
         </label>
-        {["Entry Level", "Mid Level", "Senior Level"].map((level) => (
-          <div key={level} className="flex items-center space-x-2 text-sm">
+        {[
+          { value: "0-2", label: "0-2 years" },
+          { value: "2-5", label: "2-5 years" },
+          { value: "5-10", label: "5-10 years" },
+          { value: "10+", label: "10+ years" }
+        ].map((level) => (
+          <div key={level.value} className="flex items-center space-x-2 text-sm">
             <input
               type="checkbox"
-              checked={filters.experienceLevels.has(level)}
-              onChange={() => handleCheckboxChange("experienceLevels", level)}
+              checked={filters.experienceLevels.has(level.value)}
+              onChange={() => handleCheckboxChange("experienceLevels", level.value)}
             />
-            <label>{level}</label>
+            <label>{level.label}</label>
           </div>
         ))}
+      </div>
+
+      <div>
+        <label className="block text-xs font-semibold mb-1">Favorites</label>
+        <label className="flex items-center space-x-2 text-sm ">
+          <input
+            type="checkbox"
+            checked={filters.favoritesOnly}
+            onChange={handleFavoritesOnlyChange}
+          />
+          <span>Show Favorites Only</span>
+        </label>
+      </div>
+
+      <div>
+        <label className="block text-xs font-semibold mb-1">Favorites</label>
+        <label className="flex items-center space-x-2 text-sm ">
+          <input
+            type="checkbox"
+            checked={filters.favoritesOnly}
+            onChange={handleFavoritesOnlyChange}
+          />
+          <span>Show Favorites Only</span>
+        </label>
       </div>
 
       <Button

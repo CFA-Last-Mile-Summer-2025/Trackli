@@ -9,10 +9,6 @@ function ResumeBuilderPage() {
 
       <div className="flex-1 flex flex-col">
         <ResumeBuilder />
-
-        <div className="mt-auto">
-          <ResumeChat />
-        </div>
       </div>
     </div>
   )

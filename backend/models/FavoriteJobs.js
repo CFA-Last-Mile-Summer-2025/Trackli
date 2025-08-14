@@ -25,7 +25,8 @@ class FavoriteJobClass {
       });
 
       if (!exists) {
-        const newFavJob = await FavoriteJobs.create(favJob);
+        const { _id, ...favJobData } = favJob;
+        const newFavJob = await FavoriteJobs.create(favJobData);
         return newFavJob;
       }
     } catch (e) {

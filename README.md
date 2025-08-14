@@ -19,13 +19,11 @@
 
   * Resume customization based on job descriptions
   * Smart editing suggestions (grammar, formatting, phrasing)
-* **Version Control**: Track and manage resume variations
 * **Export**: PDF
 
 ### 📊 Dashboard
 
 * Applications submitted this week
-* Last application date
 * Suggested job listings
 
 ### 🔍 Job Listings Board
