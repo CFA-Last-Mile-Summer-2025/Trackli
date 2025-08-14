@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Target, Edit3 } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 
 declare global {
   interface Window {
@@ -14,6 +15,7 @@ interface WeeklyGoalProps {
 }
 
 export function WeeklyGoal({ appliedWeekCount }: WeeklyGoalProps) {
+  const navigate = useNavigate();
   // Load goal from localStorage or default to 10
   const [weeklyGoal, setWeeklyGoal] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -158,6 +160,7 @@ export function WeeklyGoal({ appliedWeekCount }: WeeklyGoalProps) {
           <Button
             size="sm"
             className="w-full bg-secondary-foreground hover:bg-secondary-foreground/80 text-white text-xs py-2"
+            onClick={() => navigate('/jobs')}
           >
             🎯 Find More Jobs
           </Button>
