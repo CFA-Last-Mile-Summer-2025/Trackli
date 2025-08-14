@@ -15,24 +15,33 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-const chartData = [
-    { day: "Mon", desktop: 4 },
-  { day: "Tues", desktop: 10 },
-  { day: "Wed", desktop: 14 },
-  { day: "Thurs", desktop: 20 },
-  { day: "Fri", desktop: 10 },
-  { day: "Sat", desktop: 4 },
-  { day: "Sun", desktop: 0 },
+
+interface BarChartDisplayProps {
+  data?: { day: string; desktop: number }[];
+}
+
+// Default fallback data
+const defaultChartData = [
+  { month: "Mon", desktop: 4 },
+  { month: "Tues", desktop: 10 },
+  { month: "Wed", desktop: 14 },
+  { month: "Thurs", desktop: 20 },
+  { month: "Fri", desktop: 10 },
+  { month: "Sat", desktop: 4 },
+  { month: "Sun", desktop: 0 },
 ]
 
 const chartConfig = {
   desktop: {
-    label: "Desktop",
+    label: "Applications",
     color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig
 
-export function BarChartDisplay() {
+export function BarChartDisplay({ data }: BarChartDisplayProps) {
+  const chartData = data || defaultChartData;
+      console.log(data);
+
   return (
     <Card className="flex flex-col py-3 text-center max-w-250 bg-white/10 shadow-none">
       <CardContent>
@@ -47,12 +56,12 @@ export function BarChartDisplay() {
           >
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="day"
+              dataKey="date"
               tickLine={true}
               tickMargin={10}
               axisLine={true}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
+              />
+
             {/* <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
