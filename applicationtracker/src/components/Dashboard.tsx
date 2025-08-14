@@ -15,7 +15,6 @@ export default function Dashboard() {
   const [recentJobs, setRecentJobs] = useState<any[]>([]);
   const [viewedWeekCount, setViewedWeekCount] = useState(0);
   const [appliedWeekCount, setAppliedWeekCount] = useState(0);
-  const [username, setUsername] = useState("User");
   const [barChartData, setBarChartData] = useState<
     { day: string; desktop: number }[]
   >([]);
@@ -28,13 +27,6 @@ export default function Dashboard() {
   const loadDashboardData = async () => {
     // Fetch username
     try {
-      const usernameRes = await fetchWithAuth("http://localhost:3002/username");
-      const usernameData = await usernameRes.json();
-      const displayName = usernameData.name.includes("@")
-        ? usernameData.name.split("@")[0]
-        : usernameData.name;
-      setUsername(displayName);
-
       // Fetch applied count
       const appliedRes = await fetchWithAuth(
         "http://localhost:3002/applied/recentWeek"
