@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getTasks, type TTask } from "./Task-data";
 import { Task } from "./Task";
 import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
@@ -81,6 +81,24 @@ export function Pdnd() {
 
   const [search, setSearch] = useState("");
 
+  const filteredTasks = useMemo(() => {
+    if (!search.trim()) {
+      return tasks;
+    }
+
+    const searchLower = search.toLowerCase().trim();
+    
+    return tasks.filter((task) => {
+      const jobTitle = (task.content || '').toLowerCase(); // content is the job title
+      const company = (task.company || '').toLowerCase();
+      
+      return (
+        jobTitle.includes(searchLower) || 
+        company.includes(searchLower)
+      );
+    });
+  }, [tasks, search]);
+
 
   return (
     <div className="pt-6 my-0 mx-auto w-[900px]">
@@ -104,15 +122,27 @@ export function Pdnd() {
         </div>
 
         <div className="flex flex-col rounded-b-lg bg-white">
-          {tasks.map((task, index) => (
-            <div key={task.id} className="relative">
-              <Task 
-                task={task} 
-                onRefresh={refreshTasks}
-                isLastItems={index >= tasks.length - 3}
-              />
+          {filteredTasks.length > 0 ? (
+            filteredTasks.map((task, index) => (
+              <div key={task.id} className="relative">
+                <Task 
+                  task={task} 
+                  onRefresh={refreshTasks}
+                  isLastItems={index >= filteredTasks.length - 3}
+                />
+              </div>
+            ))
+          ) : (
+            <div className="px-6 py-8 text-center text-gray-500">
+              {search ? (
+                <div>
+                  <p>No jobs found matching "{search}"</p>
+                </div>
+              ) : (
+                <p>No jobs available</p>
+              )}
             </div>
-          ))}
+          )}
         </div>
       </div>
     </div>
