@@ -1,72 +1,67 @@
-"use client";
+"use client"
 
-import {
-  BarChart,
-  Bar,
-  CartesianGrid,
-  LabelList,
-  XAxis,
-} from "recharts";
+import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts"
+
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/ui/card"
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart";
-
-type BarChartDisplayProps = {
-  data: { day: string; desktop: number }[];
-};
+} from "@/components/ui/chart"
+const chartData = [
+    { day: "Mon", desktop: 4 },
+  { day: "Tues", desktop: 10 },
+  { day: "Wed", desktop: 14 },
+  { day: "Thurs", desktop: 20 },
+  { day: "Fri", desktop: 10 },
+  { day: "Sat", desktop: 4 },
+  { day: "Sun", desktop: 0 },
+]
 
 const chartConfig = {
   desktop: {
-    label: "Applications",
+    label: "Desktop",
     color: "hsl(var(--chart-1))",
   },
-} satisfies ChartConfig;
+} satisfies ChartConfig
 
-export function BarChartDisplay({ data }: BarChartDisplayProps) {
+export function BarChartDisplay() {
   return (
-    <Card className="flex flex-col py-5 text-center min-w-100 max-w-125 max-h-122">
-      <CardHeader>
-        <CardTitle className="text-indigo-100">Applications This Week</CardTitle>
-        <CardDescription className="text-indigo-300">
-          Weekly Application Activity
-        </CardDescription>
-      </CardHeader>
+    <Card className="flex flex-col py-3 text-center max-w-250 bg-white/10 shadow-none">
       <CardContent>
-        <ChartContainer config={chartConfig}>
-          <BarChart
-            className="fill-indigo-100"
+        <ChartContainer config={chartConfig} >
+        <BarChart
+            className="fill-[#8B7EC8]"
             accessibilityLayer
-            data={data}
-            margin={{ top: 20 }}
+            data={chartData}
+            margin={{
+              top: 20,
+            }}
           >
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="date"
-              tickLine={false}
+              dataKey="day"
+              tickLine={true}
               tickMargin={10}
-              axisLine={false}
-              tickFormatter={(value) => value} 
+              axisLine={true}
+              tickFormatter={(value) => value.slice(0, 3)}
             />
-            <ChartTooltip
+            {/* <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
-            />
-            <Bar dataKey="desktop" radius={8} className="fill-indigo-300">
+            /> */}
+            <Bar dataKey="desktop" radius={8} className="">
               <LabelList
-                dataKey="desktop"
                 position="top"
-                offset={12}
-                className="fill-indigo-100"
+                offset={10}
+                className="fill-black"
                 fontSize={12}
               />
             </Bar>
@@ -74,5 +69,5 @@ export function BarChartDisplay({ data }: BarChartDisplayProps) {
         </ChartContainer>
       </CardContent>
     </Card>
-  );
+  )
 }

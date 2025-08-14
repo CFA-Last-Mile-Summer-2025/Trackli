@@ -48,11 +48,11 @@ export default function JobCard({
         <Badge className="text-xs px-2 py-1" variant="applied"> {/* TODO edit to change variant  based on job type */}
             {job.job_type}
         </Badge>
-      </div>
+      </div> 
 
       <div className="space-y-1">
-        <h2 className="text-md font-semibold">{jobTitle}</h2>
-        <p className="text-sm text-muted-foreground">{location}</p>
+        <h2 className="text-md font-semibold ">{jobTitle}</h2>
+        <p className="text-sm">{location}</p>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -65,7 +65,7 @@ export default function JobCard({
             }
           })
           .map((tag, i) => (
-            <Badge key={i} variant="default" className="text-xs">
+            <Badge key={i} variant="applied" className="text-xs">
               {tag.title}
             </Badge>
           ))}
