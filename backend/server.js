@@ -544,6 +544,16 @@ app.get("/username", verifyToken, async (req, res) => {
   res.status(200).json({ name: user.name });
 });
 
+app.get("/useremail", verifyToken, async (req, res) => {
+  const userId = req.user.userId;
+  const user = await User.findById(userId).select("email");
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+  res.status(200).json({ email: user.email });
+});
+
 app.patch("/updateusername", verifyToken, async (req, res) => {
   const userId = req.user.userId;
   const { newName } = req.body;
