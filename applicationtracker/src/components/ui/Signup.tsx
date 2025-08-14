@@ -84,8 +84,7 @@ function Signup() {
 
       const data = await res.json();
       if (res.ok) {
-        alert("Signup successful!");
-        window.location.href = "/login";
+        alert("Signup successful! Please sign in now");
       } else {
         alert(data.message || "Signup failed");
       }
@@ -94,6 +93,30 @@ function Signup() {
       alert("Server error. Try again later.");
     }
   };
+
+    const handleLogin = async (e: React.FormEvent) => {
+      e.preventDefault();
+  
+      try {
+        const res = await fetch("http://localhost:3002/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+  
+        const data = await res.json();
+        if (res.ok) {
+          localStorage.setItem("token", data.token);
+          alert("Login successful!");
+          window.location.href = "/";
+        } else {
+          alert(data.message || "Login failed");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Server error. Try again later.");
+      }
+    };
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -270,6 +293,7 @@ function Signup() {
                   type="button"
                   disabled={!email || !password}
                   className="w-full py-3 mt-6 text-white bg-secondary-foreground hover:bg-secondary-foreground/80 disabled:bg-secondary-foreground/50 disabled:/50  font-medium rounded-lg transition-all duration-200 disabled:cursor-not-allowed"
+                  onClick={handleLogin}
                 >
                   Sign In
                 </button>
