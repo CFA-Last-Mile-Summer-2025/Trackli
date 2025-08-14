@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Check, X, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Input } from "./input";
 
 interface PasswordRequirement {
   test: (password: string) => boolean;
@@ -9,6 +10,7 @@ interface PasswordRequirement {
 }
 
 function Signup() {
+  //signup
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -93,7 +95,7 @@ function Signup() {
       alert("Server error. Try again later.");
     }
   };
-
+  //login
     const handleLogin = async (e: React.FormEvent) => {
       e.preventDefault();
   
@@ -117,7 +119,6 @@ function Signup() {
         alert("Server error. Try again later.");
       }
     };
-
   return (
     <div className="min-h-screen relative overflow-hidden">
     <Link to="/landing" className="absolute top-8 left-8 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full  hover:bg-white/20 transition-all duration-200">
@@ -156,7 +157,7 @@ function Signup() {
             </div>
 
             {isSignUp ? (
-              <div className="space-y-4">
+              <form onSubmit={handleSignup} className="space-y-4">
                 <div>
                   <label className="block text-sm mb-2">Full Name</label>
                   <input
@@ -249,39 +250,38 @@ function Signup() {
                 </div>
 
                 <button
-                  type="button"
-                  onClick={handleSignup}
+                  type="submit"
                   disabled={!isPasswordValid(password) || password !== confirmPassword || !email || !fullName}
                   className="w-full py-3 mt-6 text-white bg-secondary-foreground hover:bg-secondary-foreground/80 disabled:bg-secondary-foreground/50 disabled:/50  font-medium rounded-lg transition-all duration-200 disabled:cursor-not-allowed"
                 >
                   Create Account
                 </button>
-              </div>
+              </form>
             ) : (
-              <div className="space-y-6">
-                <div>
-                  <label className="block  text-sm mb-2">Email Address</label>
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-secondary-foreground w-full transition-all duration-200"
-                    required
-                  />
-                </div>
+              <form onSubmit={handleLogin} className="space-y-6">
+                  <div>
+                    <label className="block  text-sm mb-2">Email Address</label>
+                    <input
+                      type="email"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-secondary-foreground w-full transition-all duration-200"
+                      required
+                    />
+                  </div>
 
-                <div>
-                  <label className="block  text-sm mb-2">Password</label>
-                  <input
-                    type="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-secondary-foreground w-full transition-all duration-200"
-                    required
-                  />
-                </div>
+                  <div>
+                    <label className="block  text-sm mb-2">Password</label>
+                    <input
+                      type="password"
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-secondary-foreground w-full transition-all duration-200"
+                      required
+                    />
+                  </div>
 
                 <div className="text-right">
                   <a href="#" className="/70 hover: text-sm">
@@ -290,14 +290,15 @@ function Signup() {
                 </div>
 
                 <button
-                  type="button"
+                  type="submit"
                   disabled={!email || !password}
                   className="w-full py-3 mt-6 text-white bg-secondary-foreground hover:bg-secondary-foreground/80 disabled:bg-secondary-foreground/50 disabled:/50  font-medium rounded-lg transition-all duration-200 disabled:cursor-not-allowed"
                   onClick={handleLogin}
                 >
                   Sign In
                 </button>
-              </div>
+
+              </form>
             )}
 
             <p className="text-center text-xs /70 mt-4">

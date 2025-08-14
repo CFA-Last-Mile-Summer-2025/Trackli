@@ -34,7 +34,7 @@ export default function JobCard({
     url,
     skills: tags.map((t) => t.title).join(", "),
     job_type: job_type,
-    date_expiration: null,
+    date_expiration: undefined,
     city: city,
     location: city
   };

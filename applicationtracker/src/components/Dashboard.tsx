@@ -9,6 +9,7 @@ import { Badge } from "./ui/badge";
 import { fetchWithAuth } from "@/utils/tokenChecker";
 import { BarChartDisplay } from "@/components/BarChartDisplay";
 import LinkWarning from "./LinkWarning";
+import { WeeklyGoal } from "./WeeklyGoal";
 
 export default function Dashboard() {
   const [recentJobs, setRecentJobs] = useState<any[]>([]);
@@ -114,7 +115,7 @@ export default function Dashboard() {
         <Card className="rounded-lg p-4 backdrop-blur-lg bg-white/20 border-white/30 shadow-2xl">
           <CardContent className="p-2 text-center">
             {/* Add this week total applied count */}
-            <div className="text-3xl font-bold">0</div>
+            <div className="text-3xl font-bold">{appliedWeekCount}</div>
             <p className="text-sm text-muted-foreground">This Week</p>
           </CardContent>
         </Card>
@@ -128,7 +129,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 gap-4 items-center">
-                  <BarChartDisplay/>
+                <BarChartDisplay data={barChartData} />
               </div>
             </CardContent>
           </Card>
@@ -164,7 +165,7 @@ export default function Dashboard() {
         </div>
 
         <div className="space-y-6">
-          <Card className="rounded-lg p-4 space-y-4 backdrop-blur-lg bg-white/20 border-white/30 shadow-2xl">
+          {/* <Card className="rounded-lg p-4 space-y-4 backdrop-blur-lg bg-white/20 border-white/30 shadow-2xl">
             <CardHeader>
               <CardTitle className="text-black">Weekly Goal</CardTitle>
             </CardHeader>
@@ -179,7 +180,8 @@ export default function Dashboard() {
                 Keep it up!
               </p>
             </CardContent>
-          </Card>
+          </Card> */}
+          <WeeklyGoal appliedWeekCount={appliedWeekCount}/>
 
           <Card className="rounded-lg p-4 space-y-4 backdrop-blur-lg bg-white/20 border-white/30 shadow-2xl">
               <CardTitle className="text-black pl-5 pt-2">Quick Actions</CardTitle>
