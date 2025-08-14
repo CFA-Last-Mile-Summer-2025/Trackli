@@ -86,8 +86,7 @@ function Signup() {
 
       const data = await res.json();
       if (res.ok) {
-        alert("Signup successful!");
-        window.location.href = "/signup";
+        alert("Signup successful! Please sign in now");
       } else {
         alert(data.message || "Signup failed");
       }
@@ -294,6 +293,7 @@ function Signup() {
                   type="submit"
                   disabled={!email || !password}
                   className="w-full py-3 mt-6 text-white bg-secondary-foreground hover:bg-secondary-foreground/80 disabled:bg-secondary-foreground/50 disabled:/50  font-medium rounded-lg transition-all duration-200 disabled:cursor-not-allowed"
+                  onClick={handleLogin}
                 >
                   Sign In
                 </button>
