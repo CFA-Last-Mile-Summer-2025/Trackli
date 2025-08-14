@@ -45,10 +45,10 @@ export default function JobCard({
         <div className="w-25 h-10 bg-muted rounded-md flex items-center justify-center text-sm font-medium">
           {job.city || 'Unknown'}
         </div>
-        <Badge className="text-xs px-2 py-1" variant="applied"> {/* TODO edit to change variant  based on job type
+        <Badge className="text-xs px-2 py-1" variant="applied"> {/* TODO edit to change variant  based on job type */}
             {job.job_type}
         </Badge>
-      </div> */}
+      </div> 
 
       <div className="space-y-1">
         <h2 className="text-md font-semibold ">{jobTitle}</h2>

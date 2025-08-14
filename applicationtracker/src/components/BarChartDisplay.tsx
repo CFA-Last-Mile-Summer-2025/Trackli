@@ -1,19 +1,14 @@
-"use client";
+"use client"
 
-import {
-  BarChart,
-  Bar,
-  CartesianGrid,
-  LabelList,
-  XAxis,
-} from "recharts";
+import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts"
+
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/ui/card"
 import {
   ChartConfig,
   ChartContainer,
@@ -32,12 +27,12 @@ const chartData = [
 
 const chartConfig = {
   desktop: {
-    label: "Applications",
+    label: "Desktop",
     color: "hsl(var(--chart-1))",
   },
-} satisfies ChartConfig;
+} satisfies ChartConfig
 
-export function BarChartDisplay({ data }: BarChartDisplayProps) {
+export function BarChartDisplay() {
   return (
     <Card className="flex flex-col py-3 text-center max-w-250 bg-white/10 shadow-none">
       <CardContent>
@@ -45,8 +40,10 @@ export function BarChartDisplay({ data }: BarChartDisplayProps) {
         <BarChart
             className="fill-[#8B7EC8]"
             accessibilityLayer
-            data={data}
-            margin={{ top: 20 }}
+            data={chartData}
+            margin={{
+              top: 20,
+            }}
           >
             <CartesianGrid vertical={false} />
             <XAxis
@@ -62,7 +59,6 @@ export function BarChartDisplay({ data }: BarChartDisplayProps) {
             /> */}
             <Bar dataKey="desktop" radius={8} className="">
               <LabelList
-                dataKey="desktop"
                 position="top"
                 offset={10}
                 className="fill-black"
@@ -73,5 +69,5 @@ export function BarChartDisplay({ data }: BarChartDisplayProps) {
         </ChartContainer>
       </CardContent>
     </Card>
-  );
+  )
 }

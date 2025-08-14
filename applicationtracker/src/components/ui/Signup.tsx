@@ -141,7 +141,7 @@ function Signup() {
                     placeholder="Enter your name"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-white/50 focus:ring-2 focus:ring-white/20 focus:bg-white/30 outline-none w-full transition-all duration-200"
+                    className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-secondary-foreground w-full transition-all duration-200"
                     required
                   />
                 </div>
@@ -153,7 +153,7 @@ function Signup() {
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-white/50 focus:ring-2 focus:ring-white/20 focus:bg-white/30 outline-none w-full transition-all duration-200"
+                    className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-secondary-foreground w-full transition-all duration-200"
                     required
                   />
                 </div>
@@ -188,7 +188,7 @@ function Signup() {
                       placeholder="Enter your password"
                       value={password}
                       onChange={handlePasswordChange}
-                      className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-white/50 focus:ring-2 focus:ring-white/20 focus:bg-white/30 outline-none w-full transition-all duration-200"
+                      className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-secondary-foreground w-full transition-all duration-200"
                       required
                     />
                     <button
@@ -209,7 +209,7 @@ function Signup() {
                       placeholder="Enter your password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-white/50 focus:ring-2 focus:ring-white/20 focus:bg-white/30 outline-none w-full transition-all duration-200"
+                      className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-secondary-foreground w-full transition-all duration-200"
                       required
                     />
                     <button
@@ -243,7 +243,7 @@ function Signup() {
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-white/50 focus:ring-2 focus:ring-white/20 focus:bg-white/30 outline-none w-full transition-all duration-200"
+                    className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-secondary-foreground w-full transition-all duration-200"
                     required
                   />
                 </div>
@@ -255,7 +255,7 @@ function Signup() {
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-white/50 focus:ring-2 focus:ring-white/20 focus:bg-white/30 outline-none w-full transition-all duration-200"
+                    className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-secondary-foreground w-full transition-all duration-200"
                     required
                   />
                 </div>

@@ -234,31 +234,6 @@ export default function Dashboard() {
           </Card>
         </div>
       </section>
-
-      <Separator />
-
-      <section>
-        <Card>
-          <CardHeader>
-            <CardTitle>This Week’s Application Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-3 gap-4 items-center py-10">
-              <div className="col-span-1">
-                <BarChartDisplay data={barChartData} />
-              </div>
-              <div className="space-y-2 text-center">
-                <div className="text-3xl font-bold">{appliedWeekCount}</div>
-                <p className="text-sm text-muted-foreground">Applied</p>
-              </div>
-              <div className="space-y-2 text-center">
-                <div className="text-3xl font-bold">{viewedWeekCount}</div>
-                <p className="text-sm text-muted-foreground">Viewed</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
     </main>
   );
 }

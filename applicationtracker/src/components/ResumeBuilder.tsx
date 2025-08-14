@@ -48,7 +48,7 @@ const InputField: React.FC<{
     <label className="font-medium text-gray-700 mb-1">{label}</label>
     <input
       type={type}
-      className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-white/50 focus:ring-2 focus:ring-white/20 focus:bg-white/30 outline-none w-full transition-all duration-200"
+      className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-secondary-foreground w-full transition-all duration-200"
       placeholder={placeholder}
       value={value}
       onChange={e => onChange(e.target.value)}
@@ -68,7 +68,7 @@ const TextareaField: React.FC<{
     <div className="flex flex-col">
       <label className="font-medium text-gray-700 mb-1">{label}</label>
       <textarea
-        className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-white/50 focus:ring-2 focus:ring-white/20 focus:bg-white/30 outline-none w-full resize-y transition-all duration-200"
+        className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-secondary-foreground w-full transition-all duration-200"
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
