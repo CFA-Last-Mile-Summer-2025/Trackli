@@ -142,18 +142,6 @@ export default function Filters({
         </label>
       </div>
 
-      <div>
-        <label className="block text-xs font-semibold mb-1">Favorites</label>
-        <label className="flex items-center space-x-2 text-sm ">
-          <input
-            type="checkbox"
-            checked={filters.favoritesOnly}
-            onChange={handleFavoritesOnlyChange}
-          />
-          <span>Show Favorites Only</span>
-        </label>
-      </div>
-
       <Button
         className="w-full mt-2 px-4 py-2"
         onClick={clearFilters}
