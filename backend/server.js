@@ -463,7 +463,21 @@ app.patch("/myjob/status/:jobId", verifyToken, async (req, res) => {
   if (!allowedStatuses.includes(status)) {
     return res.status(400).json({ message: "Invalid status value" });
   }
-  await MyJobs.updateStatus(jobId, userId, status);
+
+  try {
+    const result = await MyJobs.updateStatus(jobId, userId, status);
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: "Job not found" });
+    }
+
+    res.status(200).json({
+      message: "Status updated successfully",
+      status: status,
+    });
+  } catch (error) {
+    console.error("Error updating job status:", error);
+    res.status(500).json({ message: "Failed to update job status" });
+  }
 });
 
 app.delete("/myjob/:jobId", verifyToken, async (req, res) => {
@@ -574,7 +588,11 @@ app.patch("/updatepassword", verifyToken, async (req, res) => {
     return res.status(400).send("Both old and new passwords are required");
   }
 
-  const result = await User.updatePasswordWithOldCheck(userId, oldPassword, newPassword);
+  const result = await User.updatePasswordWithOldCheck(
+    userId,
+    oldPassword,
+    newPassword
+  );
 
   if (!result.success) {
     return res.status(400).send(result.message);
@@ -583,8 +601,6 @@ app.patch("/updatepassword", verifyToken, async (req, res) => {
   res.status(200).send("Password updated successfully");
 });
 
-
-
 /////// Email ////////////
 
 // Email transporter for verification
@@ -592,13 +608,13 @@ const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: process.env.EMAIL_USERNAME,
-    pass: process.env.EMAIL_PASSWORD, 
+    pass: process.env.EMAIL_PASSWORD,
   },
 });
 
 function sendVerificationEmail(email, token) {
   const verificationUrl = `http://localhost:3002/verify-email?token=${token}`;
-    const mailOptions = {
+  const mailOptions = {
     from: process.env.EMAIL_USERNAME,
     to: email,
     subject: "Verify your email",
@@ -638,7 +654,6 @@ app.get("/verify-email", async (req, res) => {
   }
 });
 
-
 //    Login/Signup //
 // Signup Route
 app.post("/signup", async (req, res) => {
@@ -671,7 +686,8 @@ app.post("/signup", async (req, res) => {
     await sendVerificationEmail(email, verificationToken);
 
     res.status(201).json({
-      message: "Signup successful. Please check your email to verify your account.",
+      message:
+        "Signup successful. Please check your email to verify your account.",
       user: { id: newUser._id, name: newUser.name, email: newUser.email },
     });
   } catch (err) {
@@ -722,17 +738,17 @@ app.get("/companies", async (req, res) => {
 
 // ---------------------------------------AI-----------------------------------------------------
 app.post("/ai/resume-chat", verifyToken, async (req, res) => {
-  try{
+  try {
     let contentsToSend = [
-        {
-          role: "user",
-          parts: [
-            {
-              text: `Follow your system instruction strictly. If the user types something incoherent or off topic (not talking about job or skills related stuff), simply ask how you may help with their resume. Do not ask how you may help with their resume if their input is on topic. Keep your responses short. It should include a description rewrite that you believe is best given what the user has inputted (at most 1 paragraph). This is the user's message: "${req.body.message}"`
-            },
-          ],
-        },
-      ];
+      {
+        role: "user",
+        parts: [
+          {
+            text: `Follow your system instruction strictly. If the user types something incoherent or off topic (not talking about job or skills related stuff), simply ask how you may help with their resume. Do not ask how you may help with their resume if their input is on topic. Keep your responses short. It should include a description rewrite that you believe is best given what the user has inputted (at most 1 paragraph). This is the user's message: "${req.body.message}"`,
+          },
+        ],
+      },
+    ];
 
     const response = await genAI.models.generateContent({
       model: "gemini-2.5-flash",
