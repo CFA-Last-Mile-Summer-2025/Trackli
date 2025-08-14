@@ -6,6 +6,8 @@ import { isTaskData } from './Task-data';
 import { extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 import { reorderWithEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/util/reorder-with-edge';
 import { flushSync } from 'react-dom';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
 
 export function Pdnd() {
   const [tasks, setTasks] = useState<TTask[]>([]);
@@ -58,26 +60,41 @@ export function Pdnd() {
     });
   }, [tasks]);
 
+  const [search, setSearch] = useState("");
+
+
   return (
     <div className="pt-6 my-0 mx-auto w-[900px]">
-      <div className="grid grid-cols-[3fr_2fr_1fr_1fr_auto] text-sm font-medium text-white/50 px-6 py-4 backdrop-blur-md bg-black/30 border border-white/10 border-b-0 rounded-t-lg">
-        <span>Job Title</span>
-        <span>Company</span>
-        <span>Status</span>
-        <span className="text-center">Starred</span>
-        <span className="text-center">Actions</span>
-      </div>
-
-      <div className="flex flex-col backdrop-blur-md bg-black/20 border-x border-b border-white/10 rounded-b-lg">
-        {tasks.map((task, index) => (
-          <div key={task.id} className="relative">
-            <Task 
-              task={task} 
-              onRefresh={refreshTasks}
-              isLastItems={index >= tasks.length - 3}
-            />
+      <div className='bg-white border border-white/10 border-b-0 rounded-t-lg'>
+         <div className="rounded-md w-[900px] p-3 backdrop-blur-lg bg-white/20 border-white/30 max-w-4xl ">
+              <div className="flex flex-col sm:flex-row gap-3 w-full items-center sm:items-center ">
+                <Input
+                  placeholder="Search jobs or companies..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="flex-1 placeholder:text-muted-foreground"
+                />
+              </div>
           </div>
-        ))}
+        <div className="grid grid-cols-[3fr_2fr_1fr_1fr_auto] text-sm font-medium px-6 py-4">
+          <span>Job Title</span>
+          <span>Company</span>
+          <span>Status</span>
+          <span className="text-center">Starred</span>
+          <span className="text-center">Actions</span>
+        </div>
+
+        <div className="flex flex-col rounded-b-lg bg-white">
+          {tasks.map((task, index) => (
+            <div key={task.id} className="relative">
+              <Task 
+                task={task} 
+                onRefresh={refreshTasks}
+                isLastItems={index >= tasks.length - 3}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

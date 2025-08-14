@@ -199,16 +199,16 @@ export function Task({ task, onRefresh, isLastItems = false }: TaskProps) {
         <div
           ref={ref}
           data-task-id={task.id}
-          className={`grid grid-cols-[3fr_2fr_1fr_1fr_auto] items-center bg-black/3 backdrop-blur-sm text-sm border-b border-white/5 last:border-b-0 px-6 py-4 hover:bg-black/20 hover:cursor-grab text-white transition-colors duration-200 ${
+          className={`grid grid-cols-[3fr_2fr_1fr_1fr_auto] items-center bg-white text-sm border-b border-white/5 last:border-b-0 px-6 py-4 hover:bg-black/20 hover:cursor-grab transition-colors duration-200 ${
             stateStyles[state.type] ?? ""
           }`}
         >
           <span className="flex items-center gap-2">
-            <GripVertical size={12} className="text-white/50" />
-            <span className="text-white">{task.content}</span>
+            <GripVertical size={12} className="" />
+            <span className="">{task.content}</span>
           </span>
 
-          <span className="text-white/80">{task.company}</span>
+          <span className="">{task.company}</span>
 
           <Badge variant={currentStatus.variant} className={isUpdating ? "opacity-50" : ""}>
             {currentStatus.title}
@@ -221,7 +221,7 @@ export function Task({ task, onRefresh, isLastItems = false }: TaskProps) {
             {starred ? (
               <Star className="text-amber-400 fill-amber-400" size={16} />
             ) : (
-              <StarOff size={16} className="text-white/60 hover:text-white/80" />
+              <StarOff size={16} className="hover:text-white/80" />
             )}
           </button>
 
@@ -230,7 +230,7 @@ export function Task({ task, onRefresh, isLastItems = false }: TaskProps) {
               onClick={() => setMenuOpen(!menuOpen)}
               className="p-1 hover:bg-white/10 rounded transition-colors duration-200"
             >
-              <MoreVertical size={18} className="text-white/70" />
+              <MoreVertical size={18} className="" />
             </button>
             {menuOpen && (
               <div 

@@ -34,7 +34,7 @@ export default function JobCard({
   };
 
   return (
-    <div className="rounded-xl shadow border p-5 space-y-4 w-full min-w-xs max-w-xs backdrop-blur-lg bg-black/20 border-white/30 max-w-4xl shadow-2xl">
+    <div className="rounded-xl shadow border p-5 space-y-4 w-full min-w-xs max-w-xs bg-white border-white/30 max-w-4xl shadow-2xl">
       {/* <div className="flex justify-between items-start">
         <div className="w-10 h-10 bg-muted rounded-md flex items-center justify-center text-sm font-medium">
           ??
@@ -45,8 +45,8 @@ export default function JobCard({
       </div> */}
 
       <div className="space-y-1">
-        <h2 className="text-md font-semibold text-white">{jobTitle}</h2>
-        <p className="text-sm text-white">{location}</p>
+        <h2 className="text-md font-semibold ">{jobTitle}</h2>
+        <p className="text-sm">{location}</p>
       </div>
 
       <div className="flex flex-wrap gap-2">

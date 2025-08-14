@@ -16,12 +16,13 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 const chartData = [
-  { month: "January", desktop: 10 },
-  { month: "February", desktop: 14 },
-  { month: "March", desktop: 20 },
-  { month: "April", desktop: 10 },
-  { month: "May", desktop: 4 },
-  { month: "June", desktop: 0 },
+    { day: "Mon", desktop: 4 },
+  { day: "Tues", desktop: 10 },
+  { day: "Wed", desktop: 14 },
+  { day: "Thurs", desktop: 20 },
+  { day: "Fri", desktop: 10 },
+  { day: "Sat", desktop: 4 },
+  { day: "Sun", desktop: 0 },
 ]
 
 const chartConfig = {
@@ -33,15 +34,11 @@ const chartConfig = {
 
 export function BarChartDisplay() {
   return (
-    <Card className="flex flex-col py-5 text-center max-w-250 max-h-122">
-      <CardHeader>
-        <CardTitle className="text-indigo-100">Applications Per Month</CardTitle>
-        <CardDescription className="text-indigo-300">January - June 2024</CardDescription>
-      </CardHeader>
+    <Card className="flex flex-col py-3 text-center max-w-250 bg-white/10 shadow-none">
       <CardContent>
         <ChartContainer config={chartConfig} >
         <BarChart
-            className="fill-indigo-100"
+            className="fill-[#8B7EC8]"
             accessibilityLayer
             data={chartData}
             margin={{
@@ -50,60 +47,27 @@ export function BarChartDisplay() {
           >
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="month"
-              tickLine={false}
+              dataKey="day"
+              tickLine={true}
               tickMargin={10}
-              axisLine={false}
+              axisLine={true}
               tickFormatter={(value) => value.slice(0, 3)}
             />
-            <ChartTooltip
+            {/* <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
-            />
-            <Bar dataKey="desktop" radius={8} className="fill-indigo-300">
+            /> */}
+            <Bar dataKey="desktop" radius={8} className="">
               <LabelList
                 position="top"
-                offset={12}
-                className="fill-indigo-100"
+                offset={10}
+                className="fill-black"
                 fontSize={12}
               />
             </Bar>
           </BarChart>
         </ChartContainer>
       </CardContent>
-      {/* <CardContent className="flex justify-center">
-        <ChartContainer config={chartConfig}>
-          <BarChart
-            className="fill-indigo-100"
-            accessibilityLayer
-            data={chartData}
-            margin={{
-              top: 20,
-            }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Bar dataKey="desktop" radius={8} className="fill-indigo-300">
-              <LabelList
-                position="top"
-                offset={12}
-                className="fill-indigo-100"
-                fontSize={12}
-              />
-            </Bar>
-          </BarChart>
-        </ChartContainer>
-      </CardContent> */}
     </Card>
   )
 }

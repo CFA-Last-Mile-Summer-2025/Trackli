@@ -96,35 +96,35 @@ function Signup() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      <Link to="/landing" className="absolute top-8 left-8 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white hover:bg-white/20 transition-all duration-200">
-        <ArrowLeft className="w-4 h-4" />
-        <span className="text-sm">Back</span>
-      </Link>
+    <Link to="/landing" className="absolute top-8 left-8 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full  hover:bg-white/20 transition-all duration-200">
+      <ArrowLeft className="w-4 h-4" />
+      <span className="text-sm">Back</span>
+    </Link>
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-white/20">
+          <div className="bg-white rounded-2xl p-8 shadow-2xl border border-white/20">
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-white mb-2">trackli</h1>
-              <p className="text-white/80 text-sm">Application Tracking Made Simple</p>
+              <h1 className="text-3xl font-bold mb-2">trackli</h1>
+              <p className="text-sm">Application Tracking Made Simple</p>
             </div>
 
             <div className="flex mb-6 bg-white/10 rounded-lg p-1">
               <button
                 onClick={() => setIsSignUp(false)}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
+                className={`flex-1 py-2 px-4 rounded-l-md text-sm font-medium transition-all duration-200 ${
                   !isSignUp
-                    ? 'bg-white/20 text-white shadow-sm'
-                    : 'text-white/70 hover:text-white'
+                    ? 'bg-secondary-foreground text-white shadow-sm'
+                    : 'bg-secondary-foreground/50 hover:bg-secondary-foreground/70 text-white'
                 }`}
               >
                 Sign In
               </button>
               <button
                 onClick={() => setIsSignUp(true)}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
+                className={`flex-1 py-2 px-4 rounded-r-md text-sm font-medium transition-all duration-200 ${
                   isSignUp
-                    ? 'bg-white/20 text-white shadow-sm'
-                    : 'text-white/70 hover:text-white'
+                    ? 'bg-secondary-foreground text-white shadow-sm'
+                    : 'bg-secondary-foreground/50 hover:bg-secondary-foreground/70 text-white'
                 }`}
               >
                 Sign Up
@@ -134,31 +134,31 @@ function Signup() {
             {isSignUp ? (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-white text-sm mb-2">Full Name</label>
+                  <label className="block text-sm mb-2">Full Name</label>
                   <input
                     type="text"
                     placeholder="Enter your name"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent backdrop-blur-sm"
+                    className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-white/50 focus:ring-2 focus:ring-white/20 focus:bg-white/30 outline-none w-full transition-all duration-200"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-white text-sm mb-2">Email Address</label>
+                  <label className="block text-sm mb-2">Email Address</label>
                   <input
                     type="email"
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent backdrop-blur-sm"
+                    className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-white/50 focus:ring-2 focus:ring-white/20 focus:bg-white/30 outline-none w-full transition-all duration-200"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-white text-sm mb-2">Password</label>
+                  <label className="block  text-sm mb-2">Password</label>
                   {showPasswordRequirements && (
                     <div className="mb-3 p-3 bg-white/10 rounded-lg border border-white/20 backdrop-blur-sm">
                       <div className="space-y-1">
@@ -187,13 +187,13 @@ function Signup() {
                       placeholder="Enter your password"
                       value={password}
                       onChange={handlePasswordChange}
-                      className="w-full px-4 py-3 pr-12 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent backdrop-blur-sm"
+                      className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-white/50 focus:ring-2 focus:ring-white/20 focus:bg-white/30 outline-none w-full transition-all duration-200"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 /60 hover:"
                     >
                       {showPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
                     </button>
@@ -201,20 +201,20 @@ function Signup() {
                 </div>
 
                 <div>
-                  <label className="block text-white text-sm mb-2">Confirm Password</label>
+                  <label className="block  text-sm mb-2">Confirm Password</label>
                   <div className="relative">
                     <input
                       type={showConfirmPassword ? "text" : "password"}
                       placeholder="Enter your password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full px-4 py-3 pr-12 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent backdrop-blur-sm"
+                      className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-white/50 focus:ring-2 focus:ring-white/20 focus:bg-white/30 outline-none w-full transition-all duration-200"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 /60 hover:"
                     >
                       {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -228,7 +228,7 @@ function Signup() {
                   type="button"
                   onClick={handleSignup}
                   disabled={!isPasswordValid(password) || password !== confirmPassword || !email || !fullName}
-                  className="w-full py-3 mt-6 bg-white/20 hover:bg-white/30 disabled:bg-white/10 disabled:text-white/50 text-white font-medium rounded-lg transition-all duration-200 backdrop-blur-sm border border-white/20 disabled:cursor-not-allowed"
+                  className="w-full py-3 mt-6 text-white bg-secondary-foreground hover:bg-secondary-foreground/80 disabled:bg-secondary-foreground/50 disabled:/50  font-medium rounded-lg transition-all duration-200 disabled:cursor-not-allowed"
                 >
                   Create Account
                 </button>
@@ -236,31 +236,31 @@ function Signup() {
             ) : (
               <div className="space-y-6">
                 <div>
-                  <label className="block text-white text-sm mb-2">Email Address</label>
+                  <label className="block  text-sm mb-2">Email Address</label>
                   <input
                     type="email"
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent backdrop-blur-sm"
+                    className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-white/50 focus:ring-2 focus:ring-white/20 focus:bg-white/30 outline-none w-full transition-all duration-200"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-white text-sm mb-2">Password</label>
+                  <label className="block  text-sm mb-2">Password</label>
                   <input
                     type="password"
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent backdrop-blur-sm"
+                    className="bg-[#cebff9]/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-base placeholder-gray-500 focus:border-white/50 focus:ring-2 focus:ring-white/20 focus:bg-white/30 outline-none w-full transition-all duration-200"
                     required
                   />
                 </div>
 
                 <div className="text-right">
-                  <a href="#" className="text-white/70 hover:text-white text-sm">
+                  <a href="#" className="/70 hover: text-sm">
                     Forgot Password?
                   </a>
                 </div>
@@ -268,18 +268,18 @@ function Signup() {
                 <button
                   type="button"
                   disabled={!email || !password}
-                  className="w-full py-3 bg-white/20 hover:bg-white/30 disabled:bg-white/10 disabled:text-white/50 text-white font-medium rounded-lg transition-all duration-200 backdrop-blur-sm border border-white/20 disabled:cursor-not-allowed"
+                  className="w-full py-3 mt-6 text-white bg-secondary-foreground hover:bg-secondary-foreground/80 disabled:bg-secondary-foreground/50 disabled:/50  font-medium rounded-lg transition-all duration-200 disabled:cursor-not-allowed"
                 >
                   Sign In
                 </button>
               </div>
             )}
 
-            <p className="text-center text-xs text-white/70 mt-4">
+            <p className="text-center text-xs /70 mt-4">
               By continuing, you agree to our{" "}
-              <a href="#" className="underline hover:text-white">Terms of Service</a>
+              <a href="#" className="underline hover:">Terms of Service</a>
               {" "}and{" "}
-              <a href="#" className="underline hover:text-white">Privacy Policy</a>
+              <a href="#" className="underline hover:">Privacy Policy</a>
             </p>
           </div>
         </div>

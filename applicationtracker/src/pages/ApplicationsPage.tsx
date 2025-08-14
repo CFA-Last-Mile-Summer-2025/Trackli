@@ -10,16 +10,16 @@ function ApplicationsPage() {
   const [activeView, setActiveView] = useState<'list' | 'progress'>('list');
 
   return (
-    <div className="min-h-screen flex flex-col bg-[url(assets/gradientBg.svg)] bg-cover bg-no-repeat bg-center">
+    <div className="min-h-screen flex flex-col bg-[#F8F6FF]">
       <main className="w-full">
         <Navbar />
         
         <div className="px-6 py-8 mt-15">
           <div className="max-w-6xl mx-auto mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">
+            <h1 className="text-3xl font-bold mb-2">
               Track your applications
             </h1>
-            <p className="text-white/70 mb-8">
+            <p className="mb-8">
               Monitor your job application progress and stay organized
             </p>
 
@@ -29,8 +29,8 @@ function ApplicationsPage() {
                 onClick={() => setActiveView('list')}
                 className={
                   activeView === 'list' 
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white border-0' 
-                    : 'bg-transparent border-white/30 text-white hover:bg-white/10 hover:text-white'
+                    ? 'bg-blue-600 hover:bg-blue-700  border-0' 
+                    : 'bg-transparent border-secondary-foreground/30  hover:bg-secondary-foreground/10'
                 }
               >
                 List View
@@ -40,8 +40,8 @@ function ApplicationsPage() {
                 onClick={() => setActiveView('progress')}
                 className={
                   activeView === 'progress' 
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white border-0' 
-                    : 'bg-transparent border-white/30 text-white hover:bg-white/10 hover:text-white'
+                    ? 'bg-blue-600 hover:bg-blue-700 border-0' 
+                    : 'bg-transparent border-secondary-foreground/30 hover:bg-secondary-foreground/10'
                 }
               >
                 Progress View
@@ -65,11 +65,11 @@ function ApplicationsPage() {
               <Pdnd />
             ) : (
               <div className="text-center py-16">
-                <div className="backdrop-blur-md bg-black/20 border border-white/10 rounded-lg p-8">
-                  <h3 className="text-xl font-semibold text-white mb-2">
+                <div className="bg-gradient-to-br from-[#8B7EC8] to-[#C8A8E9] rounded-lg p-8">
+                  <h3 className="text-xl font-semibold mb-2">
                     Progress View Coming Soon
                   </h3>
-                  <p className="text-white/70">
+                  <p className="">
                     This feature will show your applications in a kanban-style board view.
                   </p>
                 </div>

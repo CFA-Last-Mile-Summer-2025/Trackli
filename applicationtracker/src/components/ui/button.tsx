@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-popover text-card shadow-xs hover:bg-popover/70 cursor-pointer",
+          "bg-secondary-foreground text-white text-card shadow-xs hover:bg-popover/70 cursor-pointer",
         gradient:
           "bg-gradient-to-r from-[#667EEA] to-[#764BA2] text-white font-semibold flex items-center gap-1 shadow-sm hover:from-[#678EEA] hover:to-[#895fb6] transition-all duration-200 hover:shadow-md",
         outline:

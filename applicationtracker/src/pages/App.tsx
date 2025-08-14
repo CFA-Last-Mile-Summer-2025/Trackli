@@ -7,6 +7,7 @@ import Filters from "@/components/Filters";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { fetchWithAuth } from "@/utils/tokenChecker";
+import Banner from "@/components/Banner";
 
 interface Job {
   title: string;
@@ -156,10 +157,11 @@ function App() {
   })();
 
   return (
-    <div className="min-h-screen flex flex-col bg-[url(assets/gradientBg.svg)] bg-cover bg-no-repeat bg-center">
+    <div className="min-h-screen flex flex-col bg-[#F8F6FF]">
       <main className="w-full">
         <Navbar />
-        <div className="flex flex-col md:flex-row gap-6 px-6 py-8 mt-10">
+        <Banner title={"Here are some jobs for you, User :) "} subtitle={"Discover opportunities that match your skills and interests"}/>
+        <div className="flex flex-col md:flex-row px-6 py-8">
           <div className="w-full md:w-[250px]">
             <Filters
               onFilterChange={(newFilters) => {
