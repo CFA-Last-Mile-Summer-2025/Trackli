@@ -2,6 +2,8 @@ import { useState } from "react";
 import ExternalLink from "./ExternalLink";
 import DidYouApply from "./DidYouApply";
 import { fetchWithAuth } from "@/utils/tokenChecker";
+import { createPortal } from "react-dom";
+
 
 export default function LinkWarning({
   href,
@@ -75,12 +77,8 @@ export default function LinkWarning({
     }
   };
 
-  return (
+    const modalContent = (
     <>
-      <a href={href} onClick={handleClick}>
-        {children}
-      </a>
-
       {modalState === "link" && (
         <ExternalLink
           url={href}
@@ -104,6 +102,18 @@ export default function LinkWarning({
           }}
         />
       )}
+    </>
+  );
+
+  return (
+    <>
+      <a href={href} onClick={handleClick}>
+        {children}
+      </a>
+
+      {modalState !== "none" && 
+        createPortal(modalContent, document.body)
+      }
     </>
   );
 }
